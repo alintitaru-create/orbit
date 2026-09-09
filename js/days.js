@@ -33,7 +33,11 @@ const Days={
         <b>${D.title.split(',')[0]}</b>
       </button>`;
     }).join('');
-    box.querySelector('.chip.on')?.scrollIntoView({inline:'nearest',block:'nearest'});
+    /* porta in vista la giornata scelta muovendo SOLO la striscia:
+       scrollIntoView farebbe scorrere anche la pagina, nascondendo
+       il titolo sotto la barra in alto */
+    const on=box.querySelector('.chip.on');
+    if(on) box.scrollLeft=Math.max(0,on.offsetLeft-box.offsetLeft-16);
   },
 
   renderDetail(){
