@@ -36,6 +36,8 @@
     /* eval indiretto: le costanti nascono nello spazio globale,
        esattamente come se fosse stato caricato js/data.js */
     (0,eval)(new TextDecoder().decode(plain));
+    /* la stessa chiave apre anche i PDF cifrati in docs/ */
+    globalThis.ORBIT_KEY=key;
   }
 
   async function tryPw(pw,silent){

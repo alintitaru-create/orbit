@@ -82,7 +82,9 @@ const OrbitMap={
       topo:{type:'raster',tiles:['https://a.tile.opentopomap.org/{z}/{x}/{y}.png','https://b.tile.opentopomap.org/{z}/{x}/{y}.png','https://c.tile.opentopomap.org/{z}/{x}/{y}.png'],tileSize:256,maxzoom:17,attribution:'© OpenTopoMap (CC-BY-SA), © OpenStreetMap'},
       sat:{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:17,attribution:'Esri, Maxar'}
     },layers:[
-      {id:'bg',type:'background',paint:{'background-color':'#e8e8ed'}},
+      /* blu profondo: le mattonelle non ancora arrivate si confondono
+         con il mare invece di lampeggiare bianche durante l'intro */
+      {id:'bg',type:'background',paint:{'background-color':'#0b1a2b'}},
       {id:'streets',type:'raster',source:'streets',paint:{'raster-fade-duration':0}},
       {id:'topo',type:'raster',source:'topo',layout:{visibility:'none'},paint:{'raster-fade-duration':0}},
       {id:'sat',type:'raster',source:'sat',layout:{visibility:'none'},paint:{'raster-fade-duration':0}}

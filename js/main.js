@@ -10,9 +10,10 @@ async function startOrbit(){
   Sections.soldi();
   Sections.app();
   Sections.pratico();
-  Sections.documenti();
   Checklist.init();
   Money.init();
+  Docs.init();
+  Orn.init();
 
   /* giornate e card di oggi con le medie climatiche */
   Days.init();
@@ -29,6 +30,12 @@ async function startOrbit(){
   /* mappa (richiede la libreria dal CDN) */
   OrbitMap.init();
 
+  /* intro cinematografica: parte una volta per sessione */
+  document.getElementById('skipIntro').onclick=()=>Cinematic.finish();
+  document.getElementById('replayIntro').onclick=()=>Cinematic.replay();
+  document.getElementById('docClose').onclick=()=>Docs.close();
+  if(window.maplibregl&&Cinematic.shouldPlay()) Cinematic.start();
+
   /* meteo live, poi si aggiornano giornate e card di oggi */
   await Weather.load();
   Days.renderChips();
@@ -37,6 +44,7 @@ async function startOrbit(){
 
   /* frecce ← → per cambiare giornata */
   addEventListener('keydown',e=>{
+    if(e.key==='Escape'){ Cinematic.finish(); Docs.close(); return; }
     if(/INPUT|TEXTAREA/.test(e.target.tagName)) return;
     if(e.key==='ArrowRight') Days.select((Days.cur+1)%DAYS.length,true);
     if(e.key==='ArrowLeft')  Days.select((Days.cur-1+DAYS.length)%DAYS.length,true);

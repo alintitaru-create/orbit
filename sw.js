@@ -3,22 +3,34 @@
    pagina è servita via https (GitHub Pages). Regole:
    - file dell'app e libreria mappa: cache con aggiornamento
      in background (dopo la prima visita funziona offline)
-   - tile CARTO: cache man mano che si naviga (mai gli Esri,
-     per licenza)
+   - mattonelle OpenStreetMap e OpenTopoMap: salvate man mano che
+     si naviga (mai quelle Esri, per licenza)
+   - documenti cifrati: salvati all'installazione, così i PDF si
+     aprono anche senza rete
    - meteo, cambi, Wikipedia, rotte: prima la rete, poi la
      cache come riserva
    ═══════════════════════════════════════════════════════════ */
-const SHELL='orbit-shell-v8', TILES='orbit-tiles', DATA='orbit-data';
+const SHELL='orbit-shell-v9', TILES='orbit-tiles', DATA='orbit-data';
 const PRECACHE=['./','./index.html','./manifest.webmanifest','./icon.png',
- './css/tokens.css','./css/base.css','./css/components.css','./css/sections.css',
+ './css/tokens.css','./css/base.css','./css/components.css','./css/sections.css','./css/ornaments.css',
  './js/data.enc.js','./js/util.js','./js/clocks.js','./js/weather.js','./js/days.js',
  './js/legs.js','./js/map.js','./js/sections.js','./js/checklist.js','./js/money.js',
- './js/main.js','./js/boot.js',
+ './js/docs.js','./js/ornaments.js','./js/cinematic.js','./js/main.js','./js/boot.js',
  'https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.12.0/maplibre-gl.min.js',
  'https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.12.0/maplibre-gl.css'];
 
 self.addEventListener('install',e=>{
-  e.waitUntil(caches.open(SHELL).then(c=>Promise.allSettled(PRECACHE.map(u=>c.add(u)))));
+  e.waitUntil((async()=>{
+    const c=await caches.open(SHELL);
+    await Promise.allSettled(PRECACHE.map(u=>c.add(u)));
+    /* i documenti cifrati: salvati subito, così sono leggibili anche
+       senza rete durante il viaggio */
+    try{
+      const list=await (await fetch('docs/index.json')).json();
+      await c.add('docs/index.json');
+      await Promise.allSettled(list.map(d=>c.add('docs/'+d.f)));
+    }catch(err){}
+  })());
   self.skipWaiting();
 });
 self.addEventListener('activate',e=>{

@@ -5,8 +5,8 @@ js/data.js
 # La password non si pubblica mai.
 .orbit-pw
 
-# I PDF delle prenotazioni restano nella cartella Bishkek sul Desktop.
+# Nessun PDF in chiaro nel repository: nella cartella docs/ finiscono
+# solo i .bin cifrati e l'elenco, generati da tools/lock.mjs.
 *.pdf
-docs/
 
 .DS_Store

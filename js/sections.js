@@ -89,19 +89,6 @@ const Sections={
       </table><p class="muted" style="margin-top:10px">${PRATICO.note}</p></div>`;
   },
 
-  /* ── DOCUMENTI ── */
-  documenti(){
-    const local=location.protocol==='file:';
-    document.getElementById('docGrid').innerHTML=DOCS.map(x=>
-      local
-      ?`<a class="app" href="${DOCS_BASE+encodeURIComponent(x.f)}" target="_blank"><b>${x.t}</b><span>${x.d}</span><em>PDF</em></a>`
-      :`<div class="app"><b>${x.t}</b><span>${x.d}</span><em>PDF · solo sulla copia locale del Mac</em></div>`
-    ).join('');
-    document.getElementById('docHint').textContent=local
-      ?'I PDF si aprono dalla cartella Bishkek sul Mac; non vengono copiati né pubblicati online.'
-      :'Per riservatezza i PDF non sono pubblicati online: sono collegati solo nella copia sul Mac. I dati essenziali (codici, orari, posti) sono comunque nelle sezioni qui sopra.';
-  },
-
   /* ── prossimo evento con orario, per il countdown di Oggi ── */
   nextEvent(){
     const now=Date.now();
