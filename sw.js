@@ -8,7 +8,7 @@
    - meteo, cambi, Wikipedia, rotte: prima la rete, poi la
      cache come riserva
    ═══════════════════════════════════════════════════════════ */
-const SHELL='orbit-shell-v6', TILES='orbit-tiles', DATA='orbit-data';
+const SHELL='orbit-shell-v7', TILES='orbit-tiles', DATA='orbit-data';
 const PRECACHE=['./','./index.html','./manifest.webmanifest','./icon.png',
  './css/tokens.css','./css/base.css','./css/components.css','./css/sections.css',
  './js/data.enc.js','./js/util.js','./js/clocks.js','./js/weather.js','./js/days.js',
@@ -27,7 +27,7 @@ self.addEventListener('activate',e=>{
   self.clients.claim();
 });
 
-const isTile=u=>/cartocdn\.com|arcgisonline\.com/.test(u);
+const isTile=u=>/tile\.openstreetmap\.org|tile\.opentopomap\.org|arcgisonline\.com/.test(u);
 const isData=u=>/open-meteo\.com|er-api\.com|wikipedia\.org|wikimedia\.org|project-osrm\.org/.test(u);
 
 self.addEventListener('fetch',e=>{

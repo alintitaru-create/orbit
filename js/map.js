@@ -9,6 +9,16 @@
 const OrbitMap={
   map:null, ready:false, popup:null, me:null, meMarker:null,
 
+  /* le tre basi, nell'ordine in cui gira il bottone */
+  bases:[{id:'streets',lbl:'Strade'},{id:'topo',lbl:'Topografica'},{id:'sat',lbl:'Satellite'}],
+  baseIdx:0,
+  setBase(i){
+    this.baseIdx=((i%this.bases.length)+this.bases.length)%this.bases.length;
+    this.bases.forEach((b,k)=>this.map.setLayoutProperty(b.id,'visibility',k===this.baseIdx?'visible':'none'));
+    /* il bottone mostra la base successiva, cioè cosa ottieni premendolo */
+    document.getElementById('baseTgl').textContent=this.bases[(this.baseIdx+1)%this.bases.length].lbl;
+  },
+
   /* ── geometria ── */
   gc(a,b,n=120){ /* rotta aerea: cerchio massimo */
     const R=180/Math.PI,D=Math.PI/180;
@@ -63,12 +73,18 @@ const OrbitMap={
       document.getElementById('map').innerHTML='<div style="padding:36px;color:#a1a1a6;font-size:15px;max-width:52ch;line-height:1.6">La mappa richiede la connessione a internet la prima volta. Riapri la pagina quando sei online.</div>';
       return;
     }
+    /* Basi libere e senza chiave API:
+       strade  = OpenStreetMap standard
+       topo    = OpenTopoMap (curve di livello e sentieri: utile per Ala Kul)
+       sat     = Esri World Imagery */
     const style={version:8,sources:{
-      streets:{type:'raster',tiles:['https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png','https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png','https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png'],tileSize:256,maxzoom:19,attribution:'CARTO · OpenStreetMap'},
+      streets:{type:'raster',tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,maxzoom:19,attribution:'© OpenStreetMap'},
+      topo:{type:'raster',tiles:['https://a.tile.opentopomap.org/{z}/{x}/{y}.png','https://b.tile.opentopomap.org/{z}/{x}/{y}.png','https://c.tile.opentopomap.org/{z}/{x}/{y}.png'],tileSize:256,maxzoom:17,attribution:'© OpenTopoMap (CC-BY-SA), © OpenStreetMap'},
       sat:{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:17,attribution:'Esri, Maxar'}
     },layers:[
       {id:'bg',type:'background',paint:{'background-color':'#e8e8ed'}},
       {id:'streets',type:'raster',source:'streets',paint:{'raster-fade-duration':0}},
+      {id:'topo',type:'raster',source:'topo',layout:{visibility:'none'},paint:{'raster-fade-duration':0}},
       {id:'sat',type:'raster',source:'sat',layout:{visibility:'none'},paint:{'raster-fade-duration':0}}
     ]};
     const touch=matchMedia('(pointer:coarse)').matches;
@@ -109,15 +125,11 @@ const OrbitMap={
       this.map.on('mouseleave',l,()=>this.map.getCanvas().style.cursor='');
     });
 
-    /* comandi */
-    document.getElementById('baseTgl').onclick=()=>{
-      const sat=this.map.getLayoutProperty('sat','visibility')!=='none';
-      this.map.setLayoutProperty('sat','visibility',sat?'none':'visible');
-      this.map.setLayoutProperty('streets','visibility',sat?'visible':'none');
-      document.getElementById('baseTgl').textContent=sat?'Satellite':'Strade';
-    };
+    /* comandi: il bottone gira fra le tre basi */
+    document.getElementById('baseTgl').onclick=()=>this.setBase(this.baseIdx+1);
     document.getElementById('locBtn').onclick=()=>this.locate(true);
 
+    this.setBase(0);
     this.ready=true;
     this.showDay(Days.cur);
   },

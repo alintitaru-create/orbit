@@ -37,7 +37,8 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
   volano sul punto in mappa.
 - **Spostamenti**: le 23 tratte con orari, avvisi e codici copiabili
   (un tocco copia il codice).
-- **Mappa**: percorso completo colorato per mezzo (MapLibre + CARTO/Esri);
+- **Mappa**: percorso completo colorato per mezzo (MapLibre; basi
+  OpenStreetMap, OpenTopoMap ed Esri, tutte senza chiave API);
   la giornata selezionata è evidenziata con i suoi punti di interesse e i
   collegamenti a Google Maps, Yandex e 2GIS. Le strade vere arrivano da
   OSRM e restano salvate nel browser.
