@@ -93,34 +93,60 @@ const Cinematic={
     document.getElementById('odoMode').innerHTML=ICONS[Lg.m];
     document.getElementById('odoMode').style.color=MODE_HEX[Lg.m];
     document.getElementById('odoLbl').textContent=MODE_IT[Lg.m];
-    document.getElementById('cityName').textContent=P[Lg.a][2];
-    document.getElementById('citySub').textContent=Lg.t+' · '+Lg.s.split(',')[0];
+    this.card(P[Lg.a][2], Lg.t+' · '+Lg.s.split(',')[0], '');
     city.classList.add('show');
 
-    const ease=f=>f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2;
+    /* è una vera tappa? (ci si dorme, cambia la giornata, o è la fine) */
+    const tappa=!!Lg.stay || i===LEGS.length-1 || (LEGS[i+1]&&LEGS[i+1].day!==Lg.day);
+
+    /* cubica: parte dolce e soprattutto si posa dolce sull'arrivo */
+    const ease=f=>f<.5?4*f*f*f:1-Math.pow(-2*f+2,3)/2;
     let t0=null;
     const step=ts=>{
       if(!this.playing) return;
       if(!t0) t0=ts;
       const f=Math.min(1,(ts-t0)/dur), e=ease(f);
-      if(f>0.08) city.classList.remove('show');
+      if(f>0.10) city.classList.remove('show');
       const frac=Lg._p0+(Lg._p1-Lg._p0)*e;
       const {p,h}=this.pointAt(frac);
       this.veh.setLngLat(p);
       this.setVeh(Lg.m,h);
+      /* negli ultimi tratti la camera insegue più piano e scende di quota:
+         è quello che dà la sensazione di atterrare sulla destinazione */
+      const avvicina=Math.max(0,(f-0.72)/0.28);
+      const segui=0.22-0.14*avvicina;
       const c=map.getCenter(), z=map.getZoom();
-      map.jumpTo({center:[c.lng+(p[0]-c.lng)*.22, c.lat+(p[1]-c.lat)*.22],
-                  zoom:z+(tz-z)*.05, pitch:42, bearing:0});
+      map.jumpTo({center:[c.lng+(p[0]-c.lng)*segui, c.lat+(p[1]-c.lat)*segui],
+                  zoom:z+((tz+1.1*avvicina)-z)*0.05, pitch:42-6*avvicina, bearing:0});
       this.reveal(0,frac);
       document.getElementById('odoKm').textContent=Math.round(this.totKm(i,e)).toLocaleString('it');
       if(f<1){ this.anim=requestAnimationFrame(step); return; }
-      document.getElementById('cityName').textContent=P[Lg.b][2];
-      document.getElementById('citySub').textContent=Lg.stay?('Dormite: '+Lg.stay):DAYS[Lg.day].title;
+
+      /* ── arrivo: cartello con i dettagli e pausa per leggere ── */
+      const D=DAYS[Lg.day];
+      const sotto=tappa?(D.lbl+' · '+D.title):Lg.t;
+      /* solo il nome della struttura: indirizzi e codici di conferma
+         qui non servono e allungherebbero la pausa per nulla */
+      const extra=tappa?(Lg.stay?'Dormite: '+Lg.stay.split(',')[0]:(Lg.warn||'')):'';
+      this.card(P[Lg.b][2],sotto,extra);
       city.classList.add('show');
+      map.easeTo({center:this.pointAt(Lg._p1).p,zoom:tz+1.2,pitch:34,duration:1500});
       this.anim=null;
-      setTimeout(()=>{ if(this.playing&&then) then(); }, 520/speed);
+      /* la pausa cresce con il testo da leggere, entro limiti sensati */
+      const pausa=tappa
+        ? Math.min(2600,1400+(P[Lg.b][2].length+sotto.length+extra.length)*12)
+        : 800;
+      this.holdT=setTimeout(()=>{ if(this.playing&&then) then(); },pausa);
     };
     this.anim=requestAnimationFrame(step);
+  },
+
+  /* riempie il cartello della città */
+  card(nome,sotto,extra){
+    document.getElementById('cityName').textContent=nome;
+    document.getElementById('citySub').textContent=sotto||'';
+    const e=document.getElementById('cityExtra');
+    e.textContent=extra||''; e.hidden=!extra;
   },
   /* chilometri percorsi dall'inizio fino alla tratta i, frazione e */
   totKm(i,e){
@@ -186,7 +212,8 @@ const Cinematic={
   /* ── chiusura: torna alla pagina normale ── */
   finish(subito){
     if(this.anim) cancelAnimationFrame(this.anim);
-    this.anim=null; this.playing=false;
+    if(this.holdT) clearTimeout(this.holdT);
+    this.anim=null; this.holdT=null; this.playing=false;
     try{ sessionStorage.setItem('orbit_intro','1'); }catch(e){}
     document.body.classList.remove('cine','bars');
     document.getElementById('introTitle')?.classList.remove('show');
