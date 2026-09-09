@@ -1,0 +1,10 @@
+{
+  "name": "Orbit — Kirghizistan e Uzbekistan",
+  "short_name": "Orbit",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f5f7",
+  "theme_color": "#f5f5f7",
+  "icons": [{"src": "icon.png", "sizes": "512x512", "type": "image/png"}]
+}

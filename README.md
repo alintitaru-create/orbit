@@ -1,0 +1,92 @@
+# Orbit — Kirghizistan e Uzbekistan, 9–23 settembre 2026
+
+Dashboard del viaggio: una pagina web che si apre con un doppio clic su
+`index.html`, senza installare nulla. Funziona da file locale; mappa,
+meteo e foto richiedono la connessione (tutto gratuito, senza chiavi API).
+
+## Struttura a settori
+
+Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
+
+| Cosa vuoi cambiare | File |
+|---|---|
+| Date, tratte, programmi, punti di interesse | `js/data.js` (sezioni `P`, `LEGS`, `DAYS`, `POIS`) |
+| Prenotazioni alloggi, budget, app consigliate | `js/data.js` (sezioni `BOOKINGS`, `BUDGET`, `APPS`) |
+| Colori, font, misure | `css/tokens.css` |
+| Aspetto generale (testata, barra, tipografia) | `css/base.css` |
+| Card, chip, bottoni, badge | `css/components.css` |
+| Stile delle singole sezioni | `css/sections.css` |
+| Struttura della pagina (ordine delle sezioni) | `index.html` |
+| Card «Oggi», Alloggi, Soldi, App | `js/sections.js` |
+| Selettore e scheda delle giornate (incluso il Diario) | `js/days.js` |
+| Elenco spostamenti | `js/legs.js` |
+| Checklist (valigia e cose da fare) | `js/checklist.js` + dati in `js/data.js` (`CHECKLISTS`) |
+| Convertitore valute e registro spese | `js/money.js` |
+| Pratico & emergenze, Documenti | `js/sections.js` + dati in `js/data.js` (`PRATICO`, `DOCS`) |
+| Offline (service worker) | `sw.js` |
+| Mappa, percorso, punti di interesse | `js/map.js` |
+| Meteo | `js/weather.js` |
+| Orologi | `js/clocks.js` |
+| Ordine di avvio | `js/main.js` |
+
+## Come funziona
+
+- **Oggi**: la prima card sceglie da sola la giornata in base alla data.
+- **Giornate**: 15 schede con tre viste (Programma, Luoghi e storie con
+  foto da Wikipedia, Notte e soldi). Le voci del programma cliccabili
+  volano sul punto in mappa.
+- **Spostamenti**: le 23 tratte con orari, avvisi e codici copiabili
+  (un tocco copia il codice).
+- **Mappa**: percorso completo colorato per mezzo (MapLibre + CARTO/Esri);
+  la giornata selezionata è evidenziata con i suoi punti di interesse e i
+  collegamenti a Google Maps, Yandex e 2GIS. Le strade vere arrivano da
+  OSRM e restano salvate nel browser.
+- **Meteo**: Open-Meteo, aggiornato ogni ora; senza rete restano le medie
+  climatiche di settembre.
+- **Checklist**: spunte e voci aggiunte restano salvate nel browser.
+- **Soldi**: cambio EUR/som live (open.er-api.com, cache 12 h) e registro
+  spese confrontato col budget; tutto salvato nel browser.
+- **Diario**: una nota per giornata, quarta vista della scheda giornata.
+- **Documenti**: i PDF restano nella cartella Bishkek sul Mac e sono solo
+  collegati; non vengono copiati nel repository né pubblicati.
+- **Offline**: quando la pagina è servita via https, il service worker
+  (`sw.js`) la salva per l'uso senza rete e si può aggiungere alla
+  schermata Home dell'iPhone come app.
+- Tema chiaro/scuro automatico secondo le impostazioni del sistema.
+
+## Privacy: i dati sono cifrati
+
+La pagina contiene PIN di Booking, codici di prenotazione e numeri di
+telefono. Su GitHub Pages il sito è per forza raggiungibile da chiunque
+abbia l'indirizzo, quindi i dati **non vengono pubblicati in chiaro**:
+
+- `js/data.js` — dati leggibili, **restano solo sul Mac** (in `.gitignore`)
+- `js/data.enc.js` — gli stessi dati cifrati con AES-256-GCM, questo è
+  l'unico che finisce online
+- `js/boot.js` — se trova i dati in chiaro parte subito (copia sul Mac);
+  altrimenti chiede la password, decifra nel browser e parte
+
+Chi apre l'indirizzo senza password vede solo la schermata di sblocco.
+La password si digita una volta per dispositivo, poi resta memorizzata.
+
+**Dopo ogni modifica ai dati** va rigenerato il file cifrato:
+
+```
+node tools/lock.mjs                  # riusa la password salvata
+node tools/lock.mjs "nuova password" # per cambiarla
+```
+
+## Pubblicazione
+
+Il sito è pubblicato con GitHub Pages dal branch `main`. Per aggiornare:
+
+```
+node tools/lock.mjs      # solo se sono cambiati i dati
+git add -A && git commit -m "..." && git push
+```
+
+Pages si riaggiorna da solo in un paio di minuti.
+
+I PDF delle prenotazioni non entrano mai nel repository: restano nella
+cartella `Desktop/Bishkek` e la sezione Documenti li collega soltanto
+quando la pagina è aperta dal Mac.

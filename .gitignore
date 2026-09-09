@@ -1,0 +1,12 @@
+# I dati del viaggio in chiaro restano solo sul Mac: online va la
+# versione cifrata (js/data.enc.js), prodotta da tools/lock.mjs.
+js/data.js
+
+# La password non si pubblica mai.
+.orbit-pw
+
+# I PDF delle prenotazioni restano nella cartella Bishkek sul Desktop.
+*.pdf
+docs/
+
+.DS_Store
