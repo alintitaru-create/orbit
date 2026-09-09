@@ -21,7 +21,9 @@ const Days={
     this.cur=i;
     this.renderChips();
     this.renderDetail();
-    if(moveMap&&window.OrbitMap) OrbitMap.showDay(i);
+    /* OrbitMap è una costante: non diventa una proprietà di window,
+       quindi si controlla con typeof, non con window.OrbitMap */
+    if(moveMap&&typeof OrbitMap!=='undefined') OrbitMap.showDay(i);
   },
 
   renderChips(){
@@ -95,7 +97,7 @@ const Days={
 
     /* clic su una voce del programma → vola sul punto in mappa */
     const seeEl=el.querySelector('.see');
-    const go=k=>{ const p=this.findPoi(D,D.see[k]); if(p&&window.OrbitMap){ OrbitMap.showDay(this.cur,p); document.getElementById('mappa').scrollIntoView({behavior:'smooth'}); } };
+    const go=k=>{ const p=this.findPoi(D,D.see[k]); if(p&&typeof OrbitMap!=='undefined'){ OrbitMap.showDay(this.cur,p); document.getElementById('mappa').scrollIntoView({behavior:'smooth'}); } };
     seeEl.onclick=e=>{ const li=e.target.closest('li.link'); if(li) go(+li.dataset.k); };
     seeEl.onkeydown=e=>{ const li=e.target.closest('li.link'); if(li&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); go(+li.dataset.k); } };
 
