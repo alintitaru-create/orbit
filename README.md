@@ -23,6 +23,9 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
 | Checklist (valigia e cose da fare) | `js/checklist.js` + dati in `js/data.js` (`CHECKLISTS`) |
 | Convertitore valute e registro spese | `js/money.js` |
 | Pratico & emergenze, Documenti | `js/sections.js` + dati in `js/data.js` (`PRATICO`, `DOCS`) |
+| Intro cinematografica | `js/cinematic.js` |
+| Ornamenti kirghisi e uzbeki | `js/ornaments.js` + `css/ornaments.css` |
+| Documenti PDF cifrati | `js/docs.js` (i .bin li genera `tools/lock.mjs`) |
 | Offline (service worker) | `sw.js` |
 | Mappa, percorso, punti di interesse | `js/map.js` |
 | Meteo | `js/weather.js` |
@@ -53,6 +56,17 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
 - **Offline**: quando la pagina è servita via https, il service worker
   (`sw.js`) la salva per l'uso senza rete e si può aggiungere alla
   schermata Home dell'iPhone come app.
+- **Intro**: all'apertura la mappa va a tutto schermo e percorre le 23
+  tratte dall'alto, con la scia che si accende, il contachilometri e i
+  cartelli delle città. Si salta col bottone o con ESC, parte una volta
+  per sessione e si rivede dal bottone sotto la mappa.
+- **Ornamenti**: il tunduk (la corona della yurta, quella della bandiera
+  kirghisa) che ruota, la fascia a corna d'ariete che scorre, le righe
+  che si disegnano allo scorrimento e la stella girih delle maioliche
+  di Samarcanda sulle sezioni uzbeke.
+- **Documenti**: gli 11 PDF sono cifrati in `docs/*.bin` e si aprono
+  dentro la pagina, anche dal telefono e anche senza rete. Il manifest
+  pubblico contiene solo numeri di file: né titoli né codici.
 - Tema chiaro/scuro automatico secondo le impostazioni del sistema.
 
 ## Privacy: i dati sono cifrati
