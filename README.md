@@ -23,6 +23,7 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
 | Checklist (valigia e cose da fare) | `js/checklist.js` + dati in `js/data.js` (`CHECKLISTS`) |
 | Convertitore valute e registro spese | `js/money.js` |
 | Pratico & emergenze, Documenti | `js/sections.js` + dati in `js/data.js` (`PRATICO`, `DOCS`) |
+| Foto e video vostri (per giornata) | `js/media.js` |
 | Intro cinematografica | `js/cinematic.js` |
 | Ornamenti kirghisi e uzbeki | `js/ornaments.js` + `css/ornaments.css` |
 | Documenti PDF cifrati | `js/docs.js` (i .bin li genera `tools/lock.mjs`) |
@@ -50,7 +51,11 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
 - **Checklist**: spunte e voci aggiunte restano salvate nel browser.
 - **Soldi**: cambio EUR/som live (open.er-api.com, cache 12 h) e registro
   spese confrontato col budget; tutto salvato nel browser.
-- **Diario**: una nota per giornata, quarta vista della scheda giornata.
+- **Diario**: per ogni giornata una nota più le vostre foto e i vostri
+  video, con didascalia. Stanno in IndexedDB (non in localStorage, che
+  si riempie a 5 MB): le foto vengono ridotte a 1600 px, i video restano
+  interi. Sono solo sul dispositivo, non vengono caricati da nessuna
+  parte e **non sono un backup**: le foto vanno tenute anche nel rullino.
 - **Documenti**: i PDF restano nella cartella Bishkek sul Mac e sono solo
   collegati; non vengono copiati nel repository né pubblicati.
 - **Offline**: quando la pagina è servita via https, il service worker

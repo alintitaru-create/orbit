@@ -71,8 +71,14 @@ const Days={
       ).join('')}</div></div>
       <div class="pane" data-t="notte">${this.notteHtml(D)}</div>
       <div class="pane" data-t="diario">
-        <textarea class="diary" placeholder="Com'è andata oggi? La nota resta salvata in questo browser." rows="8"></textarea>
+        <textarea class="diary" placeholder="Com'è andata oggi? La nota resta salvata in questo browser." rows="7"></textarea>
         <div class="muted" style="font-size:12.5px;margin-top:6px" data-diary-state></div>
+        <label class="media-add">
+          <input type="file" accept="image/*,video/*" multiple hidden>
+          <span>Aggiungi foto o video</span>
+        </label>
+        <div class="media-grid"></div>
+        <p class="muted media-info" style="font-size:12.5px;margin-top:10px"></p>
       </div>`;
 
     /* diario: carica e salva mentre si scrive */
@@ -84,6 +90,10 @@ const Days={
       catch(e){ ds.textContent='Spazio esaurito nel browser'; }
       setTimeout(()=>ds.textContent='',1500);
     },500); };
+
+    /* foto e video della giornata */
+    const pane=el.querySelector('.pane[data-t="diario"]');
+    Media.bind(D.d,pane); Media.mount(D.d,pane);
 
     /* viste */
     const seg=el.querySelector('.seg');

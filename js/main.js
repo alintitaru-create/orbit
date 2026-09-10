@@ -36,10 +36,12 @@ async function startOrbit(){
   document.getElementById('docClose').onclick=()=>Docs.close();
   if(window.maplibregl&&Cinematic.shouldPlay()) Cinematic.start();
 
-  /* meteo live, poi si aggiornano giornate e card di oggi */
+  /* meteo live, poi si aggiornano giornate e card di oggi.
+     Se nel frattempo si sta scrivendo nel diario o in una didascalia
+     non si ridisegna, altrimenti sparirebbe quello che si sta battendo. */
   await Weather.load();
   Days.renderChips();
-  Days.renderDetail();
+  if(!document.activeElement?.closest('#giorno-dettaglio')) Days.renderDetail();
   Sections.oggi();
 
   /* frecce ← → per cambiare giornata */
