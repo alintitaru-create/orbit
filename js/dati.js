@@ -45,23 +45,36 @@ const Dati={
     box.querySelector('#datiRipristina').onclick=()=>{ ta.value=ORBIT_SRC; conta(); stato.textContent=''; };
     box.querySelector('#datiSalva').onclick=async ev=>{
       const b=ev.target;
-      const errore=this.controlla(ta.value);
-      if(errore){ stato.textContent='Non salvo: '+errore; return; }
+      const esito=this.controlla(ta.value);
+      if(esito.errore){ stato.textContent='Non salvo: '+esito.errore; return; }
       if(typeof Pubblica==='undefined'||!Pubblica.token()){
         stato.innerHTML='Serve prima la chiave di GitHub: la trovi nella scheda <b>Diario</b> di una giornata.';
+        return;
+      }
+      /* la pagina dei cari si rifà con la stessa ripulitura del computer;
+         se ne esce qualcosa di riservato non si pubblica niente */
+      const d=esito.dati;
+      const pub=Sanifica.genera(d.P,d.LEGS,d.DAYS,d.POIS,d.WAYPTS);
+      if(pub.trovati.length){
+        stato.textContent='Non pubblico: nella pagina dei cari finirebbe qualcosa di riservato ('+
+                          pub.trovati.join(', ')+').';
         return;
       }
       b.disabled=true; stato.textContent='Richiudo i dati…';
       try{
         const b64=await this.cifra(ta.value);
-        stato.textContent='Mando su GitHub…';
+        stato.textContent='Mando i dati su GitHub…';
         await Pubblica.scrivi('js/data.enc.js',
           btoa('/* Dati del viaggio cifrati (AES-256-GCM). Generato da tools/lock.mjs — non modificare a mano. */\n'+
                'const ORBIT_ENC="'+b64+'";\n'),
           'Dati aggiornati dal viaggio');
+        stato.textContent='Aggiorno la pagina dei cari…';
+        await Pubblica.scrivi('pubblico/dati.js',
+          btoa(unescape(encodeURIComponent(pub.testo))),
+          'Pagina dei cari aggiornata dal viaggio');
         globalThis.ORBIT_SRC=ta.value;
-        stato.innerHTML='Fatto. Ricarica la pagina fra un paio di minuti per vedere le modifiche; '+
-          'la pagina dei cari si aggiorna da sola poco dopo.';
+        stato.innerHTML=`Fatto: ${pub.conteggi.giornate} giornate e ${pub.conteggi.luoghi} luoghi, `+
+          'senza dati riservati. Fra un paio di minuti sono aggiornate tutte e due le pagine.';
       }catch(e){ stato.textContent='Non ha funzionato: '+e.message; }
       b.disabled=false;
     };
@@ -81,18 +94,19 @@ const Dati={
       g=ifr.contentWindow.__esito;
     }catch(e){
       const m=String(e.message);
-      return /is not defined/.test(m)
+      return {errore:/is not defined/.test(m)
         ? 'manca '+m.replace(/ is not defined.*/,'')
-        : 'il testo non è codice valido ('+m.slice(0,80)+')';
+        : 'il testo non è codice valido ('+m.slice(0,80)+')'};
     }finally{ ifr.remove(); }
-    if(!g) return 'il testo non produce i dati attesi';
+    if(!g) return {errore:'il testo non produce i dati attesi'};
     const mancano=this.ATTESE.filter(n=>g[n]===undefined);
-    if(mancano.length) return 'mancano '+mancano.join(', ');
-    if(!Array.isArray(g.DAYS)||!g.DAYS.length) return 'le giornate sono vuote';
-    if(!Array.isArray(g.LEGS)||!g.LEGS.length) return 'le tratte sono vuote';
+    if(mancano.length) return {errore:'mancano '+mancano.join(', ')};
+    if(!Array.isArray(g.DAYS)||!g.DAYS.length) return {errore:'le giornate sono vuote'};
+    if(!Array.isArray(g.LEGS)||!g.LEGS.length) return {errore:'le tratte sono vuote'};
     const fuori=g.LEGS.filter(l=>l.day>=g.DAYS.length||!g.P[l.a]||!g.P[l.b]).length;
-    if(fuori) return `${fuori} tratte puntano a giornate o luoghi che non esistono`;
-    return null;
+    if(fuori) return {errore:`${fuori} tratte puntano a giornate o luoghi che non esistono`};
+    /* i dati validati servono anche a rifare la pagina dei cari */
+    return {errore:null,dati:g};
   },
 
   /* richiude i dati con la stessa chiave e lo stesso sale del file attuale */

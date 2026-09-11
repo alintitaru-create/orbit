@@ -25,7 +25,9 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
 | Pratico & emergenze, Documenti | `js/sections.js` + dati in `js/data.js` (`PRATICO`, `DOCS`) |
 | Foto e video vostri (per giornata) | `js/media.js` |
 | Condivisione con i cari | `js/pubblica.js` |
-| Pagina pubblica per i cari | `pubblico/` (i dati li genera `tools/lock.mjs`) |
+| Pagina pubblica per i cari | `pubblico/` |
+| Ripulitura dei dati pubblici (computer e telefono) | `js/sanifica.js` |
+| Modifica dei dati dal telefono | `js/dati.js` |
 | Intro cinematografica | `js/cinematic.js` |
 | Ornamenti kirghisi e uzbeki | `js/ornaments.js` + `css/ornaments.css` |
 | Documenti PDF cifrati | `js/docs.js` (i .bin li genera `tools/lock.mjs`) |
@@ -115,6 +117,22 @@ sceglie cosa mandare e `js/pubblica.js` lo carica in `pubblico/diario/`
 tramite l'API di GitHub. Serve una chiave personale (token con permesso
 *Contents: read and write* sul solo repository `orbit`), chiesta una
 volta e conservata solo sul dispositivo.
+
+## Modificare il viaggio dal telefono
+
+In fondo alla pagina privata c'è la sezione **I dati del viaggio**: mostra
+il contenuto di `js/data.js`, lo lascia correggere e lo rimanda su GitHub
+già ricifrato, usando la chiave della password e il token delle foto.
+Prima di salvare il testo viene controllato in un contesto isolato: se non
+è codice valido, se manca una costante o se una tratta punta a una giornata
+inesistente, non parte nulla.
+
+Lo stesso salvataggio rifà anche `pubblico/dati.js`, così la pagina dei
+cari resta allineata. La ripulitura sta in **un file solo**,
+`js/sanifica.js`, usato sia da `tools/lock.mjs` sul computer sia dalla
+pagina nel telefono: due copie potrebbero divergere, e una divergenza qui
+vorrebbe dire dati riservati su una pagina pubblica. Verificato che le due
+strade producono un risultato identico byte per byte.
 
 ## Se questo computer sparisce
 
