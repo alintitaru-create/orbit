@@ -116,6 +116,25 @@ tramite l'API di GitHub. Serve una chiave personale (token con permesso
 *Contents: read and write* sul solo repository `orbit`), chiesta una
 volta e conservata solo sul dispositivo.
 
+## Se questo computer sparisce
+
+Nel repository c'è tutto tranne due file: `js/data.js` (i dati in chiaro)
+e `.orbit-pw` (la password). Non servono: si ricostruiscono dal file
+cifrato, che invece è pubblicato. Su una macchina qualsiasi:
+
+```
+git clone https://github.com/alintitaru-create/orbit
+cd orbit
+node tools/unlock.mjs "la password"
+```
+
+e la copia di lavoro torna completa. Provato davvero: da un clone pulito
+si riottengono 19 luoghi, 23 tratte, 15 giornate, 64 punti, 5 prenotazioni
+e 11 documenti, identici.
+
+Se i PDF originali non sono su quella macchina, `tools/lock.mjs` **non
+tocca** i documenti già cifrati invece di cancellarli.
+
 ## Pubblicazione
 
 Il sito è pubblicato con GitHub Pages dal branch `main`. Per aggiornare:

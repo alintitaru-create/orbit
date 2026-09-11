@@ -50,7 +50,17 @@ new Function('g','with(g){'+readFileSync(join(root,'js/data.js'),'utf8')+
 const base=fileURLToPath(scope.DOCS_BASE);
 const outDir=join(root,'docs');
 mkdirSync(outDir,{recursive:true});
-readdirSync(outDir).forEach(f=>{ if(f.endsWith('.bin')||f==='index.json') unlinkSync(join(outDir,f)); });
+
+/* Su un computer dove i PDF originali non ci sono (ripartenza da un
+   clone), non si tocca nulla: cancellare i .bin già cifrati per
+   rigenerarli da niente vorrebbe dire perderli. */
+const sorgenti=scope.DOCS.filter(d=>existsSync(join(base,d.f))).length;
+const saltaDocs=sorgenti===0;
+if(saltaDocs){
+  console.log(`docs/ — i PDF originali non sono in ${base}: lascio intatti quelli già cifrati.`);
+} else {
+  readdirSync(outDir).forEach(f=>{ if(f.endsWith('.bin')||f==='index.json') unlinkSync(join(outDir,f)); });
+}
 
 /* nomi neutri (d01.bin, d02.bin…): anche il nome del file direbbe
    troppo su hotel, compagnie e persone */
@@ -60,7 +70,7 @@ const nome=i=>'d'+String(i+1).padStart(2,'0')+'.bin';
    codici di prenotazione. Si salva solo la posizione dentro DOCS, e i
    testi il browser li legge dai dati cifrati dopo lo sblocco. */
 const manifest=[]; let mancanti=0, totale=0;
-scope.DOCS.forEach((doc,i)=>{
+if(!saltaDocs) scope.DOCS.forEach((doc,i)=>{
   const src=join(base,doc.f);
   if(!existsSync(src)){ console.warn('  manca:',doc.f); mancanti++; return; }
   const raw=readFileSync(src);
@@ -70,8 +80,10 @@ scope.DOCS.forEach((doc,i)=>{
   manifest.push({i,f:name,kb:Math.round(raw.length/1024)});
   totale+=raw.length;
 });
-writeFileSync(join(outDir,'index.json'),JSON.stringify(manifest,null,1));
-console.log(`docs/ — ${manifest.length} documenti cifrati (${Math.round(totale/1024)} KB)${mancanti?`, ${mancanti} non trovati`:''}.`);
+if(!saltaDocs){
+  writeFileSync(join(outDir,'index.json'),JSON.stringify(manifest,null,1));
+  console.log(`docs/ — ${manifest.length} documenti cifrati (${Math.round(totale/1024)} KB)${mancanti?`, ${mancanti} non trovati`:''}.`);
+}
 
 /* ── 3. i dati per la pagina pubblica (quella dei cari) ──
    Qui non deve finire nulla di riservato. Si tiene il racconto —
