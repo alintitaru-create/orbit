@@ -66,6 +66,21 @@
 .gg .see li b{font-weight:600}
 .gg .see li small{display:block;color:var(--ink2);font-size:12.5px;margin-top:1px}
 
+/* ── foto e note arrivate dal viaggio ── */
+.scatti{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:14px}
+.scatti figure{background:var(--card2);border-radius:var(--radius-sm);overflow:hidden}
+.scatti img,.scatti video{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#000}
+.scatti figcaption{padding:9px 12px 11px;font-size:13px;color:var(--ink2);line-height:1.45}
+.scatti figcaption:empty{display:none}
+#ultimi .scatti{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.nota{
+  margin-top:14px;padding:14px 18px;border-left:3px solid var(--steppe);
+  background:var(--card2);border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+  font-size:15.5px;line-height:1.6;white-space:pre-wrap;
+}
+.gg.conRacconto::before{background:var(--steppe);border-color:var(--steppe)}
+.gg.conRacconto.passato .card{opacity:1}
+
 @media(max-width:700px){
   .oggi{padding:22px 20px}
   .timeline{padding-left:26px}

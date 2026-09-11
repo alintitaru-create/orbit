@@ -79,6 +79,7 @@ const Days={
         </label>
         <div class="media-grid"></div>
         <p class="muted media-info" style="font-size:12.5px;margin-top:10px"></p>
+        <div class="pub-box"></div>
       </div>`;
 
     /* diario: carica e salva mentre si scrive */
@@ -91,9 +92,9 @@ const Days={
       setTimeout(()=>ds.textContent='',1500);
     },500); };
 
-    /* foto e video della giornata */
+    /* foto, video e condivisione della giornata */
     const pane=el.querySelector('.pane[data-t="diario"]');
-    Media.bind(D.d,pane); Media.mount(D.d,pane);
+    Media.bind(D.d,pane); Media.mount(D.d,pane);   /* mount richiama anche Pubblica */
 
     /* viste */
     const seg=el.querySelector('.seg');

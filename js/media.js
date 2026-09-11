@@ -119,6 +119,10 @@ const Media={
         await this.del(id); this.mount(day,root);
       };
     });
+
+    /* il pannello "condividi con i cari" elenca le stesse foto:
+       va ridisegnato ogni volta che se ne aggiunge o toglie una */
+    if(typeof Pubblica!=='undefined') Pubblica.mount(day,root);
   },
 
   /* ── collega il bottone di aggiunta ── */

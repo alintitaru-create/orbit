@@ -51,22 +51,51 @@ if(idx<0) idx=prima?0:DAYS.length-1;
       <span>${DAYS[0].lbl} → ${DAYS[DAYS.length-1].lbl}</span></div>`;
 })();
 
-/* ── linea del tempo ── */
-(function(){
+/* ── linea del tempo, con quello che hanno pubblicato ── */
+(async function(){
+  /* il diario: foto e note mandate dal viaggio. Se non c'è ancora
+     niente il file non esiste, e la pagina resta com'è. */
+  let diario={};
+  try{
+    const r=await fetch('diario/index.json',{cache:'no-cache'});
+    if(r.ok) diario=await r.json();
+  }catch(e){}
+
+  const esc=s=>String(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+  const mediaHtml=f=>f.tipo==='video'
+    ? `<video src="diario/${f.f}" controls playsinline preload="metadata"></video>`
+    : `<a href="diario/${f.f}" target="_blank" rel="noopener"><img src="diario/${f.f}" alt="${esc(f.cap)}" loading="lazy"></a>`;
+
   document.getElementById('timeline').innerHTML=DAYS.map((D,i)=>{
     const stato=D.d<oggiISO?'passato':(i===idx&&!prima&&!dopo?'oggi':'');
     const legs=LEGS.filter(l=>l.day===i);
-    return `<div class="gg ${stato}">
+    const pub=diario[D.d];
+    return `<div class="gg ${stato}${pub?' conRacconto':''}">
       <div class="card">
         <div class="data">${D.lbl}${stato==='oggi'?' · oggi':''}</div>
         <h3>${D.title}</h3>
         <p class="lead">${D.lead}</p>
         ${legs.length?`<div class="mezzi">${legs.map(l=>
           `<span class="badge">${ic(l.m)} ${l.t}</span>`).join('')}</div>`:''}
+        ${pub&&pub.nota?`<blockquote class="nota">${esc(pub.nota)}</blockquote>`:''}
+        ${pub&&pub.foto&&pub.foto.length?`<div class="scatti">${pub.foto.map(f=>
+          `<figure>${mediaHtml(f)}${f.cap?`<figcaption>${esc(f.cap)}</figcaption>`:''}</figure>`).join('')}</div>`:''}
         ${D.see&&D.see.length?`<details><summary>Cosa vediamo</summary>
           <ul class="see">${D.see.map(x=>`<li>${x}</li>`).join('')}</ul></details>`:''}
       </div></div>`;
   }).join('');
+
+  /* gli ultimi scatti, in cima alla pagina */
+  const ultimi=Object.entries(diario)
+    .sort((a,b)=>String(b[0]).localeCompare(String(a[0])))
+    .flatMap(([d,v])=>(v.foto||[]).map(f=>({...f,d})))
+    .slice(0,6);
+  if(ultimi.length){
+    const s=document.getElementById('ultimi');
+    s.hidden=false;
+    s.querySelector('.scatti').innerHTML=ultimi.map(f=>
+      `<figure>${mediaHtml(f)}<figcaption>${esc(f.cap||'')}</figcaption></figure>`).join('');
+  }
 })();
 
 /* ── mappa ── */
