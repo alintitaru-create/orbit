@@ -286,3 +286,13 @@ table.plain.frasi td:last-child{width:32%}
 .dati-azioni .pill{min-height:40px;box-shadow:none}
 .dati-azioni .muted{font-size:12.5px}
 .dati-stato{font-size:13.5px;margin-top:10px;min-height:18px;line-height:1.5}
+
+/* il campo della chiave: niente form, testo visibile, va a capo */
+.pub-tok{display:flex;gap:8px;margin-top:12px;align-items:center}
+.pub-tok input{
+  flex:1;min-width:0;font:inherit;font-size:13.5px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color:var(--ink);background:var(--card);
+  border:1px solid var(--hair);border-radius:10px;padding:11px 12px;
+}
+.pub-tok input:focus{outline:none;border-color:var(--blue)}

@@ -43,6 +43,22 @@ const Pubblica={
     }
   },
 
+  /* La chiave funziona davvero? Restituisce null se va bene, oppure la
+     spiegazione del problema. Meglio scoprirlo adesso che a metà
+     caricamento delle foto. */
+  async verifica(){
+    try{
+      const r=await fetch(`${this.API}/repos/${this.REPO}`,{headers:this.head()});
+      if(r.status===401) return 'Chiave rifiutata da GitHub: forse è incompleta o scaduta. Riprova a copiarla per intero.';
+      if(r.status===404) return 'La chiave non vede il repository orbit: nel passo 2 va scelto "Only select repositories" → orbit.';
+      if(!r.ok) return 'GitHub risponde '+r.status+'. Riprova fra poco.';
+      const j=await r.json();
+      if(j.permissions&&j.permissions.push===false)
+        return 'La chiave può solo leggere: serve il permesso Contents → Read and write (passo 3).';
+      return null;
+    }catch(e){ return 'Non riesco a contattare GitHub: controlla la connessione.'; }
+  },
+
   async leggiIndice(){
     try{
       const r=await fetch(`${this.API}/repos/${this.REPO}/contents/pubblico/diario/index.json`,{headers:this.head()});
@@ -97,16 +113,35 @@ const Pubblica={
           <li>In <i>Permissions</i> → <i>Repository permissions</i> → <b>Contents</b> → <b>Read and write</b></li>
           <li>Genera la chiave, copiala e incollala qui sotto</li>
         </ol>
-        <form class="pub-tok">
-          <input type="password" placeholder="github_pat_…" autocomplete="off">
-          <button class="pill on" type="submit">Salva</button>
-        </form>
-        <p class="muted" style="margin-top:8px">Resta solo su questo dispositivo.</p>`;
-      box.querySelector('.pub-tok').onsubmit=e=>{
-        e.preventDefault();
-        const v=e.target.querySelector('input').value.trim();
-        if(v){ this.setToken(v); this.mount(day,root); }
+        <div class="pub-tok">
+          <input type="text" placeholder="github_pat_…" autocomplete="off"
+                 autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="text">
+          <button class="pill on" type="button" id="tokSalva">Salva</button>
+        </div>
+        <p class="pub-stato muted"></p>
+        <p class="muted">Resta solo su questo dispositivo. La chiave si vede mentre la incolli,
+        così ti accorgi subito se l'incollaggio non è riuscito.</p>`;
+
+      /* Niente <form>: su iPhone il campo password veniva intercettato dal
+         gestore delle password e l'invio restava senza effetto, in silenzio.
+         Qui il bottone è un bottone, e ogni esito viene detto. */
+      const campo=box.querySelector('.pub-tok input');
+      const dice=box.querySelector('.pub-stato');
+      box.querySelector('#tokSalva').onclick=async ev=>{
+        const v=campo.value.trim();
+        if(!v){ dice.textContent='Il campo è vuoto: incolla la chiave e riprova.'; campo.focus(); return; }
+        if(!/^(github_pat_|ghp_)/.test(v)){
+          dice.textContent='Questa non sembra una chiave di GitHub: dovrebbe cominciare con github_pat_';
+          return;
+        }
+        ev.target.disabled=true; dice.textContent='Controllo la chiave…';
+        this.setToken(v);
+        const esito=await this.verifica();
+        if(esito){ this.setToken(''); dice.textContent=esito; ev.target.disabled=false; return; }
+        dice.textContent='Chiave valida.';
+        this.mount(day,root);
       };
+      campo.onkeydown=e=>{ if(e.key==='Enter') box.querySelector('#tokSalva').click(); };
       return;
     }
 
