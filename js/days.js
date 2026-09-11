@@ -80,6 +80,7 @@ const Days={
         <div class="media-grid"></div>
         <p class="muted media-info" style="font-size:12.5px;margin-top:10px"></p>
         <div class="pub-box"></div>
+        <div class="sync-box"></div>
       </div>`;
 
     /* diario: carica e salva mentre si scrive */

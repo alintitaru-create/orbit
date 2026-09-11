@@ -59,6 +59,34 @@ const Pubblica={
     }catch(e){ return 'Non riesco a contattare GitHub: controlla la connessione.'; }
   },
 
+  /* Legge un file dal repository e lo restituisce come byte.
+
+     Si passa sempre dall'indirizzo di scaricamento diretto: il campo
+     "content" dell'API restituisce i file binari reinterpretati come
+     testo (311 byte diventavano 463) e le foto non si riaprivano più.
+     Il campo si usa solo come ripiego, se l'indirizzo manca. */
+  async leggi(path){
+    try{
+      const r=await fetch(`${this.API}/repos/${this.REPO}/contents/${path}`,
+                          {headers:this.head(),cache:'no-store'});
+      if(!r.ok) return null;
+      const j=await r.json();
+      /* si chiede il contenuto grezzo per identificativo: è disponibile
+         subito, mentre l'indirizzo pubblico di scaricamento può rispondere
+         "non trovato" per qualche minuto sui file appena caricati */
+      if(j.sha){
+        const g=await fetch(`${this.API}/repos/${this.REPO}/git/blobs/${j.sha}`,
+          {headers:{...this.head(),Accept:'application/vnd.github.raw'},cache:'no-store'});
+        if(g.ok) return new Uint8Array(await g.arrayBuffer());
+      }
+      if(j.download_url){
+        const g=await fetch(j.download_url,{cache:'no-store'});
+        if(g.ok) return new Uint8Array(await g.arrayBuffer());
+      }
+      return null;
+    }catch(e){ return null; }
+  },
+
   async leggiIndice(){
     try{
       const r=await fetch(`${this.API}/repos/${this.REPO}/contents/pubblico/diario/index.json`,{headers:this.head()});

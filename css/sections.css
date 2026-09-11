@@ -296,3 +296,11 @@ table.plain.frasi td:last-child{width:32%}
   border:1px solid var(--hair);border-radius:10px;padding:11px 12px;
 }
 .pub-tok input:focus{outline:none;border-color:var(--blue)}
+
+/* ── sincronizzazione fra i due telefoni ── */
+.sync-box{margin-top:14px;padding:18px 20px;border-radius:var(--radius-sm);
+  background:var(--card2);border:1px solid var(--hair)}
+.sync-box:empty{display:none}
+.sync-box b{font-size:16px;font-weight:600}
+.sync-box p{font-size:13.5px;line-height:1.5;margin-top:5px}
+.sync-stato{font-size:13.5px;margin-top:10px;min-height:18px}

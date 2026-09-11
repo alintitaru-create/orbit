@@ -25,6 +25,7 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
 | Pratico & emergenze, Documenti | `js/sections.js` + dati in `js/data.js` (`PRATICO`, `DOCS`) |
 | Foto e video vostri (per giornata) | `js/media.js` |
 | Condivisione con i cari | `js/pubblica.js` |
+| Foto sincronizzate fra i due telefoni | `js/sync.js` |
 | Pagina pubblica per i cari | `pubblico/` |
 | Ripulitura dei dati pubblici (computer e telefono) | `js/sanifica.js` |
 | Modifica dei dati dal telefono | `js/dati.js` |
@@ -59,7 +60,11 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
   video, con didascalia. Stanno in IndexedDB (non in localStorage, che
   si riempie a 5 MB): le foto vengono ridotte a 1600 px, i video restano
   interi. Sono solo sul dispositivo, non vengono caricati da nessuna
-  parte e **non sono un backup**: le foto vanno tenute anche nel rullino.
+  parte. Col tasto **Sincronizza** salgono su GitHub **cifrate** con la
+  stessa password e scendono sull'altro telefono: i due dispositivi
+  vedono le stesse foto, nessun altro può aprirle, e diventano una copia
+  di sicurezza fuori dal telefono. Le cancellazioni non si propagano: se
+  uno dei due elimina una foto, l'altro la tiene.
 - **Documenti**: i PDF restano nella cartella Bishkek sul Mac e sono solo
   collegati; non vengono copiati nel repository né pubblicati.
 - **Offline**: quando la pagina è servita via https, il service worker

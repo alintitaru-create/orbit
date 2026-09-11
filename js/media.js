@@ -66,7 +66,10 @@ const Media={
       const video=f.type.startsWith('video');
       const blob=video?f:await this.shrink(f);
       await this.put({day,type:video?'video':'foto',blob,name:f.name,
-                      size:blob.size,caption:'',t:Date.now()});
+                      size:blob.size,caption:'',t:Date.now(),
+                      /* nome valido su tutti i telefoni: i numeri interni
+                         ripartono da 1 su ogni dispositivo e si scontrerebbero */
+                      uid:Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)});
       onProgress&&onProgress(++n,files.length);
     }
     /* chiede al browser di non buttare via i ricordi alla prima pulizia */
@@ -112,7 +115,7 @@ const Media={
       const cap=fig.querySelector('.cap');
       let t=null;
       cap.oninput=()=>{ clearTimeout(t); t=setTimeout(async()=>{
-        const rec=await this.get(id); if(rec){ rec.caption=cap.value; await this.put(rec); }
+        const rec=await this.get(id); if(rec){ rec.caption=cap.value; rec.mod=Date.now(); await this.put(rec); }
       },500); };
       fig.querySelector('.del').onclick=async()=>{
         if(!confirm('Elimino questo elemento?')) return;
@@ -123,6 +126,7 @@ const Media={
     /* il pannello "condividi con i cari" elenca le stesse foto:
        va ridisegnato ogni volta che se ne aggiunge o toglie una */
     if(typeof Pubblica!=='undefined') Pubblica.mount(day,root);
+    if(typeof Sync!=='undefined') Sync.mount(day,root);
   },
 
   /* ── collega il bottone di aggiunta ── */
