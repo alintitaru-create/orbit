@@ -13,6 +13,7 @@ async function startOrbit(){
   Checklist.init();
   Money.init();
   Docs.init();
+  Dati.mount();
   Orn.init();
 
   /* giornate e card di oggi con le medie climatiche */

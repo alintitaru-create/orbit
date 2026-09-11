@@ -31,13 +31,17 @@
     const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
     const key=await crypto.subtle.deriveKey(
       {name:'PBKDF2',salt,iterations:310000,hash:'SHA-256'},
-      base,{name:'AES-GCM',length:256},false,['decrypt']);
+      base,{name:'AES-GCM',length:256},false,['decrypt','encrypt']);
     const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,data);
+    const sorgente=new TextDecoder().decode(plain);
     /* eval indiretto: le costanti nascono nello spazio globale,
        esattamente come se fosse stato caricato js/data.js */
-    (0,eval)(new TextDecoder().decode(plain));
-    /* la stessa chiave apre anche i PDF cifrati in docs/ */
+    (0,eval)(sorgente);
+    /* la stessa chiave apre i PDF cifrati in docs/ e richiude i dati
+       quando si modificano dal telefono; il sale serve per rifare il file */
     globalThis.ORBIT_KEY=key;
+    globalThis.ORBIT_SALT=salt;
+    globalThis.ORBIT_SRC=sorgente.replace(/\n\/\* esposizione globale[\s\S]*$/,'\n');
   }
 
   async function tryPw(pw,silent){

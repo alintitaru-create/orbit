@@ -20,7 +20,7 @@ const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 const pwFile=join(root,'.orbit-pw');
 const dest=join(root,'js/data.js');
 
-let pw=process.argv[2];
+let pw=process.argv.slice(2).find(a=>!a.startsWith('--'));
 if(!pw&&existsSync(pwFile)) pw=readFileSync(pwFile,'utf8').trim();
 if(!pw){ console.error('Serve la password: node tools/unlock.mjs "la password"'); process.exit(1); }
 

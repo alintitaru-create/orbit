@@ -22,7 +22,13 @@ import {dirname,join} from 'node:path';
 const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 const pwFile=join(root,'.orbit-pw');
 
-let pw=process.argv[2];
+const flag=a=>process.argv.includes(a);
+/* --solo-pubblico: rigenera soltanto pubblico/dati.js, senza ricifrare
+   dati e documenti. Serve all'officina automatica su GitHub, che
+   altrimenti riscriverebbe data.enc.js a ogni giro all'infinito. */
+const soloPubblico=flag('--solo-pubblico');
+
+let pw=process.argv.slice(2).find(a=>!a.startsWith('--'));
 if(!pw&&existsSync(pwFile)) pw=readFileSync(pwFile,'utf8').trim();
 if(!pw){ console.error('Serve una password: node tools/lock.mjs "la password"'); process.exit(1); }
 
@@ -37,11 +43,13 @@ const key=pbkdf2Sync(pw,salt,310000,32,'sha256');
 const enc=(buf)=>{ const iv=randomBytes(12); const c=createCipheriv('aes-256-gcm',key,iv);
   return {iv,body:Buffer.concat([c.update(buf),c.final(),c.getAuthTag()])}; };
 
-const d=enc(Buffer.from(plain,'utf8'));
-writeFileSync(join(root,'js/data.enc.js'),
-  '/* Dati del viaggio cifrati (AES-256-GCM). Generato da tools/lock.mjs — non modificare a mano. */\n'+
-  'const ORBIT_ENC="'+Buffer.concat([salt,d.iv,d.body]).toString('base64')+'";\n');
-console.log(`js/data.enc.js — ${plain.length} caratteri cifrati.`);
+if(!soloPubblico){
+  const d=enc(Buffer.from(plain,'utf8'));
+  writeFileSync(join(root,'js/data.enc.js'),
+    '/* Dati del viaggio cifrati (AES-256-GCM). Generato da tools/lock.mjs — non modificare a mano. */\n'+
+    'const ORBIT_ENC="'+Buffer.concat([salt,d.iv,d.body]).toString('base64')+'";\n');
+  console.log(`js/data.enc.js — ${plain.length} caratteri cifrati.`);
+}
 
 /* ── 2. i documenti ── */
 const scope={};
@@ -55,9 +63,9 @@ mkdirSync(outDir,{recursive:true});
    clone), non si tocca nulla: cancellare i .bin già cifrati per
    rigenerarli da niente vorrebbe dire perderli. */
 const sorgenti=scope.DOCS.filter(d=>existsSync(join(base,d.f))).length;
-const saltaDocs=sorgenti===0;
+const saltaDocs=sorgenti===0||soloPubblico;
 if(saltaDocs){
-  console.log(`docs/ — i PDF originali non sono in ${base}: lascio intatti quelli già cifrati.`);
+  if(!soloPubblico) console.log(`docs/ — i PDF originali non sono in ${base}: lascio intatti quelli già cifrati.`);
 } else {
   readdirSync(outDir).forEach(f=>{ if(f.endsWith('.bin')||f==='index.json') unlinkSync(join(outDir,f)); });
 }

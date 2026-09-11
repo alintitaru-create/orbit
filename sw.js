@@ -10,12 +10,12 @@
    - meteo, cambi, Wikipedia, rotte: prima la rete, poi la
      cache come riserva
    ═══════════════════════════════════════════════════════════ */
-const SHELL='orbit-shell-v13', TILES='orbit-tiles', DATA='orbit-data';
+const SHELL='orbit-shell-v14', TILES='orbit-tiles', DATA='orbit-data';
 const PRECACHE=['./','./index.html','./manifest.webmanifest','./icon.png',
  './css/tokens.css','./css/base.css','./css/components.css','./css/sections.css','./css/ornaments.css',
  './js/data.enc.js','./js/util.js','./js/clocks.js','./js/weather.js','./js/days.js',
  './js/legs.js','./js/map.js','./js/sections.js','./js/checklist.js','./js/money.js',
- './js/media.js','./js/pubblica.js','./js/docs.js','./js/ornaments.js','./js/cinematic.js','./js/main.js','./js/boot.js',
+ './js/media.js','./js/pubblica.js','./js/dati.js','./js/docs.js','./js/ornaments.js','./js/cinematic.js','./js/main.js','./js/boot.js',
  'https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.12.0/maplibre-gl.min.js',
  'https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.12.0/maplibre-gl.css'];
 
