@@ -24,6 +24,8 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
 | Convertitore valute e registro spese | `js/money.js` |
 | Pratico & emergenze, Documenti | `js/sections.js` + dati in `js/data.js` (`PRATICO`, `DOCS`) |
 | Foto e video vostri (per giornata) | `js/media.js` |
+| Condivisione con i cari | `js/pubblica.js` |
+| Pagina pubblica per i cari | `pubblico/` (i dati li genera `tools/lock.mjs`) |
 | Intro cinematografica | `js/cinematic.js` |
 | Ornamenti kirghisi e uzbeki | `js/ornaments.js` + `css/ornaments.css` |
 | Documenti PDF cifrati | `js/docs.js` (i .bin li genera `tools/lock.mjs`) |
@@ -95,6 +97,24 @@ La password si digita una volta per dispositivo, poi resta memorizzata.
 node tools/lock.mjs                  # riusa la password salvata
 node tools/lock.mjs "nuova password" # per cambiarla
 ```
+
+## Le due pagine
+
+| | Indirizzo | Chi la apre |
+|---|---|---|
+| Privata | `/orbit/` | solo voi, con la password |
+| Per i cari | `/orbit/pubblico/` | chiunque abbia il link |
+
+La pagina pubblica legge `pubblico/dati.js`, generato da `tools/lock.mjs`
+togliendo codici, nomi delle strutture, indirizzi, telefoni e spese. Se
+qualcosa di riservato dovesse sfuggire, **la generazione si ferma** invece
+di pubblicare.
+
+Foto e note ci arrivano dalla pagina privata: nella scheda Diario si
+sceglie cosa mandare e `js/pubblica.js` lo carica in `pubblico/diario/`
+tramite l'API di GitHub. Serve una chiave personale (token con permesso
+*Contents: read and write* sul solo repository `orbit`), chiesta una
+volta e conservata solo sul dispositivo.
 
 ## Pubblicazione
 
