@@ -117,6 +117,20 @@ togliendo codici, nomi delle strutture, indirizzi, telefoni e spese. Se
 qualcosa di riservato dovesse sfuggire, **la generazione si ferma** invece
 di pubblicare.
 
+L'elenco di cosa togliere non è scritto in `js/sanifica.js` — quel file
+finisce online in chiaro, e l'elenco sarebbe l'elenco stesso dei segreti.
+Si ricava ogni volta dai dati veri: i nomi dalle prenotazioni e da dove si
+dorme, i codici dalle conferme e dai PIN, gli indirizzi e i telefoni dalle
+schede. Così si aggiorna da solo quando cambia una prenotazione, e lo
+stesso elenco serve sia a togliere sia a ricontrollare: prima erano due
+elenchi diversi, uno più corto dell'altro, e una struttura abbreviata è
+passata in mezzo. Per quello che i dati non possono sapere da soli — un
+cognome, per esempio — si può aggiungere in `js/data.js`:
+
+```
+const RISERVATI=['Cognome','Altrocognome'];
+```
+
 Foto e note ci arrivano dalla pagina privata: nella scheda Diario si
 sceglie cosa mandare e `js/pubblica.js` lo carica in `pubblico/diario/`
 tramite l'API di GitHub. Serve una chiave personale (token con permesso
@@ -156,7 +170,11 @@ si riottengono 19 luoghi, 23 tratte, 15 giornate, 64 punti, 5 prenotazioni
 e 11 documenti, identici.
 
 Se i PDF originali non sono su quella macchina, `tools/lock.mjs` **non
-tocca** i documenti già cifrati invece di cancellarli.
+tocca** i documenti già cifrati invece di cancellarli, e tiene anche la
+stessa chiave di prima: la chiave nasce da password + sale, quindi
+cambiare il sale li lascerebbe lì ma illeggibili per sempre. Per lo stesso
+motivo, su una macchina senza i PDF la password **non si può cambiare**:
+lo strumento si ferma e lo spiega, invece di chiudere fuori i documenti.
 
 ## Pubblicazione
 

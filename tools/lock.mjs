@@ -13,9 +13,12 @@
    La chiave è una sola: il sale sta in testa a data.enc.js e i
    documenti riusano la stessa chiave con un vettore diverso, così
    il telefono la calcola una volta e apre tutto all'istante.
+   Proprio perché la chiave è una sola, il sale resta quello di prima
+   ogni volta che i documenti non vengono ricifrati: cambiarlo li
+   renderebbe illeggibili.
    ═══════════════════════════════════════════════════════════ */
 import {readFileSync,writeFileSync,existsSync,mkdirSync,readdirSync,unlinkSync} from 'node:fs';
-import {randomBytes,pbkdf2Sync,createCipheriv} from 'node:crypto';
+import {randomBytes,pbkdf2Sync,createCipheriv,createDecipheriv} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {dirname,join} from 'node:path';
 
@@ -38,20 +41,9 @@ const names=[...plain.matchAll(/^(?:const|let|var|function)\s+([A-Za-z_$][\w$]*)
 if(!names.length){ console.error('Nessuna costante trovata in js/data.js.'); process.exit(1); }
 plain+=`\n/* esposizione globale (aggiunta da tools/lock.mjs) */\nObject.assign(globalThis,{${names.join(',')}});\n`;
 
-const salt=randomBytes(16);
-const key=pbkdf2Sync(pw,salt,310000,32,'sha256');
-const enc=(buf)=>{ const iv=randomBytes(12); const c=createCipheriv('aes-256-gcm',key,iv);
-  return {iv,body:Buffer.concat([c.update(buf),c.final(),c.getAuthTag()])}; };
-
-if(!soloPubblico){
-  const d=enc(Buffer.from(plain,'utf8'));
-  writeFileSync(join(root,'js/data.enc.js'),
-    '/* Dati del viaggio cifrati (AES-256-GCM). Generato da tools/lock.mjs — non modificare a mano. */\n'+
-    'const ORBIT_ENC="'+Buffer.concat([salt,d.iv,d.body]).toString('base64')+'";\n');
-  console.log(`js/data.enc.js — ${plain.length} caratteri cifrati.`);
-}
-
-/* ── 2. i documenti ── */
+/* ── 2. ci sono i PDF originali su questo computer? ──
+   Va saputo PRIMA di scegliere il sale: i .bin già cifrati si riaprono
+   soltanto con la chiave di allora. */
 const scope={};
 new Function('g','with(g){'+readFileSync(join(root,'js/data.js'),'utf8')+
   ';Object.assign(g,{DOCS,DOCS_BASE})}')(scope);
@@ -64,8 +56,50 @@ mkdirSync(outDir,{recursive:true});
    rigenerarli da niente vorrebbe dire perderli. */
 const sorgenti=scope.DOCS.filter(d=>existsSync(join(base,d.f))).length;
 const saltaDocs=sorgenti===0||soloPubblico;
+
+/* ── 3. la chiave ──
+   La chiave nasce da password + sale, e apre sia i dati sia i documenti.
+   Quando i documenti NON vengono rifatti, il sale dev'essere quello di
+   prima: un sale nuovo darebbe una chiave nuova e lascerebbe i .bin
+   chiusi per sempre, senza dire niente a nessuno. */
+const encFile=join(root,'js/data.enc.js');
+const precedente=existsSync(encFile)
+  ? (readFileSync(encFile,'utf8').match(/"([A-Za-z0-9+/=]+)"/)||[])[1] : null;
+const salt=(saltaDocs&&precedente)
+  ? Buffer.from(precedente,'base64').subarray(0,16) : randomBytes(16);
+const key=pbkdf2Sync(pw,salt,310000,32,'sha256');
+const enc=(buf)=>{ const iv=randomBytes(12); const c=createCipheriv('aes-256-gcm',key,iv);
+  return {iv,body:Buffer.concat([c.update(buf),c.final(),c.getAuthTag()])}; };
+
+/* Con il sale di prima serve anche la password di prima: cambiarla
+   quando i documenti non si possono rifare li chiuderebbe lo stesso. */
+if(saltaDocs&&precedente&&!soloPubblico){
+  const raw=Buffer.from(precedente,'base64');
+  try{
+    const d=createDecipheriv('aes-256-gcm',key,raw.subarray(16,28));
+    d.setAuthTag(raw.subarray(raw.length-16));
+    d.update(raw.subarray(28,raw.length-16)); d.final();
+  }catch(e){
+    console.error('FERMO: questa non è la password del file cifrato di adesso.\n'+
+      `Cambiarla qui lascerebbe illeggibili per sempre i documenti già cifrati in docs/ (${scope.DOCS.length}),\n`+
+      `perché i PDF originali non sono in ${base} e non si potrebbero rifare.\n`+
+      'Rimetti i PDF al loro posto e rilancia, oppure usa la password di prima.');
+    process.exit(1);
+  }
+}
+
+if(!soloPubblico){
+  const d=enc(Buffer.from(plain,'utf8'));
+  writeFileSync(encFile,
+    '/* Dati del viaggio cifrati (AES-256-GCM). Generato da tools/lock.mjs — non modificare a mano. */\n'+
+    'const ORBIT_ENC="'+Buffer.concat([salt,d.iv,d.body]).toString('base64')+'";\n');
+  console.log(`js/data.enc.js — ${plain.length} caratteri cifrati.`);
+}
+
+/* ── 4. i documenti ── */
 if(saltaDocs){
-  if(!soloPubblico) console.log(`docs/ — i PDF originali non sono in ${base}: lascio intatti quelli già cifrati.`);
+  if(!soloPubblico) console.log(`docs/ — i PDF originali non sono in ${base}: `+
+                                'lascio intatti quelli già cifrati, con la chiave di prima.');
 } else {
   readdirSync(outDir).forEach(f=>{ if(f.endsWith('.bin')||f==='index.json') unlinkSync(join(outDir,f)); });
 }
@@ -93,7 +127,7 @@ if(!saltaDocs){
   console.log(`docs/ — ${manifest.length} documenti cifrati (${Math.round(totale/1024)} KB)${mancanti?`, ${mancanti} non trovati`:''}.`);
 }
 
-/* ── 3. i dati per la pagina pubblica (quella dei cari) ──
+/* ── 5. i dati per la pagina pubblica (quella dei cari) ──
    La ripulitura vive in js/sanifica.js, un file solo usato anche dal
    telefono: due copie della stessa logica potrebbero divergere, e qui
    una divergenza vorrebbe dire dati riservati su una pagina pubblica. */
@@ -102,11 +136,15 @@ const Sanifica=new Function(readFileSync(join(root,'js/sanifica.js'),'utf8')
 
 const pubDir=join(root,'pubblico');
 mkdirSync(pubDir,{recursive:true});
+/* servono anche le prenotazioni: da lì js/sanifica.js ricava i nomi, i
+   codici, gli indirizzi e i telefoni da togliere, senza averli scritti
+   dentro di sé (quel file è pubblico) */
 const g2={};
 new Function('g','with(g){'+readFileSync(join(root,'js/data.js'),'utf8')+
-  ';Object.assign(g,{P,LEGS,DAYS,POIS,WAYPTS})}')(g2);
+  ';Object.assign(g,{P,LEGS,DAYS,POIS,WAYPTS,BOOKINGS,'+
+  'RISERVATI:typeof RISERVATI!=="undefined"?RISERVATI:[]})}')(g2);
 
-const esito=Sanifica.genera(g2.P,g2.LEGS,g2.DAYS,g2.POIS,g2.WAYPTS);
+const esito=Sanifica.genera(g2);
 if(esito.trovati.length){
   console.error('FERMO: nella pagina pubblica è finito qualcosa di riservato →',esito.trovati.join(', '));
   process.exit(1);

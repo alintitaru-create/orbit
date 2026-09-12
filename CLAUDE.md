@@ -56,6 +56,14 @@ contenuti del viaggio; `js/*.js` = un settore per funzione;
   dal telefono. Non duplicarla: se le due strade divergono, finiscono
   dati riservati su una pagina pubblica. Il file si ferma da solo se
   trova codici, telefoni, cognomi o nomi di strutture nel risultato.
+- **nomi, codici, indirizzi o telefoni veri dentro `js/sanifica.js`**
+  (o in qualunque altro file del repository, commenti compresi): quel
+  file è pubblico, e un elenco di cosa nascondere scritto lì è l'elenco
+  stesso dei segreti. I termini si ricavano dai dati cifrati; negli
+  esempi dei commenti usare nomi inventati.
+- **testo riservato dentro `index.html`**: è HTML statico, arriva a
+  chiunque apra l'indirizzo *prima* e *senza* la password. La schermata
+  di sblocco nasconde la pagina, non il sorgente.
 - commit di `js/data.js`, `.orbit-pw`, o di PDF
 - servizi a pagamento o chiavi API: mappe, meteo e cambi sono tutti
   gratuiti e senza registrazione

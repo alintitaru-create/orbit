@@ -53,8 +53,7 @@ const Dati={
       }
       /* la pagina dei cari si rifà con la stessa ripulitura del computer;
          se ne esce qualcosa di riservato non si pubblica niente */
-      const d=esito.dati;
-      const pub=Sanifica.genera(d.P,d.LEGS,d.DAYS,d.POIS,d.WAYPTS);
+      const pub=Sanifica.genera(esito.dati);
       if(pub.trovati.length){
         stato.textContent='Non pubblico: nella pagina dei cari finirebbe qualcosa di riservato ('+
                           pub.trovati.join(', ')+').';
@@ -90,7 +89,8 @@ const Dati={
     document.body.appendChild(ifr);
     let g;
     try{
-      ifr.contentWindow.eval(testo+`\n;window.__esito={${this.ATTESE.join(',')}};`);
+      ifr.contentWindow.eval(testo+`\n;window.__esito={${this.ATTESE.join(',')},`+
+        `RISERVATI:typeof RISERVATI!=='undefined'?RISERVATI:[]};`);
       g=ifr.contentWindow.__esito;
     }catch(e){
       const m=String(e.message);
