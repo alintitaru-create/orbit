@@ -1,0 +1,100 @@
+/* ═══════════════════════════════════════════════════════════
+   SETTORE STILI · 3. COMPONENTI — card, chip, bottoni, badge,
+   codici copiabili. Riusati da tutte le sezioni.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── card ── */
+.card{
+  background:var(--card);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:22px 24px;
+}
+.card h3{font-size:20px;font-weight:600;letter-spacing:-.015em}
+.card .muted{color:var(--ink2);font-size:14px}
+
+/* ── chip orizzontali scorrevoli (selettore giornate) ── */
+.chiprow{
+  display:flex;gap:10px;overflow-x:auto;padding:6px 2px 14px;
+  scroll-snap-type:x proximity;scrollbar-width:none;
+}
+.chiprow::-webkit-scrollbar{display:none}
+.chip{
+  flex:none;scroll-snap-align:start;
+  background:var(--card);border:1px solid var(--hair);border-radius:14px;
+  padding:10px 16px;text-align:left;min-width:132px;
+  transition:transform .2s,border-color .2s,background .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.chip small{display:block;color:var(--ink2);font-size:12px;font-weight:500}
+.chip b{display:block;font-size:15px;font-weight:600;letter-spacing:-.01em;margin-top:1px;white-space:nowrap}
+.chip:hover{transform:translateY(-2px)}
+.chip.on{background:var(--ink);border-color:var(--ink)}
+.chip.on small{color:color-mix(in srgb,var(--bg) 70%,var(--ink))}
+.chip.on b{color:var(--bg)}
+
+/* ── badge e pillole ── */
+.badge{
+  display:inline-block;font-size:12px;font-weight:600;
+  padding:3px 10px;border-radius:999px;
+  background:var(--card2);color:var(--ink2);
+}
+.badge.blue{background:color-mix(in srgb,var(--blue) 14%,transparent);color:var(--blue)}
+.badge.green{background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--green)}
+.badge.orange{background:color-mix(in srgb,var(--orange) 16%,transparent);color:var(--orange)}
+.badge.red{background:color-mix(in srgb,var(--red) 14%,transparent);color:var(--red)}
+
+/* ── bottone pillola (mappa, azioni) ── */
+.pill{
+  background:var(--card);border:1px solid var(--hair);border-radius:999px;
+  min-height:40px;padding:0 16px;font-size:14px;font-weight:600;
+  box-shadow:var(--shadow);transition:background .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.pill:hover{background:var(--card2)}
+.pill.on{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* ── codici prenotazione copiabili ── */
+.pnr{
+  display:inline-flex;align-items:center;gap:6px;
+  margin:6px 8px 0 0;padding:5px 11px;border-radius:9px;
+  background:var(--card2);font-size:13.5px;font-weight:500;
+  font-variant-numeric:tabular-nums;cursor:pointer;
+  transition:background .2s;
+}
+.pnr:hover{background:color-mix(in srgb,var(--blue) 14%,var(--card2))}
+.pnr.ok{background:color-mix(in srgb,var(--green) 22%,var(--card2))}
+.pnr::after{content:"⌘C";font-size:10px;color:var(--ink2)}
+.pnr.ok::after{content:"copiato"}
+
+/* ── avvisi ── */
+.warn{
+  margin-top:10px;padding:10px 14px;border-radius:var(--radius-sm);
+  background:color-mix(in srgb,var(--orange) 12%,transparent);
+  border-left:3px solid var(--orange);
+  font-size:14px;line-height:1.5;
+}
+
+/* ── icone dei mezzi ── */
+.mico{display:inline-flex;width:22px;height:22px;flex:none;vertical-align:-5px}
+.mico svg{width:100%;height:100%}
+
+/* ── griglia statistiche ── */
+.statgrid{display:flex;flex-wrap:wrap;gap:10px}
+.stat{
+  flex:1 1 120px;background:var(--card2);border-radius:var(--radius-sm);
+  padding:12px 14px;font-size:12.5px;color:var(--ink2);
+}
+.stat b{
+  display:block;font-size:21px;font-weight:600;color:var(--ink);
+  letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:1px;
+}
+.stat.live b::after{
+  content:"";display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--green);margin-left:7px;vertical-align:middle;
+}
+.stat.cold b{color:var(--teal)}
+.stat.gold b{color:var(--orange)}
+
+/* ── barrette fatica ── */
+.effort{display:flex;gap:4px;margin-top:8px}
+.effort i{width:16px;height:6px;border-radius:3px;background:var(--hair)}
+.effort i.f{background:var(--orange)}

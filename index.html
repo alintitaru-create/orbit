@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme:light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme:dark)">
+<meta name="robots" content="noindex,nofollow">
+<title>Orbit — Kirghizistan e Uzbekistan</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.png">
+
+<!-- ═══ STILI (settori: token → base → componenti → sezioni) ═══ -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/sections.css">
+<link rel="stylesheet" href="css/ornaments.css">
+
+<!-- ═══ MAPPA: libreria MapLibre (gratuita, da CDN) ═══ -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.12.0/maplibre-gl.css"
+      integrity="sha384-mnM9NG1099tBMNxdDQNDKIxYcn/fmqQXFJvbT5l1MsrWvzfxBEffceBsw75/cW2R" crossorigin="anonymous" referrerpolicy="no-referrer">
+<!-- integrity: se il file servito non corrisponde all'impronta, il browser
+     lo rifiuta. Senza, chi controllasse il CDN potrebbe iniettare codice
+     sulla pagina dove vivono la password decifrata e la chiave di GitHub. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.12.0/maplibre-gl.min.js"
+        integrity="sha384-FF2LfePCZzGVK1R7pb6VKq51p3YjU0lz1opH6rV67cpgQTBelfTLgmqLRn6CGNq/" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+
+<!-- ═══════════ SCHERMATA DI SBLOCCO (solo nella versione online) ═══════════ -->
+<div id="gate" hidden>
+  <form id="gateForm">
+    <img src="icon.png" alt="" width="72" height="72">
+    <h1>Orbit</h1>
+    <p>Kirghizistan e Uzbekistan, settembre 2026.<br>I dati del viaggio sono cifrati.</p>
+    <input type="text" name="username" value="orbit" autocomplete="username" hidden>
+    <input type="password" id="gatePw" placeholder="Password" autocomplete="current-password" enterkeyhint="go">
+    <button class="pill on" type="submit">Apri</button>
+    <small id="gateErr"></small>
+  </form>
+</div>
+
+<!-- ═══════════ INTRO CINEMATOGRAFICA ═══════════ -->
+<div id="introTitle">
+  <svg class="tunduk" width="104" height="104" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+    <circle cx="50" cy="50" r="42" stroke="var(--kg-red)" stroke-width="5"/>
+    <circle cx="50" cy="50" r="30" stroke="var(--kg-red)" stroke-width="3"/>
+    <path d="M50 20v60M20 50h60M29 29l42 42M71 29L29 71" stroke="var(--steppe)" stroke-width="3" stroke-linecap="round"/>
+    <g stroke="var(--steppe)" stroke-width="4" stroke-linecap="round">
+      <path d="M8 50c0-16 8-28 16-34M92 50c0-16-8-28-16-34M8 50c0 16 8 28 16 34M92 50c0 16-8 28-16 34"/>
+    </g></svg>
+  <h1>Orbit</h1>
+  <p>Da Bergamo al Tien Shan e alla Via della Seta.<br>Quindici giorni, cinque mezzi, dodicimila chilometri.</p>
+  <div id="introBar"></div>
+  <div id="introLbl">Preparo la mappa…</div>
+</div>
+<div class="bar" id="barT"></div><div class="bar" id="barB"></div>
+<div id="odo"><span id="odoMode"></span><b id="odoKm">0</b><span>km</span><span id="odoLbl"></span></div>
+<div id="cityCard"><h3 id="cityName"></h3><p id="citySub"></p><p id="cityExtra" hidden></p></div>
+<button id="skipIntro">Salta l'intro</button>
+
+<!-- ═══════════ VISORE DOCUMENTI ═══════════ -->
+<div id="docView" hidden>
+  <div class="doc-top">
+    <b id="docTitle"></b>
+    <a id="docDl" class="pill" download>Scarica</a>
+    <button class="pill" id="docClose">Chiudi</button>
+  </div>
+  <div id="docState"></div>
+  <iframe id="docFrame" title="Documento"></iframe>
+</div>
+
+<!-- ═══════════ NAVIGAZIONE ═══════════ -->
+<nav>
+  <div class="in">
+    <span class="logo">Orbit</span>
+    <a href="#oggi">Oggi</a>
+    <a href="#giornate">Giornate</a>
+    <a href="#spostamenti">Spostamenti</a>
+    <a href="#mappa">Mappa</a>
+    <a href="#checklist">Checklist</a>
+    <a href="#alloggi">Alloggi</a>
+    <a href="#soldi">Soldi</a>
+    <a href="#documenti">Documenti</a>
+    <a href="#pratico">Pratico</a>
+    <a href="#app">App</a>
+  </div>
+</nav>
+
+<!-- ═══════════ TESTATA ═══════════ -->
+<header class="hero">
+  <h1>Kirghizistan<br>e Uzbekistan.
+    <small>9 – 23 settembre 2026 · quindici giorni, cinque mezzi, 12.000 km</small>
+  </h1>
+  <div class="clocks" id="clocks"></div>
+</header>
+<div class="orn" aria-hidden="true"><svg viewBox="0 0 2000 24" preserveAspectRatio="none">
+  <defs><pattern id="kochkor" width="80" height="24" patternUnits="userSpaceOnUse">
+    <path d="M40 21V9M40 9c0-6 5-8 8-5s2 7-3 7c-3 0-5-2-5-2M40 9c0-6-5-8-8-5s-2 7 3 7c3 0 5-2 5-2M0 12h20M60 12h20"
+          fill="none" stroke="var(--steppe)" stroke-width="1.7" stroke-linecap="round"/>
+    <circle cx="20" cy="12" r="1.9" fill="var(--kg-red)"/><circle cx="60" cy="12" r="1.9" fill="var(--kg-red)"/>
+  </pattern></defs><rect width="2000" height="24" fill="url(#kochkor)"/></svg></div>
+
+<main>
+
+<!-- ═══════════ SETTORE OGGI ═══════════ -->
+<section id="oggi">
+  <div class="card" id="oggi-card"></div>
+</section>
+
+<!-- ═══════════ SETTORE GIORNATE ═══════════ -->
+<section id="giornate">
+  <h2>Le giornate.</h2>
+  <p class="sub">Tocca una giornata per il programma, i luoghi e le informazioni per la notte. Frecce ← → per scorrere.</p>
+  <div class="chiprow" id="dayChips"></div>
+  <div class="card" id="giorno-dettaglio"></div>
+</section>
+
+<!-- ═══════════ SETTORE SPOSTAMENTI ═══════════ -->
+<section id="spostamenti">
+  <h2>Gli spostamenti.</h2>
+  <p class="sub">Le 23 tratte in ordine, con orari, codici di prenotazione copiabili e avvisi.</p>
+  <div class="legs" id="legList"></div>
+</section>
+
+<!-- ═══════════ SETTORE MAPPA ═══════════ -->
+<section id="mappa">
+  <h2>La mappa.</h2>
+  <p class="sub">Tutto il percorso, colorato per mezzo. La giornata selezionata è evidenziata con i suoi punti di interesse: blu dal vostro programma, arancio i consigli.</p>
+  <div id="mapWrap">
+    <div id="map"></div>
+    <div id="mapCtrl">
+      <button class="pill" id="locBtn">Dove sono</button>
+      <button class="pill" id="baseTgl">Satellite</button>
+    </div>
+  </div>
+  <p id="mapHint">Le linee tratteggiate sono voli, trekking e cavallo; le continue strada e ferrovia. Un tocco su un punto apre descrizione e collegamenti a Google Maps, Yandex e 2GIS. Il bottone in basso gira fra tre mappe: strade, topografica (curve di livello e sentieri, utile per Ala Kul) e satellite.</p>
+  <button class="pill" id="replayIntro">▶︎ Rivedi il viaggio dall'alto</button>
+</section>
+
+<!-- ═══════════ SETTORE CHECKLIST ═══════════ -->
+<section id="checklist">
+  <h2>Le checklist.</h2>
+  <p class="sub">Valigia e cose da fare. Le spunte e le voci aggiunte restano salvate in questo browser.</p>
+  <div class="grid3" id="checkGrid"></div>
+</section>
+
+<!-- ═══════════ SETTORE ALLOGGI ═══════════ -->
+<section id="alloggi">
+  <h2>Gli alloggi.</h2>
+  <!-- Niente nomi di strutture qui: questo file è pubblico e si legge
+       anche senza password. I dettagli arrivano dai dati cifrati. -->
+  <p class="sub">Le cinque prenotazioni confermate su Booking. Le notti del 10, 11 e 12 settembre sono dal programma, senza conferma scritta.</p>
+  <div class="stays" id="stayList"></div>
+</section>
+
+<!-- ═══════════ SETTORE SOLDI ═══════════ -->
+<section id="soldi">
+  <h2>I soldi.</h2>
+  <p class="sub">Stime del vostro foglio costi, per due persone — più il cambio di oggi e il registro di quello che spendete davvero.</p>
+  <div class="money">
+    <div class="card" id="fxCard"></div>
+    <div class="card" id="expCard"></div>
+  </div>
+  <div class="money" style="margin-top:14px" id="moneyGrid"></div>
+  <div class="warn" id="moneyNote"></div>
+</section>
+
+<!-- ═══════════ SETTORE DOCUMENTI ═══════════ -->
+<section id="documenti">
+  <h2>I documenti.</h2>
+  <p class="sub" id="docHint"></p>
+  <div class="appgrid" id="docGrid"></div>
+</section>
+
+<!-- ═══════════ SETTORE PRATICO & EMERGENZE ═══════════ -->
+<section id="pratico">
+  <h2>Pratico &amp; emergenze.</h2>
+  <p class="sub">Numeri da salvare in rubrica, cose da sapere e le frasi che servono.</p>
+  <div class="grid3" id="praticoGrid"></div>
+</section>
+
+<!-- ═══════════ SETTORE APP ═══════════ -->
+<section id="app">
+  <h2>Le app che servono.</h2>
+  <p class="sub">Nove strumenti per muoversi in Asia centrale.</p>
+  <div class="appgrid" id="appGrid"></div>
+</section>
+
+<!-- ═══════════ SETTORE DATI (modifica dal telefono) ═══════════ -->
+<section id="dati" hidden>
+  <h2>I dati del viaggio.</h2>
+  <p class="sub">Da qui si corregge il viaggio senza bisogno del computer: si salva, e nel giro di qualche minuto cambiano tutte e due le pagine.</p>
+  <div class="card" id="datiBox"></div>
+</section>
+
+</main>
+
+<footer>
+  Orbit · dashboard del viaggio 9–23 settembre 2026.<br>
+  <a href="pubblico/">Pagina per i cari</a> — da condividere: stesso viaggio, senza documenti né codici.<br>
+  Dati verificati sui documenti di prenotazione. Mappe: OpenStreetMap, OpenTopoMap ed Esri. Meteo: Open-Meteo. Cambi: er-api. Foto: Wikipedia.
+</footer>
+
+<!-- ═══ SCRIPT (settori, in ordine di dipendenza) ═══
+     js/data.js esiste solo nella copia sul Mac; online al suo posto
+     c'è js/data.enc.js e la password viene chiesta da boot.js. -->
+<script src="js/data.js" onerror="void 0"></script>
+<script src="js/data.enc.js" onerror="void 0"></script>
+<script src="js/util.js"></script>
+<script src="js/clocks.js"></script>
+<script src="js/weather.js"></script>
+<script src="js/days.js"></script>
+<script src="js/legs.js"></script>
+<script src="js/map.js"></script>
+<script src="js/sections.js"></script>
+<script src="js/checklist.js"></script>
+<script src="js/money.js"></script>
+<script src="js/media.js"></script>
+<script src="js/sanifica.js"></script>
+<script src="js/pubblica.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/dati.js"></script>
+<script src="js/docs.js"></script>
+<script src="js/ornaments.js"></script>
+<script src="js/cinematic.js"></script>
+<script src="js/main.js"></script>
+<script src="js/boot.js"></script>
+</body>
+</html>

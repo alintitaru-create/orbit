@@ -1,0 +1,91 @@
+/* ═══════════════════════════════════════════════════════════
+   SETTORE STILI · 2. BASE — reset, tipografia, barra di
+   navigazione, struttura generale della pagina.
+   ═══════════════════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:var(--font);font-size:17px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:4px}
+img{max-width:100%;display:block}
+
+/* ── barra di navigazione ── */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:var(--nav);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid var(--hair);
+}
+nav .in{
+  max-width:var(--wrap);margin:0 auto;padding:0 22px;
+  display:flex;align-items:center;gap:26px;height:52px;
+  overflow-x:auto;scrollbar-width:none;
+}
+nav .in::-webkit-scrollbar{display:none}
+nav .logo{font-weight:700;font-size:19px;letter-spacing:-.02em;flex:none}
+nav a{color:var(--ink2);font-size:14px;white-space:nowrap;transition:color .2s}
+nav a:hover{color:var(--ink);text-decoration:none}
+
+/* ── struttura sezioni ── */
+main{max-width:var(--wrap);margin:0 auto;padding:0 22px}
+section{padding:56px 0 8px}
+section>h2{
+  font-size:clamp(30px,4.5vw,44px);font-weight:700;letter-spacing:-.02em;line-height:1.1;
+  margin-bottom:6px;
+}
+section>.sub{color:var(--ink2);font-size:17px;margin-bottom:26px;max-width:62ch}
+
+/* ── testata ── */
+header.hero{max-width:var(--wrap);margin:0 auto;padding:64px 22px 8px;text-align:left}
+.hero h1{
+  font-size:clamp(44px,8vw,80px);font-weight:700;letter-spacing:-.025em;line-height:1.02;
+}
+.hero h1 small{
+  display:block;font-size:clamp(19px,3vw,26px);font-weight:500;color:var(--ink2);
+  letter-spacing:-.01em;margin-top:10px;
+}
+.clocks{display:flex;gap:22px;margin-top:26px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.clocks::-webkit-scrollbar{display:none}
+.clocks div{flex:none;font-size:13px;color:var(--ink2)}
+.clocks b{display:block;font-size:22px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+
+footer{
+  max-width:var(--wrap);margin:40px auto 0;padding:26px 22px 44px;
+  border-top:1px solid var(--hair);color:var(--ink2);font-size:13px;line-height:1.7;
+}
+
+/* ── schermata di sblocco (versione online) ── */
+body.locked{overflow:hidden}
+body.locked>nav,body.locked>header,body.locked>main,body.locked>footer{display:none}
+#gate{
+  position:fixed;inset:0;z-index:900;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;padding:24px;
+}
+/* serve perché la regola #gate qui sopra ha la meglio sull'attributo
+   hidden: senza questa riga il pannello resta sopra la pagina sbloccata */
+#gate[hidden]{display:none}
+#gate form{
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  text-align:center;max-width:340px;width:100%;
+}
+#gate img{border-radius:18px;box-shadow:var(--shadow-lg)}
+#gate h1{font-size:34px;font-weight:700;letter-spacing:-.02em}
+#gate p{color:var(--ink2);font-size:15px;line-height:1.5;margin-bottom:6px}
+#gate input{
+  font:inherit;font-size:17px;text-align:center;color:var(--ink);background:var(--card);
+  border:1px solid var(--hair);border-radius:12px;padding:13px 16px;width:100%;
+}
+#gate button{width:100%;min-height:46px;justify-content:center}
+#gate small{color:var(--ink2);font-size:13px;min-height:18px}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition-duration:.01ms!important;animation-duration:.01ms!important}
+}

@@ -1,0 +1,57 @@
+/* ═══════════════════════════════════════════════════════════
+   SETTORE STILI · 1. TOKEN — colori, font, misure.
+   Cambiando questi valori cambia tutta la pagina.
+   ═══════════════════════════════════════════════════════════ */
+:root{
+  /* superfici e testo (tema chiaro) */
+  --bg:#f5f5f7;            /* fondo pagina */
+  --card:#ffffff;          /* card */
+  --card2:#f5f5f7;         /* riquadri dentro le card */
+  --ink:#1d1d1f;           /* testo principale */
+  --ink2:#6e6e73;          /* testo secondario */
+  --hair:rgba(0,0,0,.09);  /* linee sottili */
+  --nav:rgba(251,251,253,.8);           /* barra di navigazione */
+  --shadow:0 2px 12px rgba(0,0,0,.06);  /* ombra card */
+  --shadow-lg:0 12px 40px rgba(0,0,0,.12);
+
+  /* accenti */
+  --blue:#0071e3;
+  --green:#34c759;
+  --orange:#ff9500;
+  --red:#ff3b30;
+  --purple:#af52de;
+  --teal:#30b0c7;
+
+  /* colori dei mezzi di trasporto */
+  --air:var(--blue);
+  --road:var(--orange);
+  --rail:var(--red);
+  --foot:var(--green);
+  --horse:var(--purple);
+
+  /* tipografia e misure */
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --radius:18px;
+  --radius-sm:12px;
+  --wrap:1020px;           /* larghezza massima dei contenuti */
+}
+
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#000000;
+    --card:#1c1c1e;
+    --card2:#2c2c2e;
+    --ink:#f5f5f7;
+    --ink2:#a1a1a6;
+    --hair:rgba(255,255,255,.12);
+    --nav:rgba(22,22,23,.8);
+    --shadow:0 2px 12px rgba(0,0,0,.4);
+    --shadow-lg:0 12px 40px rgba(0,0,0,.6);
+    --blue:#0a84ff;
+    --green:#30d158;
+    --orange:#ff9f0a;
+    --red:#ff453a;
+    --purple:#bf5af2;
+    --teal:#40c8e0;
+  }
+}
