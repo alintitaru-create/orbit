@@ -131,6 +131,16 @@ cognome, per esempio — si può aggiungere in `js/data.js`:
 const RISERVATI=['Cognome','Altrocognome'];
 ```
 
+E se una struttura si chiama con una parola che nel racconto compare anche
+per conto suo — un «Albergo Verdi» mentre una chiesa ha le «cupole verdi» —
+la generazione si ferma per non cancellare la parola da tutto il testo. In
+quel caso basta dirlo, sempre in `js/data.js`, e il nome intero continua
+comunque a essere tolto:
+
+```
+const COMUNI=['verdi'];
+```
+
 Foto e note ci arrivano dalla pagina privata: nella scheda Diario si
 sceglie cosa mandare e `js/pubblica.js` lo carica in `pubblico/diario/`
 tramite l'API di GitHub. Serve una chiave personale (token con permesso

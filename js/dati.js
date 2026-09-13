@@ -90,7 +90,8 @@ const Dati={
     let g;
     try{
       ifr.contentWindow.eval(testo+`\n;window.__esito={${this.ATTESE.join(',')},`+
-        `RISERVATI:typeof RISERVATI!=='undefined'?RISERVATI:[]};`);
+        `RISERVATI:typeof RISERVATI!=='undefined'?RISERVATI:[],`+
+        `COMUNI:typeof COMUNI!=='undefined'?COMUNI:[]};`);
       g=ifr.contentWindow.__esito;
     }catch(e){
       const m=String(e.message);

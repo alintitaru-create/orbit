@@ -4,6 +4,8 @@
    e registro delle spese reali confrontato col budget.
    ═══════════════════════════════════════════════════════════ */
 const Money={
+  /* le valute del viaggio, con il nome da mostrare */
+  VALUTE:[['EUR','€'],['KGS','som KG'],['UZS','som UZ'],['USD','$']],
   /* tassi di riserva se la rete manca (settembre 2026, indicativi) */
   rates:{KGS:100,UZS:14500,USD:1.1},
   live:false,
@@ -37,19 +39,25 @@ const Money={
       <h3>Convertitore ${this.live?'<span class="badge green">tassi live</span>':'<span class="badge">tassi indicativi</span>'}</h3>
       <div class="fx-row">
         <input type="number" id="fxAmt" value="10" min="0" inputmode="decimal">
-        <select id="fxCur"><option>EUR</option><option>KGS</option><option>UZS</option><option>USD</option></select>
+        <select id="fxCur">${this.VALUTE.map(([s])=>`<option>${s}</option>`).join('')}</select>
         <div id="fxOut" class="fx-out"></div>
       </div>
       <table class="fx-cheat"><tr><td>1 €</td><td>${this.fmt(r.KGS)} som KG</td><td>${this.fmt(r.UZS)} som UZ</td></tr>
       <tr><td>1.000 som KG</td><td colspan="2">≈ ${this.fmt(1000/r.KGS*1,2)} €</td></tr>
       <tr><td>100.000 som UZ</td><td colspan="2">≈ ${this.fmt(100000/r.UZS,2)} €</td></tr></table>`;
+    /* Si mostrano sempre le altre tre valute, qualunque sia quella scelta:
+       serve sapere quanto fanno 10 € in som tanto quanto quanto fanno
+       20 $ in som. Prima solo l'euro dava tutte le conversioni, e
+       partendo da dollari o da som si otteneva soltanto l'euro. */
     const upd=()=>{
       const a=+el.querySelector('#fxAmt').value||0, c=el.querySelector('#fxCur').value;
       const eur=this.toEur(a,c);
-      el.querySelector('#fxOut').innerHTML=
-        c==='EUR'
-        ?`<b>${this.fmt(eur*this.rates.KGS)}</b> som KG · <b>${this.fmt(eur*this.rates.UZS)}</b> som UZ · <b>${this.fmt(eur*this.rates.USD,2)}</b> $`
-        :`<b>${this.fmt(eur,2)} €</b>`;
+      el.querySelector('#fxOut').innerHTML=this.VALUTE.filter(([s])=>s!==c).map(([s,nome])=>{
+        const v=s==='EUR'?eur:eur*this.rates[s];
+        /* i decimali servono solo dove il numero è piccolo: 145.000 som
+           non ha bisogno di virgole, 0,69 € sì */
+        return `<b>${this.fmt(v,v>=100?0:v>=1?2:4)}</b> ${nome}`;
+      }).join(' · ');
     };
     el.querySelector('#fxAmt').oninput=upd; el.querySelector('#fxCur').onchange=upd; upd();
   },
@@ -58,7 +66,13 @@ const Money={
   country(d){ return d<'2026-09-19'?'kg':d<'2026-09-23'?'uz':'other'; },
   add(amt,cur,desc){
     const d=new Date().toISOString().slice(0,10);
-    this.exp.push({t:Date.now(),d,amt,cur,desc});
+    /* Il momento dell'inserimento fa anche da nome della spesa, ed è quello
+       che il tasto «×» usa per ritrovarla. Due spese aggiunte nello stesso
+       millesimo di secondo avrebbero lo stesso nome, e cancellandone una
+       sparirebbero tutt'e due: qui si prende il primo istante libero. */
+    let t=Date.now();
+    while(this.exp.some(e=>e.t===t)) t++;
+    this.exp.push({t,d,amt,cur,desc});
     try{ localStorage.setItem('orbit_exp',JSON.stringify(this.exp)); }catch(e){}
     this.renderExp();
   },

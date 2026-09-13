@@ -142,11 +142,14 @@ mkdirSync(pubDir,{recursive:true});
 const g2={};
 new Function('g','with(g){'+readFileSync(join(root,'js/data.js'),'utf8')+
   ';Object.assign(g,{P,LEGS,DAYS,POIS,WAYPTS,BOOKINGS,'+
-  'RISERVATI:typeof RISERVATI!=="undefined"?RISERVATI:[]})}')(g2);
+  'RISERVATI:typeof RISERVATI!=="undefined"?RISERVATI:[],'+
+  'COMUNI:typeof COMUNI!=="undefined"?COMUNI:[]})}')(g2);
 
 const esito=Sanifica.genera(g2);
 if(esito.trovati.length){
   console.error('FERMO: nella pagina pubblica è finito qualcosa di riservato →',esito.trovati.join(', '));
+  console.error('Se una di queste è una parola comune e non il nome di una struttura,\n'+
+                "aggiungila in js/data.js:  const COMUNI=['parola'];");
   process.exit(1);
 }
 writeFileSync(join(pubDir,'dati.js'),esito.testo);

@@ -63,10 +63,16 @@ const Sanifica={
     Object.values(d.P||{}).forEach(v=>parole(v&&v[2]).forEach(w=>luoghi.add(w.toLowerCase())));
     Object.values(d.POIS||{}).forEach(s=>parole(s&&s.city).forEach(w=>luoghi.add(w.toLowerCase())));
 
+    /* Se una struttura si chiama con una parola che nel racconto compare
+       anche per conto suo («Albergo Verdi» e «cupole verdi»), quella parola
+       si aggiunge in js/data.js con  const COMUNI=['verdi']  e smette di
+       essere presa per un nome proprio. */
+    const comuni=new Set([...this.GENERICHE,
+                          ...(d.COMUNI||[]).map(x=>String(x).toLowerCase())]);
     const distintiva=w=>{
       const b=w.replace(/['']s?$/i,'');
       return b.length>=4&&!/^\d+$/.test(b)&&
-             !this.GENERICHE.has(b.toLowerCase())&&!luoghi.has(b.toLowerCase()) ? b : null;
+             !comuni.has(b.toLowerCase())&&!luoghi.has(b.toLowerCase()) ? b : null;
     };
     const raccogli=(valori,dentro)=>valori.filter(Boolean).forEach(v=>
       parole(v).forEach(w=>{ const b=distintiva(w); if(b) dentro.add(b); }));
