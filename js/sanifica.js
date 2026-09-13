@@ -29,15 +29,23 @@ const Sanifica={
      Qui stanno anche le parole italiane correnti, e non per pignoleria:
      se una struttura si chiama con una parola comune, prenderla per un
      nome proprio vorrebbe dire cancellarla da tutto il racconto. */
+  /* le parole che dicono «qui si dorme»: servono a riconoscere un nome di
+     struttura dentro un campo scritto a mano */
+  ALLOGGIO:new Set(['hotel','hostel','hostal','ostello','albergo','pensione','locanda','guest',
+                    'guesthouse','house','gh','inn','resort','camp','yurt','yurta','yurte',
+                    'apartment','apartments','b&b']),
   GENERICHE:new Set([
-    'hotel','hostel','hostal','ostello','albergo','guest','guesthouse','house','inn','resort',
-    'camp','yurt','yurta','yurte','apartment','apartments','rooms','room','bed','breakfast','the',
+    'hotel','hostel','hostal','ostello','albergo','pensione','locanda','guest','guesthouse','house',
+    'inn','resort','camp','yurt','yurta','yurte','apartment','apartments','rooms','room','bed',
+    'breakfast','the','tenda','tende','campo','campi',
     'sono','siamo','siete','essere','stato','stata','anche','ancora','come','dove','quando','molto',
     'poco','tutto','tutta','tutti','tutte','prima','dopo','sotto','sopra','senza','verso','dentro',
-    'fuori','ogni','bene','quello','quella','questo','questa','della','delle','dello','degli',
-    'nella','nelle','alla','alle','dalla','dalle','sulla','sulle','con','presso','vicino','lungo',
+    'fuori','ogni','bene','oltre','nessun','nessuna','nessuno','quello','quella','questo','questa',
+    'della','delle','dello','degli','nella','nelle','alla','alle','dalla','dalle','sulla','sulle',
+    'con','presso','vicino','lungo','notti','conf','ordine',
     'casa','notte','giorno','sera','mattina','centro','piazza','strada','stazione','aeroporto',
-    'lago','valle','monte','passo','museo','mercato','bazar','parco','treno','taxi','cena','pranzo']),
+    'lago','valle','monte','passo','museo','mercato','bazar','parco','treno','taxi','cena','pranzo',
+    'street','ulitsa','prospekt','viale','corso',"ko'chasi",'kochasi','köchösü','көчөсү','кочосу']),
   /* le stesse parole viste dalla parte del testo: possono stare
      attaccate al nome, prima o dopo, e vanno via insieme a lui */
   ATTORNO:'(?:hotel|hostel|hostal|ostello|albergo|guest\\s*house|guesthouse|gh|camp|yurt\\s*camp)',
@@ -58,10 +66,21 @@ const Sanifica={
     const parole=s=>String(s==null?'':s).split(/[^\p{L}\p{N}&']+/u).filter(Boolean);
 
     /* i nomi dei luoghi non sono segreti, e vanno protetti: «Song Kul»
-       è il lago, non la struttura, e toglierlo cancellerebbe il racconto */
+       è il lago, non la struttura, e toglierlo cancellerebbe il racconto.
+       Valgono anche le città delle prenotazioni e i punti di interesse,
+       che sulla pagina dei cari ci vanno apposta. */
     const luoghi=new Set();
-    Object.values(d.P||{}).forEach(v=>parole(v&&v[2]).forEach(w=>luoghi.add(w.toLowerCase())));
-    Object.values(d.POIS||{}).forEach(s=>parole(s&&s.city).forEach(w=>luoghi.add(w.toLowerCase())));
+    const luogo=s=>parole(s).forEach(w=>luoghi.add(w.toLowerCase()));
+    /* … tranne i punti che sono essi stessi una struttura: fra i punti di
+       interesse ci sono anche gli alloggi, e proteggerli come luoghi
+       vorrebbe dire non nasconderli più da nessuna parte */
+    const eStruttura=s=>parole(s).some(w=>this.ALLOGGIO.has(w.toLowerCase()));
+    Object.values(d.P||{}).forEach(v=>luogo(v&&v[2]));
+    Object.values(d.POIS||{}).forEach(s=>{
+      luogo(s&&s.city);
+      ((s&&s.items)||[]).forEach(p=>{ if(p&&!eStruttura(p.n)) luogo(p.n); });
+    });
+    B.forEach(b=>luogo(b&&b.city));
 
     /* Se una struttura si chiama con una parola che nel racconto compare
        anche per conto suo («Albergo Verdi» e «cupole verdi»), quella parola
@@ -77,17 +96,34 @@ const Sanifica={
     const raccogli=(valori,dentro)=>valori.filter(Boolean).forEach(v=>
       parole(v).forEach(w=>{ const b=distintiva(w); if(b) dentro.add(b); }));
 
-    /* strutture: dalle prenotazioni e da dove si dorme ogni notte */
-    const frasi=new Set(), nomi=new Set();
-    [...B.map(b=>b.name),...D.map(x=>x.stay),...L.map(x=>x.stay)].filter(Boolean).forEach(n=>{
-      const frase=String(n).split(',')[0].trim();
-      if(frase.length>=4) frasi.add(frase);
+    /* ── strutture ──
+       «Dove si dorme» è scritto a mano, e non contiene solo alberghi:
+       c'è «Casa» per l'ultima notte, «Tenda oltre il passo», «Nessuna:
+       notte in aeroporto». Si prende per nome di struttura solo ciò che
+       ha almeno due parole e una parola da alloggio — altrimenti «Casa»
+       diventa un nome proprio e si porta via il «fatelo da casa» del
+       racconto, che è successo davvero. */
+    const frasi=new Set(), nomi=new Set(), coda=[];
+    [...B.map(b=>b.name),...D.map(x=>x.stay),...L.map(x=>x.stay)].filter(Boolean).forEach(v=>{
+      const pezzi=String(v).split(',');
+      coda.push(pezzi.slice(1).join(','));      /* dopo la virgola: vie e codici */
+      const testa=pezzi[0].trim(), p=parole(testa);
+      if(p.length<2||!p.some(w=>this.ALLOGGIO.has(w.toLowerCase()))) return;
+      frasi.add(testa);
+      p.forEach(w=>{ const b=distintiva(w); if(b) nomi.add(b); });
     });
-    raccogli([...B.map(b=>b.name),...D.map(x=>x.stay),...L.map(x=>x.stay)],nomi);
 
-    /* indirizzi: il nome della via, che poi si porta via il resto */
+    /* ── indirizzi ──
+       Dalla scheda si toglie la coda «CAP Città»: il nome della città non
+       è un segreto, è nel racconto, e trattarlo da via cancellerebbe le
+       frasi che lo nominano. Il resto delle righe «dove si dorme» invece
+       serve: certe vie stanno solo lì. */
     const vie=new Set();
-    raccogli(B.map(b=>b.addr),vie);
+    const senzaCitta=a=>{
+      const p=String(a).split(',');
+      return (p.length>1&&/^\s*\d{4,}\s+\S/.test(p[p.length-1])?p.slice(0,-1):p).join(',');
+    };
+    raccogli([...B.map(b=>b.addr).filter(Boolean).map(senzaCitta),...coda],vie);
 
     /* codici di prenotazione e PIN */
     const codici=new Set();
