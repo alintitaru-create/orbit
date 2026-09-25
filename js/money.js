@@ -78,10 +78,34 @@ const Money={
     try{ localStorage.setItem(Viaggio.chiave('exp'),JSON.stringify(this.exp)); }catch(e){}
     this.renderExp();
   },
+  /* Togliere una spesa era immediato e definitivo: un tocco storto
+     sulla × e quella riga spariva senza chiedere niente e senza modo
+     di tornare indietro. Su un telefono, in viaggio, con le mani
+     piene, succede. Ora resta da parte e si può rimettere. */
+  ultimaTolta:null,
+
   del(t){
+    const tolta=this.exp.find(e=>e.t===t);
     this.exp=this.exp.filter(e=>e.t!==t);
+    this.ultimaTolta=tolta||null;
     try{ localStorage.setItem(Viaggio.chiave('exp'),JSON.stringify(this.exp)); }catch(e){}
     this.renderExp();
+  },
+
+  rimetti(){
+    if(!this.ultimaTolta) return;
+    this.exp.push(this.ultimaTolta);
+    this.exp.sort((a,b)=>a.t-b.t);
+    this.ultimaTolta=null;
+    try{ localStorage.setItem(Viaggio.chiave('exp'),JSON.stringify(this.exp)); }catch(e){}
+    this.renderExp();
+  },
+
+  avvisoTolta(){
+    const t=this.ultimaTolta;
+    if(!t) return '';
+    return `<p class="exp-tolta">Tolta «${t.desc||'senza nome'}», ${this.fmt(t.amt)} ${t.cur}.
+      <button class="lnk" id="expRimetti">Rimettila</button></p>`;
   },
 
   renderExp(){
@@ -98,6 +122,7 @@ const Money={
     el.innerHTML=`
       <h3>Spese vere <span class="badge">${this.exp.length}</span></h3>
       ${this.avvisoDispersi()}
+      ${this.avvisoTolta()}
       <form class="exp-add" id="expForm">
         <input type="number" id="expAmt" placeholder="Importo" min="0" step="any" inputmode="decimal" required>
         <select id="expCur">${this.valute().map(c=>`<option>${c}</option>`).join('')}</select>
@@ -116,6 +141,8 @@ const Money={
     el.querySelectorAll('.exp-list .del').forEach(b=>b.onclick=()=>this.del(+b.dataset.t));
     const rec=el.querySelector('#expRecupera');
     if(rec) rec.onclick=()=>this.recupera();
+    const rim=el.querySelector('#expRimetti');
+    if(rim) rim.onclick=()=>this.rimetti();
   },
 
   /* ── le spese finite fuori posto ──

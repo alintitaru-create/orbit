@@ -216,6 +216,15 @@
   background:none;border:0;padding:0;cursor:pointer;
 }
 .exp-dispersi .lnk:hover{text-decoration:underline}
+.exp-tolta{
+  font-size:13.5px;margin-top:10px;padding:10px 12px;border-radius:var(--radius-sm);
+  background:var(--card2);color:var(--ink2);
+}
+.exp-tolta .lnk{
+  font:inherit;font-weight:600;color:var(--blue);
+  background:none;border:0;padding:0;cursor:pointer;
+}
+.exp-tolta .lnk:hover{text-decoration:underline}
 .exp-list li{display:flex;gap:10px;align-items:baseline;padding:7px 0;border-top:1px solid var(--hair);font-size:13.5px}
 .exp-list li .txt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .exp-list li b{font-variant-numeric:tabular-nums;white-space:nowrap}
