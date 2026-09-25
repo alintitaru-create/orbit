@@ -48,6 +48,7 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
 | Convertitore valute e registro spese | `js/money.js` |
 | Pratico & emergenze, Documenti | `js/sections.js` + dati in `viaggi/<id>/data.js` (`PRATICO`, `DOCS`) |
 | Foto e video vostri (per giornata) | `js/media.js` |
+| Dove è stata scattata una foto | `js/exif.js` |
 | Condivisione con i cari | `js/pubblica.js` |
 | Foto sincronizzate fra i due telefoni | `js/sync.js` |
 | Pagina pubblica per i cari | `pubblico/` |
@@ -73,6 +74,15 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
   volano sul punto in mappa.
 - **Spostamenti**: le 23 tratte con orari, avvisi e codici copiabili
   (un tocco copia il codice).
+- **Le vostre foto sulla mappa**: ogni foto scattata col telefono porta
+  dentro le coordinate dello scatto. Orbit le legge quando la si aggiunge
+  al diario — prima di rimpicciolirla, perché la riduzione le
+  cancellerebbe — e le appoggia sulla mappa nel punto esatto, come
+  francobolli. Le foto aggiunte prima si recuperano dalla scheda Diario,
+  riscegliendole dal rullino: viene letta solo la posizione e attaccata
+  alle foto già presenti, senza doppioni. Funziona con i JPEG, che è
+  quello che il telefono manda; se la posizione era spenta, la foto si
+  salva lo stesso, senza il suo posto.
 - **Mappa**: percorso completo colorato per mezzo (MapLibre; basi
   OpenStreetMap, OpenTopoMap ed Esri, tutte senza chiave API);
   la giornata selezionata è evidenziata con i suoi punti di interesse e i

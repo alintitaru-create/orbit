@@ -136,10 +136,51 @@ const OrbitMap={
     this.showDay(Days.cur);
   },
 
+  /* ═══ le vostre foto sulla mappa ═══
+     Ogni foto scattata col telefono sa dov'era: js/exif.js legge le
+     coordinate quando la si aggiunge al diario. Qui diventano
+     francobolli appoggiati sulla mappa, nel punto esatto.
+
+     Sono marcatori veri e non un livello di cerchi perché la foto è
+     già un'immagine: mostrarla com'è dice più di un pallino colorato.
+     Le foto di una giornata sono poche, quindi si può. */
+  fotoSegni:[], fotoUrls:[], fotoDi:null,
+
+  async mostraFoto(day){
+    this.fotoSegni.forEach(m=>m.remove()); this.fotoSegni=[];
+    this.fotoUrls.forEach(u=>URL.revokeObjectURL(u)); this.fotoUrls=[];
+    this.fotoDi=day;
+    if(typeof Media==='undefined'||!window.maplibregl) return;
+    let items=[];
+    try{ items=await Media.all(day); }catch(e){ return; }
+    if(this.fotoDi!==day) return;                 /* giornata cambiata nel frattempo */
+
+    items.filter(x=>x.type!=='video'&&x.lat!=null&&x.lon!=null).forEach(x=>{
+      const url=URL.createObjectURL(x.blob); this.fotoUrls.push(url);
+      const el=document.createElement('button');
+      el.className='foto-segno';
+      el.type='button';
+      el.title=x.caption||'Una vostra foto';
+      el.innerHTML=`<img src="${url}" alt="">`;
+      el.onclick=ev=>{
+        ev.stopPropagation();
+        if(this.popup) this.popup.remove();
+        this.popup=new maplibregl.Popup({offset:18,maxWidth:'280px'})
+          .setLngLat([x.lon,x.lat])
+          .setHTML(`<div class="pop foto"><img src="${url}" alt="">
+            ${x.caption?`<p>${x.caption.replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</p>`:''}
+            <p class="note">${x.alt!=null?`${x.alt.toLocaleString('it')} m · `:''}${(+x.lat).toFixed(4)}, ${(+x.lon).toFixed(4)}</p></div>`)
+          .addTo(this.map);
+      };
+      this.fotoSegni.push(new maplibregl.Marker({element:el}).setLngLat([x.lon,x.lat]).addTo(this.map));
+    });
+  },
+
   /* mostra tratte e punti della giornata i; se poi è dato, apre il suo popup */
   showDay(i,poi){
     if(!this.ready) return;
     const D=DAYS[i], set=POIS[D.d];
+    this.mostraFoto(D.d);
     this.map.setFilter('legsHi',['==',['get','day'],i]);
     this.map.getSource('poi').setData({type:'FeatureCollection',
       features:set?set.items.map(p=>({type:'Feature',properties:p,geometry:{type:'Point',coordinates:[p.lo,p.la]}})):[]});

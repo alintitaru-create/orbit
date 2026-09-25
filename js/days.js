@@ -79,6 +79,7 @@ const Days={
         </label>
         <div class="media-grid"></div>
         <p class="muted media-info" style="font-size:12.5px;margin-top:10px"></p>
+        <div class="media-posti"></div>
         <div class="pub-box"></div>
         <div class="sync-box"></div>
       </div>`;

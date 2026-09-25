@@ -248,6 +248,15 @@ table.plain.frasi td:last-child{width:32%}
 }
 .media-add:hover{border-color:var(--blue);color:var(--blue)}
 .media-add::before{content:"＋";font-size:17px;line-height:1}
+.media-posti{margin-top:12px}
+.media-posti-btn{
+  display:inline-flex;align-items:center;gap:7px;cursor:pointer;
+  font-size:13.5px;font-weight:600;color:var(--blue);
+  border:1px solid color-mix(in srgb,var(--blue) 35%,transparent);
+  border-radius:999px;padding:7px 14px;
+}
+.media-posti-btn:hover{background:color-mix(in srgb,var(--blue) 10%,transparent)}
+.media-posti-btn::before{content:"◎";font-size:15px;line-height:1}
 .media-grid{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
   gap:14px;margin-top:14px;
@@ -331,3 +340,22 @@ table.plain.frasi td:last-child{width:32%}
 .sync-box b{font-size:16px;font-weight:600}
 .sync-box p{font-size:13.5px;line-height:1.5;margin-top:5px}
 .sync-stato{font-size:13.5px;margin-top:10px;min-height:18px}
+
+/* ── LE VOSTRE FOTO SULLA MAPPA ──
+   Un francobollo appoggiato nel punto dello scatto. Piccolo, con il
+   bordo chiaro che lo stacca da qualunque mappa ci sia sotto. */
+.foto-segno{
+  width:44px;height:44px;padding:0;border:0;cursor:pointer;
+  border-radius:9px;overflow:hidden;
+  box-shadow:0 0 0 2.5px #fff,0 2px 8px rgba(0,0,0,.35);
+  transition:transform .18s ease;
+}
+.foto-segno:hover{transform:scale(1.14)}
+.foto-segno img{width:100%;height:100%;object-fit:cover;display:block}
+.maplibregl-popup-content .pop.foto img{
+  width:100%;border-radius:8px;margin-bottom:8px;display:block;
+}
+.maplibregl-popup-content .pop.foto p{font-size:13.5px;line-height:1.45}
+.maplibregl-popup-content .pop.foto .note{
+  color:var(--ink2);font-size:12px;margin-top:4px;font-variant-numeric:tabular-nums;
+}

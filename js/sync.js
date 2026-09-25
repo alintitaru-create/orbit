@@ -105,7 +105,11 @@ const Sync={
       const dati=await this.chiudi(await it.blob.arrayBuffer());
       await Pubblica.scrivi(`${this.CARTELLA}/${it.uid}.bin`,this.b64(dati),'Foto sincronizzata');
       remoto.items.push({uid:it.uid,day:it.day,type:it.type,caption:it.caption||'',
-                         size:it.size,t:it.t,name:it.name||''});
+                         size:it.size,t:it.t,name:it.name||'',
+                         /* dove è stata scattata: viaggia con la foto, così
+                            anche l'altro telefono la vede sulla mappa */
+                         ...(it.lat!=null?{lat:it.lat,lon:it.lon}:{}),
+                         ...(it.alt!=null?{alt:it.alt}:{})});
     }
 
     /* 2. quello che c'è di là e non qui: si scarica */
@@ -120,6 +124,8 @@ const Sync={
       try{ chiaro=await this.apri(b); }catch(e){ nonRiuscite++; continue; }
       await Media.put({viaggio:Viaggio.id,uid:x.uid,day:x.day,type:x.type,caption:x.caption||'',
                        name:x.name||'',size:chiaro.length,t:x.t||Date.now(),
+                       ...(x.lat!=null?{lat:x.lat,lon:x.lon}:{}),
+                       ...(x.alt!=null?{alt:x.alt}:{}),
                        blob:new Blob([chiaro],{type:x.type==='video'?'video/mp4':'image/jpeg'})});
       scaricate++;   /* si contano quelle davvero salvate, non quelle tentate */
     }

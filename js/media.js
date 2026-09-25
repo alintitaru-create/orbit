@@ -76,13 +76,18 @@ const Media={
     }catch(e){ return file; }
   },
 
-  /* ── aggiunge i file scelti ── */
+  /* ── aggiunge i file scelti ──
+     Le coordinate si leggono dal file ORIGINALE, prima di
+     rimpicciolirlo: shrink() ridisegna la foto su una tela, e la tela
+     porta con sé solo i pixel. Dopo non c'è più niente da leggere. */
   async addFiles(day,files,onProgress){
     let n=0;
     for(const f of files){
       const video=f.type.startsWith('video');
+      const dove=video?null:await Exif.posizione(f);
       const blob=video?f:await this.shrink(f);
       await this.put({viaggio:this.viaggio(),day,type:video?'video':'foto',blob,name:f.name,
+                      ...(dove||{}),
                       size:blob.size,caption:'',t:Date.now(),
                       /* nome valido su tutti i telefoni: i numeri interni
                          ripartono da 1 su ogni dispositivo e si scontrerebbero */
@@ -140,10 +145,74 @@ const Media={
       };
     });
 
+    this.mostraRecuperoPosti(day,root,items);
+
     /* il pannello "condividi con i cari" elenca le stesse foto:
        va ridisegnato ogni volta che se ne aggiunge o toglie una */
     if(typeof Pubblica!=='undefined') Pubblica.mount(day,root);
     if(typeof Sync!=='undefined') Sync.mount(day,root);
+  },
+
+  /* ═══ recuperare la posizione di foto già caricate ═══
+     Le foto aggiunte prima di questo settore hanno perso le coordinate:
+     venivano rimpicciolite e la scheda con la posizione restava fuori.
+     Gli originali però sono ancora nel rullino del telefono.
+
+     Si ripescano da lì: di ogni file si legge solo la posizione, e la
+     si attacca alla foto che è già qui, riconosciuta dal nome. Non si
+     aggiunge niente e non si sostituisce niente — nessun doppione, le
+     foto restano quelle. */
+  /* l'esito dell'ultimo recupero: sopravvive al ridisegno del
+     pannello, altrimenti sparirebbe nell'istante in cui si scrive */
+  esitoPosti:'',
+
+  async mostraRecuperoPosti(day,root,items){
+    const box=root.querySelector('.media-posti'); if(!box) return;
+    const senza=items.filter(x=>x.type!=='video'&&x.lat==null);
+    const esito=this.esitoPosti?`<p class="muted media-posti-stato" style="font-size:12.5px">${this.esitoPosti}</p>`:'';
+    if(!senza.length){ box.innerHTML=esito; return; }
+    const con=items.filter(x=>x.lat!=null).length;
+    box.innerHTML=`<label class="media-posti-btn">
+        <input type="file" accept="image/*" multiple hidden>
+        <span>Ritrova dove sono state scattate (${senza.length})</span>
+      </label>
+      <p class="muted" style="font-size:12.5px;margin-top:6px">
+        ${con?`${con} di queste foto sono già sulla mappa. `:''}Le altre sono arrivate
+        qui senza la posizione. Riscegliendole dal rullino, Orbit legge solo dove
+        erano e la attacca a quelle che ci sono già: niente doppioni.</p>
+      ${esito||'<p class="muted media-posti-stato" style="font-size:12.5px"></p>'}`;
+
+    const inp=box.querySelector('input');
+    const stato=box.querySelector('.media-posti-stato');
+    inp.onchange=async()=>{
+      const files=[...inp.files]; if(!files.length) return;
+      this.esitoPosti=''; stato.textContent='Guardo le foto…';
+      let trovate=0, senzaPosto=0, nonRiconosciute=0;
+      const tutte=[];
+      for(const g of DAYS) tutte.push(...await this.all(g.d));
+      for(const f of files){
+        const dove=await Exif.posizione(f);
+        if(!dove){ senzaPosto++; continue; }
+        const rec=tutte.find(x=>x.name===f.name&&x.lat==null);
+        if(!rec){ nonRiconosciute++; continue; }
+        rec.lat=dove.lat; rec.lon=dove.lon;
+        if(dove.alt!=null) rec.alt=dove.alt;
+        rec.mod=Date.now();
+        await this.put(rec);
+        trovate++;
+      }
+      const pezzi=[];
+      if(trovate) pezzi.push(`${trovate} foto ${trovate===1?'ha ritrovato':'hanno ritrovato'} il suo posto`);
+      if(senzaPosto) pezzi.push(`${senzaPosto} non ${senzaPosto===1?'aveva':'avevano'} la posizione salvata`);
+      if(nonRiconosciute) pezzi.push(`${nonRiconosciute} non ${nonRiconosciute===1?'corrisponde':'corrispondono'} a foto già qui`);
+      this.esitoPosti=pezzi.join(', ')+'.';
+      stato.textContent=this.esitoPosti;
+      inp.value='';
+      if(trovate){
+        this.mount(day,root);
+        if(typeof OrbitMap!=='undefined'&&OrbitMap.ready) OrbitMap.mostraFoto(day);
+      }
+    };
   },
 
   /* ── collega il bottone di aggiunta ── */
