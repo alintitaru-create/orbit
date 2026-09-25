@@ -21,10 +21,15 @@
 #giorno-dettaglio{margin-top:6px;padding:26px 28px}
 #giorno-dettaglio .lead{color:var(--ink2);max-width:68ch;margin:8px 0 18px;font-size:17px}
 #giorno-dettaglio .statgrid{margin-bottom:22px}
+/* cinque schede non ci stanno in larghezza su un telefono: la
+   striscia scorre di lato invece di andare a capo o tagliare l'ultima */
 .seg{
-  display:inline-flex;background:var(--card2);border-radius:11px;padding:3px;margin-bottom:18px;
+  display:flex;background:var(--card2);border-radius:11px;padding:3px;margin-bottom:18px;
+  max-width:100%;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
 }
+.seg::-webkit-scrollbar{display:none}
 .seg button{
+  flex:none;white-space:nowrap;
   padding:7px 16px;border-radius:9px;font-size:13.5px;font-weight:600;color:var(--ink2);
   transition:background .2s,color .2s;-webkit-tap-highlight-color:transparent;
 }
@@ -359,3 +364,41 @@ table.plain.frasi td:last-child{width:32%}
 .maplibregl-popup-content .pop.foto .note{
   color:var(--ink2);font-size:12px;margin-top:4px;font-variant-numeric:tabular-nums;
 }
+
+/* ── I PERCORSI FATTI ──
+   Il pannello della scheda Percorso: comandi in alto, poi l'elenco.
+   Mentre si registra, i numeri che cambiano prendono il posto dei
+   comandi: in movimento serve leggere, non scegliere. */
+.tracce-cmd{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tracce-cmd #trNome{
+  flex:1 1 180px;min-width:0;font:inherit;font-size:15px;color:var(--ink);
+  background:var(--card2);border:1px solid var(--hair);border-radius:var(--radius-sm);padding:8px 12px;
+}
+.tracce-cmd #trTipo{
+  font:inherit;font-size:15px;color:var(--ink);
+  background:var(--card2);border:1px solid var(--hair);border-radius:var(--radius-sm);padding:8px 10px;
+}
+.tracce-cmd .pill{white-space:nowrap}
+#trImporta{cursor:pointer}
+
+.tracce-live{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:14px 16px;border-radius:var(--radius-sm);
+  background:color-mix(in srgb,var(--green) 14%,transparent);
+}
+.tracce-live .live-km{font-size:26px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tracce-live .live-info{flex:1;color:var(--ink2);font-size:13.5px;font-variant-numeric:tabular-nums}
+
+.tracce-nota{font-size:12.5px;margin-top:10px;max-width:60ch}
+.tracce-stato{font-size:13px;margin-top:8px}
+.tracce-elenco{margin-top:14px}
+.traccia{border-top:1px solid var(--hair);padding:12px 0}
+.traccia .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.traccia .top b{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.traccia .numeri{color:var(--ink2);font-size:13.5px;margin-top:3px;font-variant-numeric:tabular-nums}
+.traccia .azioni{display:flex;gap:14px;margin-top:8px}
+.traccia .azioni .lnk{
+  font:inherit;font-size:13.5px;font-weight:600;color:var(--blue);
+  background:none;border:0;padding:0;cursor:pointer;
+}
+.traccia .azioni .lnk:hover{text-decoration:underline}

@@ -117,6 +117,18 @@ const OrbitMap={
         .setHTML(`<div class="pop"><h4>${e.features[0].properties.n}</h4></div>`).addTo(this.map);
     });
 
+    /* ── i percorsi fatti davvero ──
+       Stanno sotto i punti di interesse ma sopra le tratte: sono la
+       strada vera, non quella prevista, e si devono distinguere.
+       Bianco sotto e colore sopra, come le tratte, ma più spessi. */
+    this.map.addSource('tracce',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+    this.map.addLayer({id:'tracceCase',type:'line',source:'tracce',
+      layout:{'line-cap':'round','line-join':'round'},
+      paint:{'line-color':'#ffffff','line-width':7,'line-opacity':.7}});
+    this.map.addLayer({id:'tracce',type:'line',source:'tracce',
+      layout:{'line-cap':'round','line-join':'round'},
+      paint:{'line-color':['get','c'],'line-width':4}});
+
     /* punti di interesse della giornata */
     this.map.addSource('poi',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
     this.map.addLayer({id:'poiHalo',type:'circle',source:'poi',paint:{'circle-radius':13,'circle-color':['case',['==',['get','src'],'pdf'],'#0a84ff','#ff9f0a'],'circle-opacity':.22}});
@@ -134,6 +146,25 @@ const OrbitMap={
     this.setBase(0);
     this.ready=true;
     this.showDay(Days.cur);
+  },
+
+  /* ═══ i percorsi registrati o importati ═══
+     Il colore è quello del mezzo, gli stessi delle tratte: a piedi
+     verde, bici viola, auto arancio. Così su una giornata si vede
+     dove si è andati in macchina e dove con le gambe. */
+  async mostraTracce(day){
+    if(!this.ready||typeof Tracce==='undefined') return;
+    this.tracceDi=day;
+    let lista=[];
+    try{ lista=await Tracce.all(day); }catch(e){ return; }
+    if(this.tracceDi!==day) return;
+    const colore={foot:MODE_HEX.foot,bike:MODE_HEX.horse,horse:MODE_HEX.horse,
+                  ski:MODE_HEX.rail,road:MODE_HEX.road};
+    this.map.getSource('tracce').setData({type:'FeatureCollection',
+      features:lista.filter(t=>t.punti&&t.punti.length>1).map(t=>({
+        type:'Feature',
+        properties:{c:colore[t.tipo]||MODE_HEX.foot,nome:t.nome},
+        geometry:{type:'LineString',coordinates:t.punti.map(p=>[p[1],p[0]])}}))});
   },
 
   /* ═══ le vostre foto sulla mappa ═══
@@ -181,6 +212,7 @@ const OrbitMap={
     if(!this.ready) return;
     const D=DAYS[i], set=POIS[D.d];
     this.mostraFoto(D.d);
+    this.mostraTracce(D.d);
     this.map.setFilter('legsHi',['==',['get','day'],i]);
     this.map.getSource('poi').setData({type:'FeatureCollection',
       features:set?set.items.map(p=>({type:'Feature',properties:p,geometry:{type:'Point',coordinates:[p.lo,p.la]}})):[]});

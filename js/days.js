@@ -60,6 +60,7 @@ const Days={
         <button data-t="prog" role="tab">Programma</button>
         <button data-t="foto" role="tab">Luoghi e storie</button>
         <button data-t="notte" role="tab">Notte e soldi</button>
+        <button data-t="percorso" role="tab">Percorso</button>
         <button data-t="diario" role="tab">Diario</button>
       </div>
       <div class="pane" data-t="prog"><ul class="see">${(D.see||[]).map((x,k)=>{
@@ -70,6 +71,7 @@ const Days={
         `<figure><div class="img" data-k="${k}">…</div><figcaption><h4>${ph.h}</h4><p>${ph.c}</p></figcaption></figure>`
       ).join('')}</div></div>
       <div class="pane" data-t="notte">${this.notteHtml(D)}</div>
+      <div class="pane" data-t="percorso"><div class="tracce-box"></div></div>
       <div class="pane" data-t="diario">
         <textarea class="diary" placeholder="Com'è andata oggi? La nota resta salvata in questo browser." rows="7"></textarea>
         <div class="muted" style="font-size:12.5px;margin-top:6px" data-diary-state></div>
@@ -97,6 +99,9 @@ const Days={
     /* foto, video e condivisione della giornata */
     const pane=el.querySelector('.pane[data-t="diario"]');
     Media.bind(D.d,pane); Media.mount(D.d,pane);   /* mount richiama anche Pubblica */
+
+    /* i percorsi fatti: registrati qui o importati da un GPX */
+    if(typeof Tracce!=='undefined') Tracce.pannello(D.d,el.querySelector('.pane[data-t="percorso"]'));
 
     /* viste */
     const seg=el.querySelector('.seg');

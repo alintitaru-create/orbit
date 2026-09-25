@@ -49,6 +49,9 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
 | Pratico & emergenze, Documenti | `js/sections.js` + dati in `viaggi/<id>/data.js` (`PRATICO`, `DOCS`) |
 | Foto e video vostri (per giornata) | `js/media.js` |
 | Dove è stata scattata una foto | `js/exif.js` |
+| I percorsi fatti: deposito, conti, pannello | `js/tracce.js` |
+| Registrare un percorso col telefono | `js/registra.js` |
+| Leggere e scrivere file GPX | `js/gpx.js` |
 | Condivisione con i cari | `js/pubblica.js` |
 | Foto sincronizzate fra i due telefoni | `js/sync.js` |
 | Pagina pubblica per i cari | `pubblico/` |
@@ -83,6 +86,17 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
   alle foto già presenti, senza doppioni. Funziona con i JPEG, che è
   quello che il telefono manda; se la posizione era spenta, la foto si
   salva lo stesso, senza il suo posto.
+- **I percorsi fatti davvero**: nella scheda *Percorso* di ogni giornata
+  si registra il tragitto col telefono, oppure si importa un GPX (Komoot,
+  Strava, Organic Maps, AllTrails, orologi: lo esportano tutti).
+  Chilometri, dislivello e durata non si scrivono: si ricavano dai punti,
+  con una soglia di tre metri perché il ballo del GPS non gonfi la salita.
+  La traccia compare sulla mappa della giornata, col colore del mezzo,
+  accanto alla tratta prevista. Ogni percorso si riscarica in GPX: non
+  resta prigioniero di Orbit.
+  Due limiti detti chiari: con lo schermo spento l'iPhone smette di dare
+  la posizione (per un trekking lungo conviene l'app del trekking e poi
+  importare), e le tracce restano sul dispositivo, come le foto.
 - **Mappa**: percorso completo colorato per mezzo (MapLibre; basi
   OpenStreetMap, OpenTopoMap ed Esri, tutte senza chiave API);
   la giornata selezionata è evidenziata con i suoi punti di interesse e i
