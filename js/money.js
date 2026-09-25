@@ -72,8 +72,18 @@ const Money={
   /* le valute del viaggio: le dichiarano i gruppi del budget */
   gruppi(){ return (typeof BUDGET!=='undefined'&&BUDGET.gruppi||[]).filter(g=>g.cur); },
   valute(){ return [...new Set([...this.gruppi().map(g=>g.cur),'EUR','USD'])]; },
-  add(amt,cur,desc){
-    const d=new Date().toISOString().slice(0,10);
+  /* Il giorno della spesa si sceglie. Prima era sempre "oggi": va bene
+     mentre si viaggia, ma a viaggio finito una spesa da recuperare
+     finiva fuori dal viaggio, in una data che non c'entrava niente. */
+  giornoPredefinito(){
+    const oggi=new Date().toISOString().slice(0,10);
+    if(!DAYS.length) return oggi;
+    const primo=DAYS[0].d, ultimo=DAYS[DAYS.length-1].d;
+    return oggi<primo?primo:oggi>ultimo?ultimo:oggi;
+  },
+
+  add(amt,cur,desc,d){
+    d=d||this.giornoPredefinito();
     this.exp.push({t:Date.now(),d,amt,cur,desc});
     try{ localStorage.setItem(Viaggio.chiave('exp'),JSON.stringify(this.exp)); }catch(e){}
     this.renderExp();
@@ -127,6 +137,8 @@ const Money={
         <input type="number" id="expAmt" placeholder="Importo" min="0" step="any" inputmode="decimal" required>
         <select id="expCur">${this.valute().map(c=>`<option>${c}</option>`).join('')}</select>
         <input type="text" id="expDesc" placeholder="Cosa (es. cena, taxi)" maxlength="60">
+        <input type="date" id="expDay" value="${this.giornoPredefinito()}"
+               ${DAYS.length?`min="${DAYS[0].d}" max="${DAYS[DAYS.length-1].d}"`:''} title="Il giorno della spesa">
         <button class="pill on" type="submit">Aggiungi</button>
       </form>
       ${gruppi.map(g=>bar(tot[g.cur],g.tot,g.title.split(' · ')[0])).join('')}
@@ -136,7 +148,9 @@ const Money={
     el.querySelector('#expForm').onsubmit=e=>{
       e.preventDefault();
       const amt=+el.querySelector('#expAmt').value;
-      if(amt>0) this.add(amt,el.querySelector('#expCur').value,el.querySelector('#expDesc').value.trim());
+      if(amt>0) this.add(amt,el.querySelector('#expCur').value,
+                         el.querySelector('#expDesc').value.trim(),
+                         el.querySelector('#expDay').value);
     };
     el.querySelectorAll('.exp-list .del').forEach(b=>b.onclick=()=>this.del(+b.dataset.t));
     const rec=el.querySelector('#expRecupera');

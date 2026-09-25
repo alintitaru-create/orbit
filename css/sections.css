@@ -192,7 +192,7 @@
 .fx-cheat td{padding:7px 0;border-top:1px solid var(--hair)}
 .fx-cheat td:first-child{font-weight:600;color:var(--ink)}
 .exp-add{display:grid;grid-template-columns:1fr auto;gap:8px;margin:12px 0 16px}
-.exp-add #expDesc{grid-column:1/2}
+.exp-add #expDesc{grid-column:1/-1}
 .exp-add .pill{box-shadow:none}
 .exp-bar{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;font-size:13.5px;margin-top:6px}
 .exp-bar .check-bar{margin:0}
