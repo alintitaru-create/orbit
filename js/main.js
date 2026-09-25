@@ -24,9 +24,15 @@ async function startOrbit(){
   /* orologi nella testata */
   Clocks.init();
 
-  /* pagina installabile e offline (solo quando è servita via https) */
-  if('serviceWorker' in navigator&&location.protocol.startsWith('http'))
+  /* pagina installabile e offline (solo quando è servita via https).
+     Appena è pronto gli si chiede di tenere da parte questo viaggio:
+     i suoi dati e i suoi PDF, così si aprono anche senza rete. */
+  if('serviceWorker' in navigator&&location.protocol.startsWith('http')){
     navigator.serviceWorker.register('sw.js').catch(()=>{});
+    navigator.serviceWorker.ready.then(reg=>{
+      (reg.active||navigator.serviceWorker.controller)?.postMessage({viaggio:Viaggio.id});
+    }).catch(()=>{});
+  }
 
   /* mappa (richiede la libreria dal CDN) */
   OrbitMap.init();

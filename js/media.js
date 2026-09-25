@@ -13,25 +13,42 @@
 const Media={
   db:null, urls:[], day:null,
 
-  /* ── deposito ── */
+  /* ── deposito ──
+     Versione 2: ogni foto porta il nome del viaggio. Quelle già
+     depositate sono del Kirghizistan, l'unico viaggio che ci fosse
+     prima dello scaffale: le marca il passaggio qui sotto, dentro la
+     stessa operazione di apertura, così non restano mai orfane. */
   open(){
     if(this.db) return Promise.resolve(this.db);
     return new Promise((res,rej)=>{
-      const r=indexedDB.open('orbit-media',1);
+      const r=indexedDB.open('orbit-media',2);
       r.onupgradeneeded=()=>{
-        const s=r.result.createObjectStore('m',{keyPath:'id',autoIncrement:true});
-        s.createIndex('day','day');
+        const db=r.result, tx=r.transaction;
+        const s=db.objectStoreNames.contains('m')?tx.objectStore('m')
+               :db.createObjectStore('m',{keyPath:'id',autoIncrement:true});
+        if(!s.indexNames.contains('day')) s.createIndex('day','day');
+        if(!s.indexNames.contains('viaggio')){
+          s.createIndex('viaggio','viaggio');
+          s.openCursor().onsuccess=e=>{
+            const c=e.target.result; if(!c) return;
+            if(!c.value.viaggio){ c.value.viaggio=(typeof Migra!=='undefined'?Migra.PRIMO:'kg2026'); c.update(c.value); }
+            c.continue();
+          };
+        }
       };
       r.onsuccess=()=>{ this.db=r.result; res(this.db); };
       r.onerror=()=>rej(r.error);
     });
   },
   tx(mode){ return this.db.transaction('m',mode).objectStore('m'); },
+  viaggio(){ return typeof Viaggio!=='undefined'&&Viaggio.id?Viaggio.id:'kg2026'; },
   async all(day){
     await this.open();
+    const v=this.viaggio();
     return new Promise(res=>{
       const out=[], q=this.tx('readonly').index('day').openCursor(IDBKeyRange.only(day));
-      q.onsuccess=e=>{ const c=e.target.result; if(c){ out.push(c.value); c.continue(); } else res(out); };
+      q.onsuccess=e=>{ const c=e.target.result;
+        if(c){ if((c.value.viaggio||'kg2026')===v) out.push(c.value); c.continue(); } else res(out); };
       q.onerror=()=>res([]);
     });
   },
@@ -65,7 +82,7 @@ const Media={
     for(const f of files){
       const video=f.type.startsWith('video');
       const blob=video?f:await this.shrink(f);
-      await this.put({day,type:video?'video':'foto',blob,name:f.name,
+      await this.put({viaggio:this.viaggio(),day,type:video?'video':'foto',blob,name:f.name,
                       size:blob.size,caption:'',t:Date.now(),
                       /* nome valido su tutti i telefoni: i numeri interni
                          ripartono da 1 su ogni dispositivo e si scontrerebbero */

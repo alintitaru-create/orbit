@@ -7,6 +7,8 @@ const Sections={
   /* ── OGGI: la card cambia da sola in base alla data ── */
   oggi(){
     const el=document.getElementById('oggi-card');
+    /* viaggio finito: al posto di "oggi" ci va il resoconto */
+    if(typeof Ricordo!=='undefined'&&Viaggio.fase()==='passato') return Ricordo.card();
     const today=new Date(); const iso=today.toISOString().slice(0,10);
     const i=DAYS.findIndex(D=>D.d===iso);
     if(i>=0){
@@ -18,8 +20,8 @@ const Sections={
         ${nx?`<div class="next-ev">${micon(nx.Lg.m)}<b>${nx.Lg.t}</b><span>${this.cdTxt(nx.ts-Date.now())}</span></div>`:''}
         <p class="lead">${D.lead}</p>
         <div class="statgrid">
-          <div class="stat ${wx.live?'live':''}">Temperatura<b>${Math.round(wx.min)}° / ${Math.round(wx.max)}°</b></div>
-          ${wx.pp!=null?`<div class="stat ${wx.pp>=40?'cold':''}">Pioggia<b>${Math.round(wx.pp)}%${wx.pr>0.2?` · ${wx.pr.toFixed(1)} mm`:''}</b></div>`:''}
+          ${wx?`<div class="stat ${wx.live?'live':''}">Temperatura<b>${Math.round(wx.min)}° / ${Math.round(wx.max)}°</b></div>`:''}
+          ${wx&&wx.pp!=null?`<div class="stat ${wx.pp>=40?'cold':''}">Pioggia<b>${Math.round(wx.pp)}%${wx.pr>0.2?` · ${wx.pr.toFixed(1)} mm`:''}</b></div>`:''}
           <div class="stat">${D.stay?'Stanotte':'Notte'}<b style="font-size:15px;line-height:1.3;margin-top:4px">${D.stay||'—'}</b></div>
           <div class="stat gold">Da spendere<b>~${D.eur} €</b></div>
         </div>
@@ -28,9 +30,11 @@ const Sections={
         <p style="margin-top:16px"><a href="#giornate" onclick="Days.select(${i},true)">Apri la giornata completa →</a></p>`;
     } else if(iso<DAYS[0].d){
       const gg=Math.ceil((new Date(DAYS[0].d)-today)/864e5);
-      el.innerHTML=`<div class="today-date">In attesa</div><h3>Mancano ${gg} giorni alla partenza</h3><p class="lead">Si parte il ${fmtDay(DAYS[0].d)} da Bergamo, volo Pegasus delle 17:15.</p>`;
+      const primo=LEGS.find(l=>l.day===0);
+      el.innerHTML=`<div class="today-date">In attesa</div><h3>Manca${gg===1?'':'no'} ${gg} giorn${gg===1?'o':'i'} alla partenza</h3>`+
+        `<p class="lead">Si parte il ${fmtDay(DAYS[0].d)}${primo?`: ${primo.t}, ${primo.s}`:'.'}</p>`;
     } else {
-      el.innerHTML=`<div class="today-date">Concluso</div><h3>Viaggio terminato il ${fmtDay(DAYS[DAYS.length-1].d)}</h3><p class="lead">Quindici giorni, cinque mezzi, dodicimila chilometri. Le informazioni restano qui sotto.</p>`;
+      el.innerHTML=`<div class="today-date">Concluso</div><h3>Viaggio terminato il ${fmtDay(DAYS[DAYS.length-1].d)}</h3><p class="lead">Le informazioni restano qui sotto.</p>`;
     }
   },
 
@@ -63,10 +67,10 @@ const Sections={
       <div class="cash">${g.cash}</div></div>`;
     el.innerHTML=`
       <div class="card"><h3>Già pagato</h3><table>
-        ${BUDGET.paid.map(([n,v])=>`<tr><td>${n}</td><td>${v}</td></tr>`).join('')}</table>
+        ${(BUDGET.paid||[]).map(([n,v])=>`<tr><td>${n}</td><td>${v}</td></tr>`).join('')}</table>
         <div class="cash">Stime per due persone, dal vostro foglio costi.</div></div>
-      ${table(BUDGET.kg)}${table(BUDGET.uz)}`;
-    document.getElementById('moneyNote').innerHTML=BUDGET.note;
+      ${(BUDGET.gruppi||[]).map(table).join('')}`;
+    document.getElementById('moneyNote').innerHTML=BUDGET.note||'';
   },
 
   /* ── APP ── */

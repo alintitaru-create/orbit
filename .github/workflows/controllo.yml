@@ -1,0 +1,28 @@
+# ═══════════════════════════════════════════════════════════
+# LA GUARDIA — gira su GitHub a ogni modifica, gratis.
+#
+# Non conosce la password e non ne ha bisogno: controlla che nelle
+# pagine pubbliche non sia finito niente di riservato (telefoni,
+# codici di prenotazione, PIN, indirizzi) e che nel repository non
+# siano entrati i dati in chiaro, la password o i PDF.
+#
+# È la rete di sicurezza sotto js/sanifica.js: quella ripulisce
+# prima di pubblicare, questa controlla dopo. Se fallisce, GitHub
+# manda una mail: si toglie quello che è uscito e si ripubblica.
+# ═══════════════════════════════════════════════════════════
+name: Guardia dei dati
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  controlla:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Cerca dati riservati nelle pagine pubbliche
+        run: node tools/controlla-pubblico.mjs

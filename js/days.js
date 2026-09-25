@@ -31,7 +31,7 @@ const Days={
     box.innerHTML=DAYS.map((D,i)=>{
       const wx=Weather.of(D);
       return `<button class="chip ${i===this.cur?'on':''}" data-i="${i}">
-        <small>${D.lbl} · ${Math.round(wx.min)}°/${Math.round(wx.max)}°</small>
+        <small>${D.lbl}${wx?` · ${Math.round(wx.min)}°/${Math.round(wx.max)}°`:''}</small>
         <b>${D.title.split(',')[0]}</b>
       </button>`;
     }).join('');
@@ -49,8 +49,8 @@ const Days={
       <h3 style="font-size:clamp(22px,3vw,30px);letter-spacing:-.02em;margin:4px 0 0">${D.title}</h3>
       <p class="lead">${D.lead}</p>
       <div class="statgrid">
-        <div class="stat ${wx.live?'live':''}">Temperatura<b>${Math.round(wx.min)}° / ${Math.round(wx.max)}°</b></div>
-        ${wx.pp!=null?`<div class="stat ${wx.pp>=40?'cold':''}">Pioggia<b>${Math.round(wx.pp)}%${wx.pr>0.2?` · ${wx.pr.toFixed(1)} mm`:''}</b></div>`:''}
+        ${wx?`<div class="stat ${wx.live?'live':''}">Temperatura<b>${Math.round(wx.min)}° / ${Math.round(wx.max)}°</b></div>`:''}
+        ${wx&&wx.pp!=null?`<div class="stat ${wx.pp>=40?'cold':''}">Pioggia<b>${Math.round(wx.pp)}%${wx.pr>0.2?` · ${wx.pr.toFixed(1)} mm`:''}</b></div>`:''}
         <div class="stat ${D.at>=3000?'cold':''}">Quota max<b>${D.at.toLocaleString('it')} m</b></div>
         <div class="stat">A piedi<b>${D.km} km</b></div>
         <div class="stat gold">Da spendere<b>~${D.eur} €</b></div>
@@ -85,10 +85,10 @@ const Days={
 
     /* diario: carica e salva mentre si scrive */
     const ta=el.querySelector('.diary'), ds=el.querySelector('[data-diary-state]');
-    try{ ta.value=localStorage.getItem('orbit_diary_'+D.d)||''; }catch(e){}
+    try{ ta.value=localStorage.getItem(Viaggio.chiave('diary')+':'+D.d)||''; }catch(e){}
     let dt=null;
     ta.oninput=()=>{ ds.textContent='…'; clearTimeout(dt); dt=setTimeout(()=>{
-      try{ localStorage.setItem('orbit_diary_'+D.d,ta.value); ds.textContent='Salvato'; }
+      try{ localStorage.setItem(Viaggio.chiave('diary')+':'+D.d,ta.value); ds.textContent='Salvato'; }
       catch(e){ ds.textContent='Spazio esaurito nel browser'; }
       setTimeout(()=>ds.textContent='',1500);
     },500); };

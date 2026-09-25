@@ -7,14 +7,14 @@ const Checklist={
   extra:{},   /* {idLista:[voci aggiunte a mano]} */
 
   init(){
-    try{ this.state=JSON.parse(localStorage.getItem('orbit_chk')||'{}'); }catch(e){}
-    try{ this.extra=JSON.parse(localStorage.getItem('orbit_chk_extra')||'{}'); }catch(e){}
+    try{ this.state=JSON.parse(localStorage.getItem(Viaggio.chiave('chk'))||'{}'); }catch(e){}
+    try{ this.extra=JSON.parse(localStorage.getItem(Viaggio.chiave('chk_extra'))||'{}'); }catch(e){}
     this.render();
   },
   save(){
     try{
-      localStorage.setItem('orbit_chk',JSON.stringify(this.state));
-      localStorage.setItem('orbit_chk_extra',JSON.stringify(this.extra));
+      localStorage.setItem(Viaggio.chiave('chk'),JSON.stringify(this.state));
+      localStorage.setItem(Viaggio.chiave('chk_extra'),JSON.stringify(this.extra));
     }catch(e){}
   },
   items(L){ return L.items.concat(this.extra[L.id]||[]); },

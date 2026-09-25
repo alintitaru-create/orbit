@@ -140,7 +140,7 @@ const Pubblica={
      le giornate già mandate ai cari sparirebbero dalla loro pagina, in
      silenzio e senza nessun errore. */
   async leggiIndice(){
-    const path='pubblico/diario/index.json';
+    const path=`${Viaggio.cartellaDiario()}/index.json`;
     let r;
     try{
       r=await fetch(`${this.API}/repos/${this.REPO}/contents/${path}`,
@@ -181,7 +181,7 @@ const Pubblica={
       const est=m.type==='video'?'mp4':'jpg';
       const nome=`f${m.id}.${est}`;
       say(`Carico ${i+1} di ${scelti.length}…`);
-      await this.scrivi(`pubblico/diario/${day}/${nome}`,
+      await this.scrivi(`${Viaggio.cartellaDiario()}/${day}/${nome}`,
         this.b64(await m.blob.arrayBuffer()),`Foto del ${day}`);
       foto.push({f:`${day}/${nome}`,cap:m.caption||'',tipo:m.type});
     }
@@ -195,7 +195,7 @@ const Pubblica={
     const idx=base.idx;
     idx[day]={nota:opz.nota||'',foto,agg:new Date().toISOString()};
     /* l'indice si scrive per ultimo: non punta mai a file non ancora caricati */
-    await this.scrivi('pubblico/diario/index.json',
+    await this.scrivi(`${Viaggio.cartellaDiario()}/index.json`,
       btoa(unescape(encodeURIComponent(JSON.stringify(idx,null,1)))),
       `Diario del ${day}`,base.versione);
     return foto.length;
@@ -250,7 +250,7 @@ const Pubblica={
 
     Media.all(day).then(items=>{
       items.sort((a,b)=>a.t-b.t);
-      const nota=(()=>{ try{ return localStorage.getItem('orbit_diary_'+day)||''; }catch(e){ return ''; } })();
+      const nota=(()=>{ try{ return localStorage.getItem(Viaggio.chiave('diary')+':'+day)||''; }catch(e){ return ''; } })();
       box.innerHTML=`
         <b>Condividi con i cari</b>
         <p class="muted">Scegli cosa mandare alla pagina pubblica di questa giornata.</p>

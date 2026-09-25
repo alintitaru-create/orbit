@@ -1,71 +1,90 @@
 /* ═══════════════════════════════════════════════════════════
-   SETTORE ACCESSO — decide come partire.
+   SETTORE AVVIO DEL VIAGGIO — apre un viaggio e accende la pagina.
 
-   Sul Mac: `js/data.js` esiste in chiaro, la pagina parte subito.
-   Online: quel file non viene pubblicato; al suo posto c'è
-   `js/data.enc.js`, cifrato con AES-256-GCM. La pagina chiede
-   la password una volta sola per dispositivo, decifra tutto nel
-   browser e parte. Chi trova l'indirizzo senza password vede
-   soltanto la schermata di sblocco.
+   Quale viaggio lo dice l'indirizzo: viaggio.html?v=kg2026.
+   Senza indicazioni si apre quello giusto per oggi — quello in
+   corso, se no il prossimo, se no l'ultimo ricordo.
 
-   Per cambiare la password: node tools/lock.mjs "nuova password"
+   Sul Mac i dati in chiaro ci sono e si parte subito. Online c'è
+   solo il cifrato: si passa dalla porta (js/chiave.js), si decifra
+   prima l'elenco e poi il viaggio scelto, e si parte.
    ═══════════════════════════════════════════════════════════ */
 (function(){
-  const KEY='orbit_pw';
 
-  /* dati in chiaro presenti (copia locale sul Mac) → si parte */
-  if(typeof P!=='undefined'){ startOrbit(); return; }
-
-  const gate=document.getElementById('gate');
-  const form=document.getElementById('gateForm');
-  const input=document.getElementById('gatePw');
-  const err=document.getElementById('gateErr');
-  gate.hidden=false;
-  document.body.classList.add('locked');
-
-  const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-
-  async function unlock(pw){
-    const raw=b64(ORBIT_ENC);
-    const salt=raw.slice(0,16), iv=raw.slice(16,28), data=raw.slice(28);
-    const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
-    const key=await crypto.subtle.deriveKey(
-      {name:'PBKDF2',salt,iterations:310000,hash:'SHA-256'},
-      base,{name:'AES-GCM',length:256},false,['decrypt','encrypt']);
-    const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,data);
-    const sorgente=new TextDecoder().decode(plain);
-    /* eval indiretto: le costanti nascono nello spazio globale,
-       esattamente come se fosse stato caricato js/data.js */
-    (0,eval)(sorgente);
-    /* la stessa chiave apre i PDF cifrati in docs/ e richiude i dati
-       quando si modificano dal telefono; il sale serve per rifare il file */
-    globalThis.ORBIT_KEY=key;
-    globalThis.ORBIT_SALT=salt;
-    globalThis.ORBIT_SRC=sorgente.replace(/\n\/\* esposizione globale[\s\S]*$/,'\n');
-  }
-
-  async function tryPw(pw,silent){
-    try{
-      await unlock(pw);
-      try{ localStorage.setItem(KEY,pw); }catch(e){}
-      gate.hidden=true; document.body.classList.remove('locked');
-      startOrbit();
-      return true;
-    }catch(e){
-      if(!silent){ err.textContent='Password sbagliata.'; input.select(); }
-      try{ localStorage.removeItem(KEY); }catch(e2){}
-      return false;
-    }
-  }
-
-  form.onsubmit=async e=>{
-    e.preventDefault();
-    err.textContent='Apro…';
-    await tryPw(input.value,false);
+  const dillo=(testo,dettaglio)=>{
+    document.getElementById('oggi-card').innerHTML=
+      `<div class="today-date">Niente da mostrare</div><h3>${testo}</h3>`+
+      (dettaglio?`<p class="lead">${dettaglio}</p>`:'')+
+      `<p style="margin-top:16px"><a href="index.html">Torna allo scaffale →</a></p>`;
   };
 
-  /* già sbloccata su questo dispositivo */
-  let saved=null; try{ saved=localStorage.getItem(KEY); }catch(e){}
-  if(saved) tryPw(saved,true).then(ok=>{ if(!ok) input.focus(); });
-  else input.focus();
+  /* quale viaggio: quello chiesto, se esiste; se no il primo dello scaffale */
+  function scelto(){
+    const id=new URLSearchParams(location.search).get('v');
+    return (id&&Viaggi.trova(id))||Viaggi.ordinati()[0]||null;
+  }
+
+  /* i dati del viaggio: prima in chiaro (Mac), poi cifrati (online) */
+  async function caricaDati(id){
+    if(await Chiave.script(`viaggi/${id}/data.js`)) return 'chiaro';
+    if(await Chiave.script(`viaggi/${id}/data.enc.js`)) return 'cifrato';
+    return null;
+  }
+
+  /* testata: nome del viaggio, periodo e i suoi numeri */
+  function intestazione(v){
+    const s=Viaggi.stat(v.id);
+    const pezzi=[Viaggi.periodo(v)];
+    if(s.giorni) pezzi.push(`${s.giorni} giorni`);
+    if(s.km) pezzi.push(`${s.km.toLocaleString('it')} km`);
+    document.title='Orbit — '+v.nome;
+    document.getElementById('titolo').innerHTML=
+      v.nome.replace(/ e /,'<br>e ')+'.'+
+      `<small>${pezzi.filter(Boolean).join(' · ')}</small>`;
+    document.body.dataset.fase=Viaggi.fase(v);
+  }
+
+  async function parti(v,tipo){
+    Viaggio.apri(v.id,v);
+    if(tipo==='cifrato')
+      globalThis.ORBIT_SRC=Chiave.esegui(await Chiave.apri(Chiave.b64(ORBIT_DATI)));
+    intestazione(v);
+    startOrbit();
+  }
+
+  (async function(){
+    await Migra.tutto();
+
+    /* l'elenco dei viaggi: in chiaro se siamo sul Mac, cifrato sempre.
+       Servono tutti e due: dal cifrato si prende il sale della chiave. */
+    const chiaro=await Chiave.script('viaggi/index.js');
+    await Chiave.script('viaggi/index.enc.js');
+
+    if(chiaro){
+      const v=scelto();
+      if(!v) return dillo('Nell\'elenco non c\'è nessun viaggio.');
+      const tipo=await caricaDati(v.id);
+      if(tipo==='chiaro') return parti(v,tipo);      /* sul Mac non si chiede niente */
+      if(!tipo) return dillo('I dati di questo viaggio non ci sono.',
+        `Manca la cartella viaggi/${v.id}. Sul Mac si rifà con: node tools/unlock.mjs`);
+    }
+
+    if(typeof ORBIT_INDICE==='undefined')
+      return dillo('L\'elenco dei viaggi non si carica.',
+        'Manca viaggi/index.enc.js. Sul Mac si rifà con: node tools/lock.mjs');
+
+    /* online: la password apre prima l'elenco, poi il viaggio */
+    const testa=Chiave.b64(ORBIT_INDICE);
+    await Chiave.porta({
+      salt:testa.slice(0,16),
+      prova:async key=>{ Chiave.esegui(await Chiave.apri(testa.slice(16),key)); },
+      pronto:async()=>{
+        const v=scelto();
+        if(!v) return dillo('Nell\'elenco non c\'è nessun viaggio.');
+        const tipo=await caricaDati(v.id);
+        if(!tipo) return dillo('I dati di questo viaggio non ci sono.');
+        parti(v,tipo);
+      },
+    });
+  })();
 })();

@@ -13,7 +13,7 @@ const Docs={
   async init(){
     const grid=document.getElementById('docGrid'), hint=document.getElementById('docHint');
     try{
-      const r=await fetch('docs/index.json',{cache:'no-cache'});
+      const r=await fetch(Viaggio.file('docs/index.json'),{cache:'no-cache'});
       if(!r.ok) throw 0;
       this.list=await r.json();
     }catch(e){ this.list=null; }
@@ -49,7 +49,7 @@ const Docs={
     try{
       let url=this.urls[doc.f];
       if(!url){
-        const raw=new Uint8Array(await (await fetch('docs/'+doc.f)).arrayBuffer());
+        const raw=new Uint8Array(await (await fetch(Viaggio.file('docs/'+doc.f))).arrayBuffer());
         const plain=await crypto.subtle.decrypt(
           {name:'AES-GCM',iv:raw.slice(0,12)},ORBIT_KEY,raw.slice(12));
         url=this.urls[doc.f]=URL.createObjectURL(new Blob([plain],{type:'application/pdf'}));

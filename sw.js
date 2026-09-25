@@ -10,12 +10,14 @@
    - meteo, cambi, Wikipedia, rotte: prima la rete, poi la
      cache come riserva
    ═══════════════════════════════════════════════════════════ */
-const SHELL='orbit-shell-v20', TILES='orbit-tiles', DATA='orbit-data';
-const PRECACHE=['./','./index.html','./manifest.webmanifest','./icon.png',
- './css/tokens.css','./css/base.css','./css/components.css','./css/sections.css','./css/ornaments.css',
- './js/data.enc.js','./js/util.js','./js/clocks.js','./js/weather.js','./js/days.js',
+const SHELL='orbit-shell-v21', TILES='orbit-tiles', DATA='orbit-data';
+const PRECACHE=['./','./index.html','./viaggio.html','./manifest.webmanifest','./icon.png',
+ './css/tokens.css','./css/base.css','./css/components.css','./css/sections.css','./css/ornaments.css','./css/scaffale.css',
+ './viaggi/index.enc.js','./js/util.js','./js/chiave.js','./js/viaggi.js','./js/migra.js',
+ './js/scaffale.js','./js/idee.js','./js/boot-scaffale.js',
+ './js/clocks.js','./js/weather.js','./js/days.js',
  './js/legs.js','./js/map.js','./js/sections.js','./js/checklist.js','./js/money.js',
- './js/media.js','./js/sanifica.js','./js/pubblica.js','./js/sync.js','./js/dati.js','./js/docs.js','./js/ornaments.js','./js/cinematic.js','./js/main.js','./js/boot.js',
+ './js/media.js','./js/sanifica.js','./js/pubblica.js','./js/sync.js','./js/dati.js','./js/docs.js','./js/ornaments.js','./js/cinematic.js','./js/ricordo.js','./js/main.js','./js/boot.js',
  'https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.12.0/maplibre-gl.min.js',
  'https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.12.0/maplibre-gl.css'];
 
@@ -23,13 +25,10 @@ self.addEventListener('install',e=>{
   e.waitUntil((async()=>{
     const c=await caches.open(SHELL);
     await Promise.allSettled(PRECACHE.map(u=>c.add(u)));
-    /* i documenti cifrati: salvati subito, così sono leggibili anche
-       senza rete durante il viaggio */
-    try{
-      const list=await (await fetch('docs/index.json')).json();
-      await c.add('docs/index.json');
-      await Promise.allSettled(list.map(d=>c.add('docs/'+d.f)));
-    }catch(err){}
+    /* I dati e i documenti di un viaggio non si salvano qui: quali
+       viaggi ci siano lo sa solo chi ha la password. Ci pensa la
+       pagina del viaggio, che appena si apre chiede di tenere da
+       parte il suo (vedi più sotto, "message"). */
   })());
   self.skipWaiting();
 });
@@ -37,6 +36,23 @@ self.addEventListener('activate',e=>{
   e.waitUntil(caches.keys().then(ks=>Promise.all(
     ks.filter(k=>k.startsWith('orbit-shell-')&&k!==SHELL).map(k=>caches.delete(k)))));
   self.clients.claim();
+});
+
+/* La pagina di un viaggio chiede di tenerlo offline: i suoi dati
+   cifrati e i suoi PDF. Succede all'apertura, quando il viaggio è già
+   stato scelto e la password è già stata data. */
+self.addEventListener('message',e=>{
+  const id=e.data&&e.data.viaggio;
+  if(!id) return;
+  e.waitUntil((async()=>{
+    const c=await caches.open(SHELL);
+    await c.add(`viaggi/${id}/data.enc.js`).catch(()=>{});
+    try{
+      const elenco=await (await fetch(`viaggi/${id}/docs/index.json`)).json();
+      await c.add(`viaggi/${id}/docs/index.json`);
+      await Promise.allSettled(elenco.map(d=>c.add(`viaggi/${id}/docs/${d.f}`)));
+    }catch(err){}
+  })());
 });
 
 const isTile=u=>/tile\.openstreetmap\.org|tile\.opentopomap\.org|arcgisonline\.com/.test(u);

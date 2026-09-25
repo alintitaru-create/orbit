@@ -14,7 +14,9 @@
    di troppo che una persa per sbaglio.
    ═══════════════════════════════════════════════════════════ */
 const Sync={
-  CARTELLA:'sync',
+  /* una cartella per viaggio: le foto del Kirghizistan non si
+     mescolano con quelle del viaggio dopo */
+  get CARTELLA(){ return Viaggio.cartellaSync(); },
   MAX:24*1024*1024,
 
   pronto(){ return typeof ORBIT_KEY!=='undefined'&&!!ORBIT_KEY
@@ -116,7 +118,7 @@ const Sync={
       if(!b){ nonRiuscite++; continue; }
       let chiaro;
       try{ chiaro=await this.apri(b); }catch(e){ nonRiuscite++; continue; }
-      await Media.put({uid:x.uid,day:x.day,type:x.type,caption:x.caption||'',
+      await Media.put({viaggio:Viaggio.id,uid:x.uid,day:x.day,type:x.type,caption:x.caption||'',
                        name:x.name||'',size:chiaro.length,t:x.t||Date.now(),
                        blob:new Blob([chiaro],{type:x.type==='video'?'video/mp4':'image/jpeg'})});
       scaricate++;   /* si contano quelle davvero salvate, non quelle tentate */

@@ -1,12 +1,14 @@
-# I dati del viaggio in chiaro restano solo sul Mac: online va la
-# versione cifrata (js/data.enc.js), prodotta da tools/lock.mjs.
-js/data.js
+# I dati in chiaro restano solo sul Mac: online vanno le versioni
+# cifrate (viaggi/index.enc.js e viaggi/*/data.enc.js), prodotte da
+# tools/lock.mjs.
+viaggi/index.js
+viaggi/*/data.js
 
 # La password non si pubblica mai.
 .orbit-pw
 
-# Nessun PDF in chiaro nel repository: nella cartella docs/ finiscono
-# solo i .bin cifrati e l'elenco, generati da tools/lock.mjs.
+# Nessun PDF in chiaro nel repository: nelle cartelle viaggi/*/docs/
+# finiscono solo i .bin cifrati e l'elenco, generati da tools/lock.mjs.
 *.pdf
 
 .DS_Store

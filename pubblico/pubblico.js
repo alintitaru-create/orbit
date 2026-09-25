@@ -56,15 +56,17 @@ if(idx<0) idx=prima?0:DAYS.length-1;
   /* il diario: foto e note mandate dal viaggio. Se non c'è ancora
      niente il file non esiste, e la pagina resta com'è. */
   let diario={};
+  /* una cartella per viaggio: il nome arriva con i dati ripuliti */
+  const cart='diario/'+(typeof VIAGGIO_ID!=='undefined'?VIAGGIO_ID+'/':'');
   try{
-    const r=await fetch('diario/index.json',{cache:'no-cache'});
+    const r=await fetch(cart+'index.json',{cache:'no-cache'});
     if(r.ok) diario=await r.json();
   }catch(e){}
 
   const esc=s=>String(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
   const mediaHtml=f=>f.tipo==='video'
-    ? `<video src="diario/${f.f}" controls playsinline preload="metadata"></video>`
-    : `<a href="diario/${f.f}" target="_blank" rel="noopener"><img src="diario/${f.f}" alt="${esc(f.cap)}" loading="lazy"></a>`;
+    ? `<video src="${cart}${f.f}" controls playsinline preload="metadata"></video>`
+    : `<a href="${cart}${f.f}" target="_blank" rel="noopener"><img src="${cart}${f.f}" alt="${esc(f.cap)}" loading="lazy"></a>`;
 
   document.getElementById('timeline').innerHTML=DAYS.map((D,i)=>{
     const stato=D.d<oggiISO?'passato':(i===idx&&!prima&&!dopo?'oggi':'');

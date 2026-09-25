@@ -54,13 +54,13 @@ const OrbitMap={
   async geometry(Lg){
     const A=P[Lg.a].slice(0,2),B=P[Lg.b].slice(0,2),key=Lg.a+'-'+Lg.b+'-'+Lg.m;
     if(Lg.m==='air') return this.gc(A,B);
-    let cache={}; try{ cache=JSON.parse(localStorage.getItem('orbit_geo')||'{}'); }catch(e){}
+    let cache={}; try{ cache=JSON.parse(localStorage.getItem(Viaggio.chiave('geo'))||'{}'); }catch(e){}
     if(cache[key]) return cache[key];
     const w=WAYPTS[Lg.a+'-'+Lg.b]||[A,B];
     if(Lg.m==='road'){
       try{
         const out=(await this.osrm(w)).map(p=>[+p[0].toFixed(5),+p[1].toFixed(5)]);
-        cache[key]=out; try{ localStorage.setItem('orbit_geo',JSON.stringify(cache)); }catch(e){}
+        cache[key]=out; try{ localStorage.setItem(Viaggio.chiave('geo'),JSON.stringify(cache)); }catch(e){}
         return out;
       }catch(e){}
     }

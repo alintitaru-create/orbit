@@ -7,7 +7,7 @@
 const Weather={
   async load(){
     try{
-      const c=JSON.parse(localStorage.getItem('orbit_wx2')||'null');
+      const c=JSON.parse(localStorage.getItem(Viaggio.chiave('wx'))||'null');
       if(c&&Date.now()-c.t<36e5){ c.d.forEach((w,i)=>{ if(w) DAYS[i]._wx=w; }); return; }
     }catch(e){}
     await Promise.all(DAYS.map(async D=>{
@@ -20,7 +20,10 @@ const Weather={
                  pp:j.daily.precipitation_probability_max?.[0],pr:j.daily.precipitation_sum?.[0],live:true};
       }catch(e){}
     }));
-    try{ localStorage.setItem('orbit_wx2',JSON.stringify({t:Date.now(),d:DAYS.map(D=>D._wx||null)})); }catch(e){}
+    try{ localStorage.setItem(Viaggio.chiave('wx'),JSON.stringify({t:Date.now(),d:DAYS.map(D=>D._wx||null)})); }catch(e){}
   },
-  of(D){ return D._wx||{min:D.clim[0],max:D.clim[1],live:false}; }
+  /* Quando non si sa niente — né previsione né medie del posto, come
+     in un viaggio ancora da costruire — si restituisce null e chi
+     disegna salta la riga, invece di scrivere "0° / 0°". */
+  of(D){ return D._wx||(D.clim?{min:D.clim[0],max:D.clim[1],live:false}:null); }
 };

@@ -1,0 +1,135 @@
+/* ═══════════════════════════════════════════════════════════
+   SETTORE STILI · SCAFFALE — la prima schermata: i viaggi e le idee.
+
+   Due materiali diversi, di proposito:
+   · i viaggi sono card piene, con la foto e la firma del percorso —
+     cose successe, o che succederanno
+   · le idee sono biglietti leggeri, senza ombra — cose pensate
+
+   Un movimento solo in tutta la pagina: la firma di ogni viaggio si
+   disegna da sola all'apertura, come se il percorso si rifacesse.
+   ═══════════════════════════════════════════════════════════ */
+
+.scaffale-hero{padding-bottom:0}
+.scaffale-hero h1 small{max-width:46ch}
+
+/* ── i gruppi: In corso, In arrivo, Ricordi ── */
+h2.gruppo{
+  font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink2);
+  margin:34px 0 14px;
+}
+h2.gruppo:first-child{margin-top:8px}
+
+.griglia{display:grid;gap:18px;grid-template-columns:1fr}
+@media(min-width:720px){ .griglia{grid-template-columns:1fr 1fr} }
+
+/* ── la card di un viaggio ── */
+.viaggio{
+  display:block;color:inherit;text-decoration:none;
+  background:var(--card);border-radius:var(--radius);
+  box-shadow:var(--shadow);overflow:hidden;
+  transition:transform .22s ease,box-shadow .22s ease;
+}
+.viaggio:hover{text-decoration:none;transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+
+/* il viaggio in corso occupa tutta la riga: è quello che conta oggi */
+.viaggio.corso{grid-column:1/-1}
+
+.viaggio .copertina{
+  position:relative;aspect-ratio:16/7;
+  background:color-mix(in srgb,var(--tinta) 16%,var(--card2));
+  display:flex;align-items:center;justify-content:center;
+}
+.viaggio.corso .copertina{aspect-ratio:16/5}
+.viaggio .copertina img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+}
+
+/* ── la firma del percorso ──
+   Sopra la foto è bianca con un'ombra sotto, per staccare da
+   qualunque colore ci sia; sul fondo tinto prende la tinta. */
+.viaggio .firma{
+  position:relative;width:76%;max-height:76%;overflow:visible;
+}
+/* lo spessore sta sulla linea, non sul disegno: così resta di due
+   pixel veri comunque venga ingrandito il riquadro */
+.viaggio .firma polyline{
+  fill:none;stroke:var(--tinta);stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;
+  vector-effect:non-scaling-stroke;
+}
+.viaggio .copertina:has(img) .firma polyline{
+  stroke:rgba(255,255,255,.92);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));
+}
+
+/* il movimento: la linea si disegna una volta, all'apertura */
+@media(prefers-reduced-motion:no-preference){
+  .viaggio .firma polyline{
+    stroke-dasharray:1000;stroke-dashoffset:1000;
+    animation:traccia 1.6s cubic-bezier(.22,.61,.36,1) forwards;
+    animation-delay:var(--ritardo,0ms);
+  }
+  @keyframes traccia{ to{stroke-dashoffset:0} }
+}
+
+.viaggio .quando{
+  position:absolute;top:10px;right:12px;
+  font-size:12px;font-weight:600;letter-spacing:-.01em;
+  padding:4px 10px;border-radius:999px;
+  background:rgba(0,0,0,.42);color:#fff;
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+}
+.viaggio .copertina:not(:has(img)) .quando{
+  background:color-mix(in srgb,var(--tinta) 88%,transparent);
+}
+
+.viaggio .dentro{padding:16px 18px 18px}
+.viaggio h3{font-size:21px;font-weight:600;letter-spacing:-.02em;line-height:1.2}
+.viaggio.corso h3{font-size:26px}
+.viaggio .sotto{color:var(--ink2);font-size:15px;margin-top:3px}
+.viaggio .periodo{font-size:15px;margin-top:8px}
+.viaggio .numeri{color:var(--ink2);font-size:14px;margin-top:2px;font-variant-numeric:tabular-nums}
+
+/* ── un viaggio nuovo ── */
+#nuovoBox{margin-top:26px}
+#nuovoForm,#ideaForm{
+  background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:20px;margin-top:6px;max-width:560px;
+}
+#nuovoForm h3{font-size:19px;font-weight:600;letter-spacing:-.015em;margin-bottom:14px}
+#nuovoForm label,#ideaForm label{display:block;margin-bottom:12px;font-size:14px;color:var(--ink2)}
+#nuovoForm input,#ideaForm input{
+  display:block;width:100%;margin-top:5px;
+  font:inherit;font-size:16px;color:var(--ink);
+  background:var(--card2);border:1px solid var(--hair);border-radius:var(--radius-sm);
+  padding:10px 12px;
+}
+#nuovoForm input:focus,#ideaForm input:focus{outline:2px solid var(--blue);outline-offset:1px}
+#nuovoForm .due{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#ideaForm .tre{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:520px){ #ideaForm .tre{grid-template-columns:1.4fr .7fr 1fr} }
+#nuovoForm .azioni,#ideaForm .azioni{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px}
+#nuovoForm .stato,#ideaForm .stato{color:var(--ink2);font-size:14px;margin-top:10px}
+
+/* ── la lavagna delle idee ──
+   Biglietti, non card: filo sottile invece di ombra, angoli più
+   stretti. Si vede a colpo d'occhio che non sono ancora viaggi. */
+.griglia-idee{display:grid;gap:12px;grid-template-columns:1fr;margin-bottom:22px}
+@media(min-width:620px){ .griglia-idee{grid-template-columns:1fr 1fr} }
+@media(min-width:980px){ .griglia-idee{grid-template-columns:repeat(3,1fr)} }
+
+.idea{
+  background:var(--card2);border:1px solid var(--hair);border-radius:var(--radius-sm);
+  padding:15px 16px;
+}
+.idea header{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.idea h3{font-size:18px;font-weight:600;letter-spacing:-.015em}
+.idea .paese{font-size:13px;color:var(--ink2)}
+.idea .perche{font-size:15px;margin-top:6px}
+.idea .dettagli{font-size:13px;color:var(--ink2);margin-top:6px}
+.idea .collegamento{font-size:14px;margin-top:6px}
+.idea .azioni{display:flex;gap:14px;margin-top:12px}
+.lnk{font-size:14px;color:var(--blue);background:none;border:0;padding:0;cursor:pointer}
+.lnk:hover{text-decoration:underline}
+
+.vuoto{color:var(--ink2);font-size:16px;max-width:52ch;margin-bottom:20px}
