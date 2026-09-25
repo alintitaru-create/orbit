@@ -197,7 +197,25 @@
 .exp-bar{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;font-size:13.5px;margin-top:6px}
 .exp-bar .check-bar{margin:0}
 .exp-bar b{font-variant-numeric:tabular-nums;white-space:nowrap}
-.exp-list{list-style:none;margin-top:14px;max-height:280px;overflow:auto}
+/* il registro scorre tutto insieme: le giornate dentro sono solo
+   intestazioni, non elenchi separati con un fondo ciascuno */
+.exp-registro{margin-top:14px;max-height:420px;overflow:auto}
+.exp-giorno{
+  display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  position:sticky;top:0;z-index:1;background:var(--card);
+  padding:9px 0 3px;font-size:13px;font-weight:600;color:var(--ink2);
+}
+.exp-giorno b{color:var(--ink);font-variant-numeric:tabular-nums}
+.exp-list{list-style:none}
+.exp-dispersi{
+  font-size:13.5px;margin-top:10px;padding:10px 12px;border-radius:var(--radius-sm);
+  background:color-mix(in srgb,var(--orange) 14%,transparent);
+}
+.exp-dispersi .lnk{
+  font:inherit;font-weight:600;color:var(--blue);
+  background:none;border:0;padding:0;cursor:pointer;
+}
+.exp-dispersi .lnk:hover{text-decoration:underline}
 .exp-list li{display:flex;gap:10px;align-items:baseline;padding:7px 0;border-top:1px solid var(--hair);font-size:13.5px}
 .exp-list li .txt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .exp-list li b{font-variant-numeric:tabular-nums;white-space:nowrap}

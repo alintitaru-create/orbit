@@ -97,6 +97,7 @@ const Money={
       <b>${this.fmt(v,0)} / ${max} €</b></div>`;
     el.innerHTML=`
       <h3>Spese vere <span class="badge">${this.exp.length}</span></h3>
+      ${this.avvisoDispersi()}
       <form class="exp-add" id="expForm">
         <input type="number" id="expAmt" placeholder="Importo" min="0" step="any" inputmode="decimal" required>
         <select id="expCur">${this.valute().map(c=>`<option>${c}</option>`).join('')}</select>
@@ -105,10 +106,7 @@ const Money={
       </form>
       ${gruppi.map(g=>bar(tot[g.cur],g.tot,g.title.split(' · ')[0])).join('')}
       ${fuori>0?`<p class="muted" style="margin-top:8px">Fuori budget, in euro o dollari: ${this.fmt(fuori,0)} €</p>`:''}
-      ${this.exp.length?`<ul class="exp-list">${[...this.exp].reverse().slice(0,30).map(e=>
-        `<li><span class="muted">${e.d.slice(8)}/${e.d.slice(5,7)}</span><span class="txt">${e.desc||'—'}</span>
-         <b>${this.fmt(e.amt)} ${e.cur}</b><span class="muted">≈ ${this.fmt(this.toEur(e.amt,e.cur),2)} €</span>
-         <button class="del" data-t="${e.t}" title="Rimuovi">×</button></li>`).join('')}</ul>`
+      ${this.exp.length?this.elenco()
       :'<p class="muted" style="margin-top:10px">Annota qui quello che spendete: la barra si confronta col budget stimato.</p>'}`;
     el.querySelector('#expForm').onsubmit=e=>{
       e.preventDefault();
@@ -116,5 +114,75 @@ const Money={
       if(amt>0) this.add(amt,el.querySelector('#expCur').value,el.querySelector('#expDesc').value.trim());
     };
     el.querySelectorAll('.exp-list .del').forEach(b=>b.onclick=()=>this.del(+b.dataset.t));
+    const rec=el.querySelector('#expRecupera');
+    if(rec) rec.onclick=()=>this.recupera();
+  },
+
+  /* ── le spese finite fuori posto ──
+     Non dovrebbe succedere: js/migra.js rimette dentro a ogni avvio
+     quello che trova. Ma se un elenco restasse in un angolo del
+     browser — un nome vecchio, un viaggio sbagliato, un salvataggio
+     messo da parte — è meglio che la pagina lo dica invece di far
+     finta di niente. Una spesa che sembra sparita quasi sempre è
+     ancora qui dentro. */
+  dispersi(){
+    const mia=Viaggio.chiave('exp'), fuori=[];
+    try{
+      for(let i=0;i<localStorage.length;i++){
+        const k=localStorage.key(i);
+        if(!k||k===mia||!/^orbit_exp(:|$)/.test(k)) continue;
+        try{
+          const v=JSON.parse(localStorage.getItem(k));
+          if(Array.isArray(v)&&v.length) fuori.push({k,voci:v});
+        }catch(e){}
+      }
+    }catch(e){}
+    return fuori;
+  },
+
+  avvisoDispersi(){
+    const f=this.dispersi();
+    if(!f.length) return '';
+    const n=f.reduce((t,x)=>t+x.voci.length,0);
+    return `<p class="exp-dispersi">Ho trovato ${n} spes${n===1?'a':'e'} rimast${n===1?'a':'e'} in un
+      angolo del browser, fuori da questo viaggio.
+      <button class="lnk" id="expRecupera">Rimettile nell'elenco</button></p>`;
+  },
+
+  recupera(){
+    const f=this.dispersi();
+    if(!f.length) return;
+    const visti=new Set(this.exp.map(e=>e.t));
+    f.forEach(({k,voci})=>{
+      voci.forEach(e=>{ if(!visti.has(e.t)){ this.exp.push(e); visti.add(e.t); } });
+      try{ localStorage.removeItem(k); }catch(err){}
+    });
+    this.exp.sort((a,b)=>a.t-b.t);
+    try{ localStorage.setItem(Viaggio.chiave('exp'),JSON.stringify(this.exp)); }catch(e){}
+    this.renderExp();
+  },
+
+  /* ── l'elenco delle spese, tutte, giornata per giornata ──
+     Prima se ne vedevano solo le ultime trenta: il numero accanto al
+     titolo le contava tutte e l'elenco ne mostrava una parte, quindi
+     una spesa più vecchia sembrava sparita pur essendo lì. Un registro
+     che nasconde delle voci non è un registro. Raggruppate per data si
+     legge anche un viaggio lungo, e si vede subito se manca un giorno. */
+  elenco(){
+    const perGiorno=new Map();
+    [...this.exp].sort((a,b)=>(b.d||'').localeCompare(a.d||'')||b.t-a.t)
+      .forEach(e=>{ const k=e.d||'senza data';
+        if(!perGiorno.has(k)) perGiorno.set(k,[]); perGiorno.get(k).push(e); });
+
+    return '<div class="exp-registro">'+[...perGiorno].map(([giorno,voci])=>{
+      const somma=voci.reduce((t,e)=>t+this.toEur(e.amt,e.cur),0);
+      const titolo=giorno==='senza data'?'Senza data'
+        :new Date(giorno+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
+      return `<div class="exp-giorno"><span>${titolo}</span><b>${this.fmt(somma,2)} €</b></div>
+        <ul class="exp-list">${voci.map(e=>
+          `<li><span class="txt">${e.desc||'—'}</span>
+           <b>${this.fmt(e.amt)} ${e.cur}</b><span class="muted">≈ ${this.fmt(this.toEur(e.amt,e.cur),2)} €</span>
+           <button class="del" data-t="${e.t}" title="Rimuovi">×</button></li>`).join('')}</ul>`;
+    }).join('')+'</div>';
   },
 };
