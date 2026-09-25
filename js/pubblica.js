@@ -31,21 +31,56 @@ const Pubblica={
     return btoa(s);
   },
 
-  /* scrive (o riscrive) un file nel repository */
-  async scrivi(path,contenutoB64,messaggio){
-    let sha=null;
-    const g=await fetch(`${this.API}/repos/${this.REPO}/contents/${path}`,{headers:this.head()});
-    if(g.ok) sha=(await g.json()).sha;
-    else if(g.status===401) throw new Error('Il token non è valido o è scaduto.');
+  /* scrive (o riscrive) un file nel repository.
+
+     `versioneAttesa` è la versione da cui si parte, quando importa non
+     sovrascrivere alla cieca: GitHub rifiuta la scrittura se nel frattempo
+     il file è cambiato, invece di cancellare il lavoro dell'altro telefono.
+     Si passa `null` per dire «questo file non esiste ancora». Se non si passa
+     niente si sovrascrive quello che c'è: va bene per le foto, che hanno un
+     nome solo loro e un contenuto che non cambia. */
+  async scrivi(path,contenutoB64,messaggio,versioneAttesa){
+    const controlla=versioneAttesa!==undefined;
+    let sha=controlla?versioneAttesa:null;
+    if(!controlla){
+      const g=await fetch(`${this.API}/repos/${this.REPO}/contents/${path}`,{headers:this.head()});
+      if(g.ok) sha=(await g.json()).sha;
+      else if(g.status===401) throw new Error('Il token non è valido o è scaduto.');
+    }
     const r=await fetch(`${this.API}/repos/${this.REPO}/contents/${path}`,{
       method:'PUT',headers:{...this.head(),'Content-Type':'application/json'},
       body:JSON.stringify({message:messaggio,content:contenutoB64,...(sha?{sha}:{})})});
     if(!r.ok){
       const t=await r.text();
-      throw new Error(r.status===403?'GitHub ha rifiutato: controlla che il token abbia il permesso Contents in scrittura.'
+      throw new Error(controlla&&(r.status===409||r.status===422)
+                      ?'Nel frattempo è cambiato qualcosa su GitHub: forse ha pubblicato l\'altro telefono. Riprova: riparto da come è adesso, così non si perde niente.'
+                     :r.status===403?'GitHub ha rifiutato: controlla che il token abbia il permesso Contents in scrittura.'
                      :r.status===401?'Il token non è valido o è scaduto.'
                      :'Errore '+r.status+' '+t.slice(0,120));
     }
+  },
+
+  /* C'è o non c'è? Restituisce la versione del file (serve per riscriverlo
+     senza sorprese), oppure `null` se il file davvero non c'è.
+
+     Se non si riesce a saperlo — rete che cade, chiave scaduta, GitHub
+     lento — si ferma con un errore invece di rispondere «non c'è»: chi
+     chiama prenderebbe quel «non c'è» per buono e ricomincerebbe da zero,
+     cancellando quello che c'era. */
+  async versione(path){
+    let r;
+    try{
+      r=await fetch(`${this.API}/repos/${this.REPO}/contents/${path}`,
+                    {headers:this.head(),cache:'no-store'});
+    }catch(e){
+      throw new Error('non riesco a contattare GitHub: controlla la connessione e riprova, non ho toccato niente.');
+    }
+    if(r.status===404) return null;
+    if(r.status===401) throw new Error('il token non è valido o è scaduto: non ho toccato niente.');
+    if(!r.ok) throw new Error('GitHub risponde '+r.status+': non ho toccato niente, riprova fra poco.');
+    const j=await r.json().catch(()=>null);
+    if(!j||!j.sha) throw new Error('GitHub ha risposto in un modo che non capisco: non ho toccato niente.');
+    return j.sha;
   },
 
   /* La chiave funziona davvero? Restituisce null se va bene, oppure la
@@ -92,19 +127,49 @@ const Pubblica={
     }catch(e){ return null; }
   },
 
+  /* Legge l'elenco delle giornate già pubblicate, insieme alla sua
+     versione, per poterlo riscrivere senza sovrascrivere nessuno.
+
+     Tre esiti, dove prima ce n'era uno solo:
+       · l'elenco non c'è ancora  → si riparte da vuoto, è la prima volta
+       · l'elenco c'è             → la giornata si aggiunge alle altre
+       · non si riesce a leggerlo → si ferma tutto
+
+     Il terzo era quello pericoloso. Rispondere «vuoto» quando la rete fa
+     i capricci significa riscrivere l'elenco con la sola giornata di oggi:
+     le giornate già mandate ai cari sparirebbero dalla loro pagina, in
+     silenzio e senza nessun errore. */
   async leggiIndice(){
+    const path='pubblico/diario/index.json';
+    let r;
     try{
-      const r=await fetch(`${this.API}/repos/${this.REPO}/contents/pubblico/diario/index.json`,{headers:this.head()});
-      if(!r.ok) return {};
-      const j=await r.json();
-      return JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\n/g,'')))));
-    }catch(e){ return {}; }
+      r=await fetch(`${this.API}/repos/${this.REPO}/contents/${path}`,
+                    {headers:this.head(),cache:'no-store'});
+    }catch(e){
+      throw new Error('non riesco a contattare GitHub per vedere le giornate già pubblicate: non ho pubblicato niente. Controlla la connessione e riprova.');
+    }
+    if(r.status===404) return {idx:{},versione:null};
+    if(r.status===401) throw new Error('il token non è valido o è scaduto: non ho pubblicato niente.');
+    if(!r.ok) throw new Error('GitHub risponde '+r.status+' sull\'elenco delle giornate già pubblicate: non pubblico niente, per non cancellarle. Riprova fra poco.');
+    let j=null,idx=null;
+    try{
+      j=await r.json();
+      idx=JSON.parse(decodeURIComponent(escape(atob(String(j.content||'').replace(/\s/g,'')))));
+    }catch(e){ idx=null; }
+    if(!idx||typeof idx!=='object'||Array.isArray(idx))
+      throw new Error('l\'elenco delle giornate pubblicate non si legge: non lo sovrascrivo, perché lì dentro ci sono le giornate già mandate ai cari. Serve guardarlo dal computer.');
+    return {idx,versione:j.sha||null};
   },
 
   /* ── pubblica una giornata ── */
   async giornata(day,opz,avanzamento){
     const say=t=>avanzamento&&avanzamento(t);
     if(!this.token()) throw new Error('Manca il token.');
+
+    /* L'elenco si legge PRIMA di caricare le foto: se non si riesce a
+       leggerlo ci si ferma qui, senza aver mandato niente a metà. */
+    say('Guardo le giornate già pubblicate…');
+    const partenza=await this.leggiIndice();
 
     const tutti=(await Media.all(day)).sort((a,b)=>a.t-b.t);
     const scelti=tutti.filter(m=>opz.ids.includes(m.id));
@@ -122,12 +187,17 @@ const Pubblica={
     }
 
     say('Aggiorno la pagina dei cari…');
-    const idx=await this.leggiIndice();
+    /* Si rilegge un attimo prima di scrivere: nel frattempo può aver
+       pubblicato l'altro telefono. Se questa seconda lettura non riesce
+       vale quella di partenza, che era buona: non si perde niente. */
+    let base=partenza;
+    try{ base=await this.leggiIndice(); }catch(e){}
+    const idx=base.idx;
     idx[day]={nota:opz.nota||'',foto,agg:new Date().toISOString()};
     /* l'indice si scrive per ultimo: non punta mai a file non ancora caricati */
     await this.scrivi('pubblico/diario/index.json',
       btoa(unescape(encodeURIComponent(JSON.stringify(idx,null,1)))),
-      `Diario del ${day}`);
+      `Diario del ${day}`,base.versione);
     return foto.length;
   },
 

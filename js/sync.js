@@ -36,18 +36,34 @@ const Sync={
 
   /* ── l'elenco, anch'esso cifrato: le didascalie sono cose vostre ── */
   async elencoRemoto(){
+    /* Prima la domanda giusta: l'elenco c'è o non c'è? Serve saperlo con
+       certezza, non per esclusione. Un «non c'è» sbagliato — rete che cade,
+       token scaduto, GitHub lento — farebbe ripartire da zero: l'elenco
+       verrebbe riscritto con le sole foto di questo telefono, e quelle
+       dell'altro resterebbero sul server senza più niente che le nomini,
+       cioè irrecuperabili, anche se i file non sono stati cancellati. */
+    const versione=await Pubblica.versione(`${this.CARTELLA}/index.bin`);
+    if(versione===null) return {v:1,items:[],versione:null};   /* prima volta davvero */
+
     const b=await Pubblica.leggi(`${this.CARTELLA}/index.bin`);
-    if(!b) return {v:1,items:[]};              /* non c'è ancora: prima volta */
-    try{ return JSON.parse(new TextDecoder().decode(await this.apri(b))); }
-    catch(e){
+    if(!b) throw new Error('l\'elenco delle foto c\'è, ma non si riesce a scaricarlo: non tocco niente, riprova fra un minuto.');
+    let el=null;
+    try{ el=JSON.parse(new TextDecoder().decode(await this.apri(b))); }catch(e){ el=null; }
+    if(!el||!Array.isArray(el.items)){
       /* l'elenco c'è ma non si apre: meglio fermarsi che ripartire da zero,
          perché ripartire da zero significherebbe ricaricare tutto sopra */
       throw new Error('l\'elenco delle foto non si apre: password diversa da quella usata per caricarle?');
     }
+    el.versione=versione;
+    return el;
   },
   async salvaElenco(el){
-    const dati=await this.chiudi(new TextEncoder().encode(JSON.stringify(el)));
-    await Pubblica.scrivi(`${this.CARTELLA}/index.bin`,this.b64(dati),'Elenco foto aggiornato');
+    /* Dentro il file ci vanno solo v e items: `versione` è un appunto per
+       la scrittura, non un dato da conservare (domani sarebbe già vecchio). */
+    const dati=await this.chiudi(new TextEncoder().encode(
+      JSON.stringify({v:el.v||1,items:el.items})));
+    await Pubblica.scrivi(`${this.CARTELLA}/index.bin`,this.b64(dati),
+                          'Elenco foto aggiornato',el.versione);
   },
 
   /* ogni foto ha bisogno di un nome suo, valido su tutti i telefoni:
