@@ -21,6 +21,15 @@ const Tracce={
 
   TIPI:{foot:'A piedi',bike:'In bici',horse:'A cavallo',ski:'Con gli sci',road:'In auto'},
 
+  /* Il colore di un mezzo: lo stesso nell'elenco, sulla mappa e nel
+     profilo, così un percorso si riconosce senza leggere.
+     Le tinte sono quelle di css/tokens.css, quindi cambiano da sole
+     fra tema chiaro e scuro. La bici ha il turchese e non il viola del
+     cavallo: erano finiti dello stesso colore. */
+  COLORE:{foot:'var(--foot)',bike:'var(--teal)',horse:'var(--horse)',
+          ski:'var(--red)',road:'var(--road)'},
+  tinta(tipo){ return this.COLORE[tipo]||'var(--foot)'; },
+
   /* ── deposito ── */
   open(){
     if(this.db) return Promise.resolve(this.db);
@@ -91,6 +100,130 @@ const Tracce={
     return min<60?`${min} min`:`${Math.floor(min/60)} h ${String(min%60).padStart(2,'0')}`;
   },
 
+  /* ═══ IL PROFILO ALTIMETRICO ═══
+     La salita disegnata: quanto si sale, dove, e con che pendenza.
+     I numeri dicono "+1260 m"; il disegno dice se è stata una rampa
+     unica o due passi con una valle in mezzo. Sono due informazioni
+     diverse e servono tutte e due.
+
+     Tre scelte che contano:
+
+     · l'asse orizzontale è la DISTANZA, non il numero dei punti.
+       Contando i punti, una sosta lunga diventerebbe un pianoro largo
+       che non esiste: si è stati fermi, non si è camminato in piano.
+     · la quota viene lisciata su cinque punti. Il GPS di un telefono
+       ballonzola di qualche metro a ogni battito; senza lisciare, una
+       salita regolare sembra una sega. I numeri (+1260 m) restano
+       quelli veri, contati a parte con la soglia dei tre metri: il
+       disegno è una forma, non una misura.
+     · si disegna solo se almeno due punti su cinque hanno la quota.
+       Con meno, il profilo sarebbe un'invenzione. */
+  CAMPIONI:110,
+
+  profilo(punti){
+    const conQuota=punti.filter(p=>p[2]!=null).length;
+    if(punti.length<4||conQuota<punti.length*0.4) return null;
+
+    /* distanza progressiva di ogni punto */
+    const dist=[0];
+    for(let i=1;i<punti.length;i++)
+      dist.push(dist[i-1]+hav([punti[i-1][0],punti[i-1][1]],[punti[i][0],punti[i][1]]));
+    const totale=dist[dist.length-1];
+    if(!(totale>0.05)) return null;          /* fermi sul posto: niente profilo */
+
+    /* la quota all'inizio e alla fine non manca mai, così l'interpolazione
+       non deve indovinare agli estremi */
+    const quote=punti.map(p=>p[2]);
+    let primo=quote.findIndex(q=>q!=null);
+    for(let i=0;i<primo;i++) quote[i]=quote[primo];
+    let ultimo=quote.length-1; while(quote[ultimo]==null) ultimo--;
+    for(let i=ultimo+1;i<quote.length;i++) quote[i]=quote[ultimo];
+    for(let i=0;i<quote.length;i++) if(quote[i]==null) quote[i]=quote[i-1];
+
+    /* si campiona a distanze regolari: l'asse è i metri percorsi */
+    const N=this.CAMPIONI, campioni=[];
+    let j=0;
+    for(let k=0;k<=N;k++){
+      const d=totale*k/N;
+      while(j<dist.length-2&&dist[j+1]<d) j++;
+      const a=dist[j], b=dist[j+1]??a;
+      const f=b>a?(d-a)/(b-a):0;
+      campioni.push({km:d,q:quote[j]+((quote[j+1]??quote[j])-quote[j])*f});
+    }
+
+    /* lisciatura su cinque campioni */
+    const lisce=campioni.map((c,i)=>{
+      let s=0,n=0;
+      for(let k=Math.max(0,i-2);k<=Math.min(campioni.length-1,i+2);k++){ s+=campioni[k].q; n++; }
+      return {km:c.km,q:s/n};
+    });
+
+    /* La scala prende le quote VERE, non quelle lisciate: così il numero
+       scritto in alto è lo stesso che compare nella riga dei dati, e non
+       un secondo massimo leggermente diverso che sembrerebbe un errore.
+
+       E si impone un'altezza minima di sessanta metri: senza, una
+       passeggiata che ondeggia di quattro metri verrebbe disegnata come
+       una catena montuosa. Un dislivello piccolo DEVE sembrare piccolo. */
+    const vere=punti.map(p=>p[2]).filter(q=>q!=null);
+    let min=Math.min(...vere), max=Math.max(...vere);
+    const MINIMO=60;
+    if(max-min<MINIMO){ const mezzo=(max+min)/2; min=mezzo-MINIMO/2; max=mezzo+MINIMO/2; }
+
+    const X=c=>+(100*c.km/totale).toFixed(2);
+    const Y=c=>+(32-30*(c.q-min)/(max-min)).toFixed(2);
+    const linea=lisce.map((c,i)=>`${i?'L':'M'}${X(c)} ${Y(c)}`).join(' ');
+
+    /* il punto più alto, per l'etichetta: quello vero, non il lisciato */
+    let iCima=0; campioni.forEach((c,i)=>{ if(c.q>campioni[iCima].q) iCima=i; });
+
+    return {linea, area:`${linea} L100 34 L0 34 Z`, totale,
+            min:Math.round(Math.min(...vere)), max:Math.round(Math.max(...vere)),
+            cima:{x:X(campioni[iCima]),q:Math.round(campioni[iCima].q)},
+            campioni:lisce};
+  },
+
+  /* il disegno, con le sue etichette e la lente che segue il dito */
+  profiloHtml(tr){
+    const p=this.profilo(tr.punti);
+    if(!p) return '';
+    const salita=tr.salita?`sale di ${this.num(tr.salita)} metri`:'quasi in piano';
+    const descrizione=`Profilo altimetrico: ${salita}, da ${this.num(p.min)} a `+
+      `${this.num(p.max)} metri lungo ${this.num(p.totale,1)} chilometri.`;
+    return `<div class="profilo" style="--tinta:${this.tinta(tr.tipo)}"
+                 role="img" aria-label="${descrizione}">
+      <svg viewBox="0 0 100 34" preserveAspectRatio="none" aria-hidden="true">
+        <path class="area" d="${p.area}"/>
+        <path class="linea" d="${p.linea}"/>
+      </svg>
+      <span class="q-alta">${this.num(p.max)} m</span>
+      <span class="q-bassa">${this.num(p.min)} m</span>
+      <span class="lunghezza">${this.num(p.totale,1)} km</span>
+      <div class="lente" hidden><i class="filo"></i><b class="valore"></b></div>
+    </div>`;
+  },
+
+  /* la lente: dove ero al chilometro tre, e a che quota */
+  legaProfilo(el,tr){
+    const p=this.profilo(tr.punti); if(!p) return;
+    const lente=el.querySelector('.lente'), filo=el.querySelector('.filo'),
+          valore=el.querySelector('.valore');
+    const segui=ev=>{
+      const r=el.getBoundingClientRect();
+      const x=Math.min(1,Math.max(0,((ev.touches?ev.touches[0].clientX:ev.clientX)-r.left)/r.width));
+      const c=p.campioni[Math.round(x*(p.campioni.length-1))];
+      lente.hidden=false;
+      filo.style.left=(x*100)+'%';
+      /* il filo può andare fino al bordo, il cartellino no: vicino alla
+         fine uscirebbe dalla card. Si tiene fra il 14 e l'86 per cento. */
+      valore.style.left=Math.min(86,Math.max(14,x*100))+'%';
+      valore.textContent=`${this.num(c.q)} m · ${this.num(c.km,1)} km`;
+    };
+    el.addEventListener('pointermove',segui);
+    el.addEventListener('pointerdown',segui);
+    el.addEventListener('pointerleave',()=>{ lente.hidden=true; });
+  },
+
   /* ── il nome del file quando si esporta ── */
   nomeFile(tr){
     return (tr.nome||'traccia').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
@@ -151,6 +284,7 @@ Object.assign(Tracce,{
         <div class="traccia" data-id="${t.id}">
           <div class="top"><b>${this.esc(t.nome)}</b><span class="badge">${this.TIPI[t.tipo]||t.tipo}</span></div>
           <div class="numeri">${this.rigaNumeri(t)}</div>
+          ${this.profiloHtml(t)}
           <div class="azioni">
             <button class="lnk scarica">Scarica GPX</button>
             <button class="lnk togli">Elimina</button>
@@ -210,6 +344,8 @@ Object.assign(Tracce,{
     /* ── scarica ed elimina ── */
     box.querySelectorAll('.traccia').forEach(el=>{
       const id=+el.dataset.id;
+      const prof=el.querySelector('.profilo');
+      if(prof) this.get(id).then(tr=>{ if(tr) this.legaProfilo(prof,tr); });
       el.querySelector('.scarica').onclick=async()=>{
         const tr=await this.get(id); if(!tr) return;
         const xml=Gpx.scrivi({nome:tr.nome,punti:tr.punti,tipo:tr.tipo});

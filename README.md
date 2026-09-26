@@ -94,6 +94,14 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
   La traccia compare sulla mappa della giornata, col colore del mezzo,
   accanto alla tratta prevista. Ogni percorso si riscarica in GPX: non
   resta prigioniero di Orbit.
+  Ogni percorso con le quote porta il suo **profilo altimetrico**: la
+  salita disegnata, non solo contata. L'asse orizzontale è la distanza e
+  non il numero dei punti — contando i punti, una sosta lunga diventerebbe
+  un pianoro che non è mai esistito. La quota è lisciata su cinque
+  campioni perché il GPS ballonzola, ma i numeri restano quelli veri, e
+  un dislivello piccolo resta piccolo: l'altezza minima del disegno è di
+  sessanta metri, così una passeggiata non sembra una catena montuosa.
+  Il dito sul profilo dice quota e chilometro in quel punto.
   I percorsi viaggiano fra i due telefoni con lo stesso tasto delle foto,
   cifrati con la stessa password: sul server restano byte illeggibili.
   Una registrazione ancora in corso non parte — di là arriverebbe monca —

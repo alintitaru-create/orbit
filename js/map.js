@@ -158,7 +158,9 @@ const OrbitMap={
     let lista=[];
     try{ lista=await Tracce.all(day); }catch(e){ return; }
     if(this.tracceDi!==day) return;
-    const colore={foot:MODE_HEX.foot,bike:MODE_HEX.horse,horse:MODE_HEX.horse,
+    /* gli stessi colori dell'elenco e del profilo: la mappa vuole i
+       valori veri, non i nomi delle variabili CSS */
+    const colore={foot:MODE_HEX.foot,bike:'#30b0c7',horse:MODE_HEX.horse,
                   ski:MODE_HEX.rail,road:MODE_HEX.road};
     this.map.getSource('tracce').setData({type:'FeatureCollection',
       features:lista.filter(t=>t.punti&&t.punti.length>1).map(t=>({
