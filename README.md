@@ -36,6 +36,7 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
 | Password, chiave, file cifrati | `js/chiave.js` |
 | Elenco viaggi e chiavi di salvataggio | `js/viaggi.js` |
 | Colori, font, misure | `css/tokens.css` |
+| Colori e tratteggi dei mezzi | `css/tokens.css` (`--air`…`--horse`) + `js/util.js` (`MODE_DASH`) |
 | Aspetto generale (testata, barra, tipografia) | `css/base.css` |
 | Card, chip, bottoni, badge | `css/components.css` |
 | Stile delle singole sezioni | `css/sections.css` |
@@ -144,6 +145,18 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
 - **Documenti**: gli 11 PDF sono cifrati in `viaggi/kg2026/docs/*.bin` e si aprono
   dentro la pagina, anche dal telefono e anche senza rete. Il manifest
   pubblico contiene solo numeri di file: né titoli né codici.
+- **Colori leggibili da tutti**: i cinque colori dei mezzi non sono più
+  alias degli accenti dell'interfaccia ma una tavolozza a sé, scelta con
+  un verificatore per le cecità ai colori invece che a occhio. Prima il
+  blu dell'aereo e il viola del cavallo erano lo stesso colore per una
+  protanopia. Il tema scuro ha i suoi valori, non è uno schiarimento
+  automatico di quelli chiari.
+  Il colore da solo non basterebbe comunque — cinque tinte tutte
+  distinguibili, tranquille e sensate non esistono, verificato — quindi
+  ogni mezzo ha anche **il suo tratteggio** sulla mappa (volo a trattoni,
+  ferrovia tratto-punto, strada piena, passi a puntini, cavallo a
+  trattini corti), più la sua icona e il suo nome negli elenchi. Sotto la
+  mappa c'è la legenda, disegnata con gli stessi numeri della mappa.
 - Tema chiaro/scuro automatico secondo le impostazioni del sistema.
 
 ## Privacy: i dati sono cifrati

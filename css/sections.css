@@ -443,3 +443,13 @@ table.plain.frasi td:last-child{width:32%}
   background:var(--card);border:1px solid var(--hair);
   border-radius:6px;padding:1px 6px;box-shadow:var(--shadow);
 }
+
+/* ── LA LEGENDA DELLA MAPPA ──
+   Colore e tratteggio insieme: il tratteggio è quello che resta
+   leggibile anche a chi i colori non li distingue tutti. */
+#legenda{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px}
+#legenda .voce{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:13px;color:var(--ink2);white-space:nowrap;
+}
+#legenda svg{flex:none;overflow:visible}

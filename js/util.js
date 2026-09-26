@@ -13,7 +13,36 @@ const ICONS={
 const MODE_IT={air:"Aereo",road:"Auto",rail:"Treno",foot:"A piedi",horse:"Cavallo"};
 /* colori dei mezzi: nomi delle variabili CSS e valori esadecimali per la mappa */
 const MODE_VAR={air:"var(--air)",road:"var(--road)",rail:"var(--rail)",foot:"var(--foot)",horse:"var(--horse)"};
-const MODE_HEX={air:"#0a84ff",road:"#ff9f0a",rail:"#ff453a",foot:"#30d158",horse:"#bf5af2"};
+
+/* MODE_HEX serve dove il colore va dato come valore vero e non come
+   nome di variabile: la mappa e l'intro disegnano su una tela, e una
+   tela non sa cosa sia var(--air).
+
+   Invece di ricopiare qui i valori — che poi si dimenticano quando
+   cambiano in css/tokens.css, ed è successo — si chiedono al foglio di
+   stile nel momento in cui servono. Così il tema chiaro e quello scuro
+   danno ognuno il suo, e i colori stanno scritti in un posto solo. */
+const MODE_HEX=new Proxy({},{
+  get(_,m){
+    const v=getComputedStyle(document.documentElement).getPropertyValue('--'+m).trim();
+    return v||'#888888';
+  },
+  has(){ return true; },
+});
+
+/* Il tratteggio di ogni mezzo, per la mappa: è il secondo segnale.
+   Due colori vicini possono confondersi — per chi non distingue il
+   rosso dal verde succede anche con tinte scelte bene — ma un tratto
+   lungo non si confonde con un puntinato. Chi i colori li vede tutti
+   non ci fa caso; chi no, legge lo stesso la mappa.
+   I numeri sono multipli della larghezza della linea. */
+const MODE_DASH={
+  air:  [4,2.2],      /* volo: trattoni staccati */
+  rail: [2.4,1,0.1,1],/* ferrovia: tratto e punto, come le traversine */
+  road: null,         /* strada: linea piena */
+  foot: [0.1,1.6],    /* a piedi: puntini fitti, come le orme */
+  horse:[1.4,1.2],    /* a cavallo: trattini corti */
+};
 
 function micon(m){ return `<span class="mico" style="color:${MODE_VAR[m]}">${ICONS[m]}</span>`; }
 

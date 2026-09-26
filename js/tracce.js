@@ -23,11 +23,11 @@ const Tracce={
 
   /* Il colore di un mezzo: lo stesso nell'elenco, sulla mappa e nel
      profilo, così un percorso si riconosce senza leggere.
-     Le tinte sono quelle di css/tokens.css, quindi cambiano da sole
-     fra tema chiaro e scuro. La bici ha il turchese e non il viola del
-     cavallo: erano finiti dello stesso colore. */
-  COLORE:{foot:'var(--foot)',bike:'var(--teal)',horse:'var(--horse)',
-          ski:'var(--red)',road:'var(--road)'},
+     Sono i cinque di css/tokens.css, quindi cambiano da soli fra tema
+     chiaro e scuro. Bici e sci prendono i due colori che a piedi non
+     servono — l'aereo e il treno non si registrano camminando. */
+  COLORE:{foot:'var(--foot)',horse:'var(--horse)',road:'var(--road)',
+          bike:'var(--air)',ski:'var(--rail)'},
   tinta(tipo){ return this.COLORE[tipo]||'var(--foot)'; },
 
   /* ── deposito ── */

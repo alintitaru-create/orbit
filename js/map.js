@@ -101,12 +101,29 @@ const OrbitMap={
     await Promise.all([worker(),worker(),worker()]);
 
     this.map.addSource('legs',{type:'geojson',data:{type:'FeatureCollection',
-      features:LEGS.map((Lg,i)=>({type:'Feature',properties:{i,day:Lg.day,c:MODE_HEX[Lg.m],dash:['air','foot','horse'].includes(Lg.m)?1:0},
+      features:LEGS.map((Lg,i)=>({type:'Feature',properties:{i,day:Lg.day,m:Lg.m,c:MODE_HEX[Lg.m]},
         geometry:{type:'LineString',coordinates:Lg._pts.map(p=>[p[1],p[0]])}}))}});
-    this.map.addLayer({id:'legsCase',type:'line',source:'legs',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffffff','line-width':5,'line-opacity':.55}});
-    this.map.addLayer({id:'legsSolid',type:'line',source:'legs',filter:['==',['get','dash'],0],layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['get','c'],'line-width':3}});
-    this.map.addLayer({id:'legsDash',type:'line',source:'legs',filter:['==',['get','dash'],1],layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['get','c'],'line-width':3,'line-dasharray':[1.4,2.2]}});
-    this.map.addLayer({id:'legsHi',type:'line',source:'legs',filter:['==',['get','day'],-1],layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['get','c'],'line-width':6,'line-opacity':1}});
+
+    /* il filo bianco sotto, che stacca le linee da qualunque mappa */
+    this.map.addLayer({id:'legsCase',type:'line',source:'legs',layout:{'line-cap':'round','line-join':'round'},
+      paint:{'line-color':'#ffffff','line-width':5,'line-opacity':.55}});
+    /* l'alone della giornata scelta: sta SOTTO le linee, così non
+       copre il tratteggio che dice di che mezzo si tratta */
+    this.map.addLayer({id:'legsHi',type:'line',source:'legs',filter:['==',['get','day'],-1],
+      layout:{'line-cap':'round','line-join':'round'},
+      paint:{'line-color':['get','c'],'line-width':9,'line-opacity':.3}});
+
+    /* ── un livello per mezzo ──
+       Il tratteggio non si può decidere dato per dato, quindi serve un
+       livello per ciascuno. È il prezzo del secondo segnale, e vale la
+       pena: il colore da solo non basta a tutti. */
+    Object.keys(MODE_DASH).forEach(m=>{
+      this.map.addLayer({id:'legs-'+m,type:'line',source:'legs',
+        filter:['==',['get','m'],m],
+        layout:{'line-cap':MODE_DASH[m]?'butt':'round','line-join':'round'},
+        paint:{'line-color':['get','c'],'line-width':3,
+               ...(MODE_DASH[m]?{'line-dasharray':MODE_DASH[m]}:{})}});
+    });
 
     /* fermate */
     this.map.addSource('stops',{type:'geojson',data:{type:'FeatureCollection',
@@ -139,6 +156,8 @@ const OrbitMap={
       this.map.on('mouseleave',l,()=>this.map.getCanvas().style.cursor='');
     });
 
+    this.legenda();
+
     /* comandi: il bottone gira fra le tre basi */
     document.getElementById('baseTgl').onclick=()=>this.setBase(this.baseIdx+1);
     document.getElementById('locBtn').onclick=()=>this.locate(true);
@@ -146,6 +165,24 @@ const OrbitMap={
     this.setBase(0);
     this.ready=true;
     this.showDay(Days.cur);
+  },
+
+  /* ═══ la legenda ═══
+     Ogni mezzo ha un colore E un tratteggio, e qui si vedono tutti e
+     due, disegnati con gli stessi numeri che usa la mappa: se un
+     giorno cambiano lì, cambiano anche qui, senza che nessuno se ne
+     ricordi. Compaiono solo i mezzi che questo viaggio usa davvero. */
+  legenda(){
+    const box=document.getElementById('legenda'); if(!box) return;
+    const usati=[...new Set(LEGS.map(l=>l.m))];
+    box.innerHTML=usati.map(m=>{
+      const d=MODE_DASH[m];
+      return `<span class="voce">
+        <svg width="34" height="10" aria-hidden="true">
+          <line x1="1" y1="5" x2="33" y2="5" stroke="${MODE_VAR[m]}" stroke-width="3"
+                ${d?`stroke-dasharray="${d.map(n=>n*3).join(' ')}"`:'stroke-linecap="round"'}/>
+        </svg>${MODE_IT[m]}</span>`;
+    }).join('');
   },
 
   /* ═══ i percorsi registrati o importati ═══
@@ -158,10 +195,12 @@ const OrbitMap={
     let lista=[];
     try{ lista=await Tracce.all(day); }catch(e){ return; }
     if(this.tracceDi!==day) return;
-    /* gli stessi colori dell'elenco e del profilo: la mappa vuole i
-       valori veri, non i nomi delle variabili CSS */
-    const colore={foot:MODE_HEX.foot,bike:'#30b0c7',horse:MODE_HEX.horse,
-                  ski:MODE_HEX.rail,road:MODE_HEX.road};
+    /* Gli stessi cinque colori dei mezzi, riusati per le attività:
+       a piedi, cavallo e auto prendono il proprio, bici e sci i due
+       rimasti liberi (aereo e treno non si registrano a piedi).
+       La mappa vuole i valori veri, non i nomi delle variabili. */
+    const colore={foot:MODE_HEX.foot,horse:MODE_HEX.horse,road:MODE_HEX.road,
+                  bike:MODE_HEX.air,ski:MODE_HEX.rail};
     this.map.getSource('tracce').setData({type:'FeatureCollection',
       features:lista.filter(t=>t.punti&&t.punti.length>1).map(t=>({
         type:'Feature',

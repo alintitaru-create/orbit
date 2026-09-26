@@ -22,12 +22,21 @@
   --purple:#af52de;
   --teal:#30b0c7;
 
-  /* colori dei mezzi di trasporto */
-  --air:var(--blue);
-  --road:var(--orange);
-  --rail:var(--red);
-  --foot:var(--green);
-  --horse:var(--purple);
+  /* ── colori dei mezzi ──
+     Questi NON sono colori dell'interfaccia: portano un'informazione,
+     dicono con che mezzo si è fatta una tratta. Perciò non sono più
+     alias degli accenti qui sopra, ma una tavolozza a sé, scelta e
+     verificata perché resti leggibile anche da chi non distingue certi
+     colori — prima erano il blu dell'aereo e il viola del cavallo, e
+     per una cecità ai colori di tipo protanopico erano lo stesso colore.
+     Il tema scuro ha i suoi valori, non è uno schiarimento automatico.
+     Il colore da solo non basta comunque: sulla mappa ogni mezzo ha
+     anche un suo tratteggio, e negli elenchi la sua icona e il suo nome. */
+  --air:#0e93e5;
+  --road:#c07b03;
+  --rail:#f04162;
+  --foot:#05a480;
+  --horse:#ce50c7;
 
   /* tipografia e misure */
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -53,5 +62,12 @@
     --red:#ff453a;
     --purple:#bf5af2;
     --teal:#40c8e0;
+
+    /* i mezzi al buio: verificati sul fondo scuro, non schiariti a caso */
+    --air:#0199f0;
+    --road:#c88004;
+    --rail:#f74867;
+    --foot:#05ab86;
+    --horse:#d556ce;
   }
 }
