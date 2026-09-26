@@ -53,7 +53,7 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
 | Registrare un percorso col telefono | `js/registra.js` |
 | Leggere e scrivere file GPX | `js/gpx.js` |
 | Condivisione con i cari | `js/pubblica.js` |
-| Foto sincronizzate fra i due telefoni | `js/sync.js` |
+| Foto e percorsi sincronizzati fra i due telefoni | `js/sync.js` |
 | Pagina pubblica per i cari | `pubblico/` |
 | Ripulitura dei dati pubblici (computer e telefono) | `js/sanifica.js` |
 | Modifica dei dati dal telefono | `js/dati.js` |
@@ -94,9 +94,13 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
   La traccia compare sulla mappa della giornata, col colore del mezzo,
   accanto alla tratta prevista. Ogni percorso si riscarica in GPX: non
   resta prigioniero di Orbit.
-  Due limiti detti chiari: con lo schermo spento l'iPhone smette di dare
-  la posizione (per un trekking lungo conviene l'app del trekking e poi
-  importare), e le tracce restano sul dispositivo, come le foto.
+  I percorsi viaggiano fra i due telefoni con lo stesso tasto delle foto,
+  cifrati con la stessa password: sul server restano byte illeggibili.
+  Una registrazione ancora in corso non parte — di là arriverebbe monca —
+  e le cancellazioni non si propagano, come per le foto.
+  Un limite detto chiaro: con lo schermo spento l'iPhone smette di dare
+  la posizione, quindi per un trekking lungo conviene l'app del trekking
+  e poi importare il GPX.
 - **Mappa**: percorso completo colorato per mezzo (MapLibre; basi
   OpenStreetMap, OpenTopoMap ed Esri, tutte senza chiave API);
   la giornata selezionata è evidenziata con i suoi punti di interesse e i

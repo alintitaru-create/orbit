@@ -157,9 +157,9 @@ Object.assign(Tracce,{
           </div>
         </div>`).join('')
         :'<p class="muted">Ancora nessun percorso in questa giornata.</p>'}</div>
-      ${lista.length?`<p class="muted tracce-nota">I percorsi restano su questo dispositivo, come le foto,
-        e per ora non passano all'altro telefono. Per tenerne una copia al sicuro: <b>Scarica GPX</b>,
-        che è un file normale e si riapre con qualsiasi app.</p>`:''}`;
+      ${lista.length?`<p class="muted tracce-nota">I percorsi viaggiano fra i due telefoni col tasto
+        <b>Sincronizza</b> della scheda Diario, cifrati come le foto. Per tenerne una copia fuori da
+        qui: <b>Scarica GPX</b>, che è un file normale e si riapre con qualsiasi app.</p>`:''}`;
 
     this.lega(day,root,box);
   },
