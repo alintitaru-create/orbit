@@ -42,22 +42,21 @@
 </div>
 
 <!-- ═══════════ INTRO CINEMATOGRAFICA ═══════════ -->
+<!-- I testi del titolo li scrive js/cinematic.js leggendo il viaggio
+     aperto: qui non c'è niente di un viaggio in particolare. La firma
+     del percorso si disegna mentre la mappa carica: è lei la barra. -->
 <div id="introTitle">
-  <svg class="tunduk" width="104" height="104" viewBox="0 0 100 100" fill="none" aria-hidden="true">
-    <circle cx="50" cy="50" r="42" stroke="var(--kg-red)" stroke-width="5"/>
-    <circle cx="50" cy="50" r="30" stroke="var(--kg-red)" stroke-width="3"/>
-    <path d="M50 20v60M20 50h60M29 29l42 42M71 29L29 71" stroke="var(--steppe)" stroke-width="3" stroke-linecap="round"/>
-    <g stroke="var(--steppe)" stroke-width="4" stroke-linecap="round">
-      <path d="M8 50c0-16 8-28 16-34M92 50c0-16-8-28-16-34M8 50c0 16 8 28 16 34M92 50c0 16-8 28-16 34"/>
-    </g></svg>
-  <h1>Orbit</h1>
-  <p>Da Bergamo al Tien Shan e alla Via della Seta.<br>Quindici giorni, cinque mezzi, dodicimila chilometri.</p>
-  <div id="introBar"></div>
+  <svg id="introFirma" aria-hidden="true"><polyline pathLength="1"/></svg>
+  <h1 id="introNome">Orbit</h1>
+  <p id="introSotto"></p>
+  <p id="introNumeri"></p>
   <div id="introLbl">Preparo la mappa…</div>
 </div>
 <div class="bar" id="barT"></div><div class="bar" id="barB"></div>
+<div id="rotta" aria-hidden="true"><i id="rottaFill"></i></div>
 <div id="odo"><span id="odoMode"></span><b id="odoKm">0</b><span>km</span><span id="odoLbl"></span></div>
-<div id="cityCard"><h3 id="cityName"></h3><p id="citySub"></p><p id="cityExtra" hidden></p></div>
+<div id="cityCard"><small id="cityDay"></small><h3 id="cityName"></h3><p id="citySub"></p><p id="cityExtra" hidden></p></div>
+<div id="introVelo" aria-hidden="true"></div>
 <button id="skipIntro">Salta l'intro</button>
 
 <!-- ═══════════ VISORE DOCUMENTI ═══════════ -->

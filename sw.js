@@ -10,7 +10,7 @@
    - meteo, cambi, Wikipedia, rotte: prima la rete, poi la
      cache come riserva
    ═══════════════════════════════════════════════════════════ */
-const SHELL='orbit-shell-v23', TILES='orbit-tiles', DATA='orbit-data';
+const SHELL='orbit-shell-v24', TILES='orbit-tiles', DATA='orbit-data';
 const PRECACHE=['./','./index.html','./viaggio.html','./manifest.webmanifest','./icon.png',
  './css/tokens.css','./css/base.css','./css/components.css','./css/sections.css','./css/ornaments.css','./css/scaffale.css',
  './viaggi/index.enc.js','./js/util.js','./js/chiave.js','./js/viaggi.js','./js/migra.js',

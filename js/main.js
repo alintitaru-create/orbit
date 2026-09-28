@@ -38,7 +38,7 @@ async function startOrbit(){
   OrbitMap.init();
 
   /* intro cinematografica: parte una volta per sessione */
-  document.getElementById('skipIntro').onclick=()=>Cinematic.finish();
+  document.getElementById('skipIntro').onclick=()=>Cinematic.chiudi();
   document.getElementById('replayIntro').onclick=()=>Cinematic.replay();
   document.getElementById('docClose').onclick=()=>Docs.close();
   if(window.maplibregl&&Cinematic.shouldPlay()) Cinematic.start();

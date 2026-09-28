@@ -58,6 +58,14 @@ h2.gruppo:first-child{margin-top:8px}
   stroke-linecap:round;stroke-linejoin:round;
   vector-effect:non-scaling-stroke;
 }
+/* sopra la foto un velo scuro in basso: la firma bianca si legge
+   anche su un cielo chiaro, e la foto resta la foto */
+.viaggio .copertina:has(img)::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(0,0,0,.08) 0%,rgba(0,0,0,.18) 45%,rgba(0,0,0,.52) 100%);
+}
+.viaggio .firma{z-index:1}
+.viaggio .quando{z-index:2}
 .viaggio .copertina:has(img) .firma polyline{
   stroke:rgba(255,255,255,.92);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));
 }

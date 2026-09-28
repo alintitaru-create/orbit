@@ -42,6 +42,13 @@
       v.nome.replace(/ e /,'<br>e ')+'.'+
       `<small>${pezzi.filter(Boolean).join(' · ')}</small>`;
     document.body.dataset.fase=Viaggi.fase(v);
+
+    /* la firma del percorso accanto al titolo: la stessa della card
+       sullo scaffale e dell'intro, così il viaggio si riconosce */
+    const vecchia=document.querySelector('.hero-firma'); if(vecchia) vecchia.remove();
+    if(s.firma) document.querySelector('header.hero').insertAdjacentHTML('afterbegin',
+      `<svg class="hero-firma" viewBox="-3 -3 106 ${(s.firmaH||0)+6}" preserveAspectRatio="xMaxYMid meet"
+         aria-hidden="true" style="--tinta:${v.colore||'var(--blue)'}"><polyline points="${s.firma}"/></svg>`);
   }
 
   async function parti(v,tipo){

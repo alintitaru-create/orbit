@@ -4,6 +4,32 @@
    Soldi, App. Ogni blocco è indipendente.
    ═══════════════════════════════════════════════════════════ */
 
+/* ── TESTATA: la firma del percorso ──
+   Sul grande sta a destra del titolo; sul telefono sopra, più piccola.
+   Si disegna una volta, all'apertura, come sullo scaffale. */
+header.hero{position:relative}
+.hero-firma{
+  display:block;width:min(62%,300px);height:auto;max-height:110px;overflow:visible;margin:0 0 22px;
+}
+.hero-firma polyline{
+  fill:none;stroke:var(--tinta);stroke-width:2.5;
+  stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 0 8px color-mix(in srgb,var(--tinta) 45%,transparent));
+}
+@media(min-width:900px){
+  .hero-firma{
+    position:absolute;right:22px;top:72px;margin:0;
+    width:min(40%,400px);max-height:200px;
+  }
+}
+@media(prefers-reduced-motion:no-preference){
+  .hero-firma polyline{
+    stroke-dasharray:1000;stroke-dashoffset:1000;
+    animation:heroTraccia 2.2s .3s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  @keyframes heroTraccia{ to{stroke-dashoffset:0} }
+}
+
 /* ── OGGI ── */
 #oggi .card{padding:26px 28px}
 #oggi .today-date{font-size:13px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.06em}

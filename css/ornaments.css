@@ -61,32 +61,48 @@ body.cine #skipIntro{display:flex}
 .veh svg{width:38px;height:38px}
 .veh.flip svg{transform:scaleX(-1)}
 
-/* schermata del titolo */
+/* schermata del titolo.
+   Il fondo è quasi pieno: sotto la mappa sta ancora caricando e le
+   mattonelle a metà non devono vedersi. */
 #introTitle{
   position:fixed;inset:0;z-index:860;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center;
+  align-items:center;justify-content:center;gap:0;padding:24px;text-align:center;
   pointer-events:none;opacity:0;transition:opacity 1.1s;
-  background:radial-gradient(ellipse at center,rgba(6,10,18,.42),rgba(6,10,18,.9));
+  background:radial-gradient(ellipse at 50% 45%,#0d1624 0%,#060a12 70%);
 }
 #introTitle.show{opacity:1}
-#introTitle .tunduk{width:104px;height:104px;animation:tkSpin 40s linear infinite;opacity:0;transition:opacity 1.2s}
-#introTitle.show .tunduk{opacity:.95}
+
+/* la firma del percorso: si disegna man mano che la mappa si prepara */
+#introFirma{
+  width:min(420px,78vw);height:auto;max-height:26vh;overflow:visible;margin-bottom:34px;
+}
+#introFirma[hidden]{display:none}
+#introFirma polyline{
+  /* niente vector-effect qui: romperebbe il tratteggio che la disegna.
+     Lo spessore è in unità del disegno, largo 106: circa 2,5 pixel veri. */
+  fill:none;stroke:var(--tinta,var(--steppe));stroke-width:.62;
+  stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:1 2;stroke-dashoffset:calc(1 - var(--p,0));
+  transition:stroke-dashoffset 1.1s cubic-bezier(.22,.61,.36,1);
+  filter:drop-shadow(0 0 10px color-mix(in srgb,var(--tinta,var(--steppe)) 60%,transparent));
+}
 #introTitle h1{
-  font-size:clamp(46px,10vw,124px);font-weight:700;letter-spacing:-.03em;line-height:1;color:#fff;
+  font-size:clamp(40px,8.4vw,104px);font-weight:700;letter-spacing:-.035em;line-height:.98;color:#fff;
+  max-width:14ch;text-wrap:balance;
   opacity:0;transform:translateY(18px);transition:opacity 1.4s .25s,transform 1.4s .25s;
 }
 #introTitle p{
-  font-size:clamp(14px,1.7vw,20px);color:#e6e8ee;max-width:34ch;line-height:1.5;
+  font-size:clamp(15px,1.7vw,19px);color:#c9cfdb;max-width:38ch;line-height:1.45;text-wrap:balance;
   opacity:0;transition:opacity 1.2s .8s;
 }
+#introSotto{margin-top:18px}
+#introTitle #introNumeri{color:#fff;font-weight:600;margin-top:4px;transition-delay:1.1s}
 #introTitle.show h1,#introTitle.show p{opacity:1;transform:none}
-#introBar{
-  margin-top:10px;width:180px;height:2px;border-radius:2px;background:rgba(255,255,255,.16);
-  position:relative;overflow:hidden;opacity:0;transition:opacity .8s .5s;
+#introLbl{
+  position:absolute;left:0;right:0;bottom:calc(28px + env(safe-area-inset-bottom));
+  font-size:12.5px;color:#7d8596;opacity:0;transition:opacity .8s .5s;
 }
-#introBar::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--p,0%);background:var(--steppe);transition:width .5s}
-#introLbl{font-size:12.5px;color:#c8cdd8;letter-spacing:.02em;opacity:0;transition:opacity .8s .5s}
-#introTitle.show #introBar,#introTitle.show #introLbl{opacity:1}
+#introTitle.show #introLbl{opacity:1}
 
 /* bande nere cinematografiche */
 .bar{position:fixed;left:0;right:0;height:0;background:#000;z-index:850;pointer-events:none;
@@ -94,41 +110,76 @@ body.cine #skipIntro{display:flex}
 #barT{top:0}#barB{bottom:0}
 body.bars .bar{height:7vh}
 
+/* la riga del viaggio, sul bordo della banda di sotto: si riempie
+   mentre la scia avanza, una tacca per ogni giornata */
+#rotta{
+  position:fixed;left:0;right:0;bottom:7vh;height:3px;z-index:856;
+  background:rgba(255,255,255,.14);opacity:0;transition:opacity .6s;pointer-events:none;
+}
+body.bars #rotta{opacity:1}
+#rottaFill{position:absolute;inset:0 auto 0 0;width:0;background:#fff}
+#rotta b{position:absolute;top:-3px;width:1px;height:9px;background:rgba(255,255,255,.45)}
+
 /* contachilometri */
 #odo{
-  position:fixed;left:50%;bottom:calc(7vh + 20px);transform:translateX(-50%);z-index:855;
-  display:flex;gap:14px;align-items:baseline;padding:9px 22px;border-radius:999px;
-  background:rgba(8,12,20,.78);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  position:fixed;left:50%;bottom:calc(7vh + 22px);transform:translateX(-50%);z-index:855;
+  display:flex;gap:12px;align-items:center;padding:8px 20px 8px 14px;border-radius:999px;
+  background:rgba(8,12,20,.72);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
   border:1px solid rgba(255,255,255,.14);color:#fff;
   opacity:0;transition:opacity .5s;pointer-events:none;
 }
 #odo.show{opacity:1}
-#odo b{font-size:25px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+#odo b{font-size:25px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em;min-width:3.2ch;text-align:right}
 #odo span{font-size:13px;color:#c8cdd8}
-#odoMode{display:flex;align-items:center;gap:7px;color:#fff}
+#odoMode{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;
+  background:rgba(255,255,255,.1)}
 #odoMode svg{width:19px;height:19px}
+#odoLbl{padding-left:12px;border-left:1px solid rgba(255,255,255,.18)}
 
-/* cartello della città */
+/* cartello della città: un alone scuro morbido dietro al testo lo
+   rende leggibile su neve, deserto e mare senza coprire la mappa */
 #cityCard{
-  position:fixed;left:50%;top:18%;transform:translate(-50%,10px);z-index:855;text-align:center;
-  pointer-events:none;opacity:0;transition:opacity .5s,transform .5s;
+  position:fixed;left:50%;top:15%;transform:translate(-50%,12px);z-index:855;text-align:center;
+  width:min(640px,92vw);padding:28px 24px 34px;
+  background:radial-gradient(closest-side,rgba(4,8,14,.55),rgba(4,8,14,0));
+  pointer-events:none;opacity:0;transition:opacity .55s,transform .55s cubic-bezier(.2,.8,.2,1);
 }
 #cityCard.show{opacity:1;transform:translate(-50%,0)}
-#cityCard h3{
-  font-size:clamp(30px,5vw,62px);font-weight:700;letter-spacing:-.025em;line-height:1;color:#fff;
-  text-shadow:0 4px 30px rgba(0,0,0,.85);
+#cityDay{
+  display:inline-block;font-size:13px;font-weight:600;color:#fff;letter-spacing:.01em;
+  padding:3px 11px;border-radius:999px;margin-bottom:10px;
+  background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
 }
-#cityCard p{margin-top:8px;font-size:15px;color:#e6e8ee;text-shadow:0 2px 12px rgba(0,0,0,.85);
-  max-width:32ch;margin-left:auto;margin-right:auto;line-height:1.45}
-#cityExtra{margin-top:6px;font-size:14px;color:var(--steppe);font-weight:600}
+#cityDay:empty{display:none}
+#cityCard h3{
+  font-size:clamp(34px,5.4vw,66px);font-weight:700;letter-spacing:-.03em;line-height:1;color:#fff;
+  text-shadow:0 2px 24px rgba(0,0,0,.7);text-wrap:balance;
+}
+#cityCard p{margin:10px auto 0;font-size:16px;color:#eef0f4;text-shadow:0 1px 10px rgba(0,0,0,.9);
+  max-width:34ch;line-height:1.45;text-wrap:balance}
+#cityCard #cityExtra{margin-top:6px;font-size:14.5px;color:var(--steppe);font-weight:600}
 #cityExtra[hidden]{display:none}
 
+/* il finale: il cartello scende al centro alto e si allarga */
+#cityCard.fine{top:6%}
+#cityCard.fine h3{font-size:clamp(38px,6.4vw,84px)}
+#cityCard.fine #cityExtra{color:#fff;font-size:17px}
+
+/* il velo che copre il passaggio dall'intro alla pagina */
+#introVelo{
+  position:fixed;inset:0;z-index:890;background:var(--bg);pointer-events:none;
+  opacity:0;transition:opacity .55s ease;
+}
+#introVelo.on{opacity:1}
+
 #skipIntro{
-  display:none;position:fixed;right:20px;bottom:calc(7vh + 20px);z-index:870;
+  display:none;position:fixed;right:20px;bottom:calc(7vh + 22px);z-index:870;
   align-items:center;gap:7px;padding:10px 18px;border-radius:999px;
   background:rgba(8,12,20,.6);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
   border:1px solid rgba(255,255,255,.24);color:#fff;font-size:13.5px;font-weight:600;
+  transition:background .2s;
 }
+#skipIntro:hover{background:rgba(8,12,20,.85)}
 #replayIntro{margin-top:12px}
 
 /* ═══════════ VISORE DOCUMENTI ═══════════ */
@@ -150,10 +201,11 @@ body.viewing{overflow:hidden}
 button.app{display:block;width:100%;text-align:left;font:inherit}
 
 @media(max-width:700px){
-  #odo{bottom:calc(7vh + 14px);padding:7px 16px;gap:10px}
+  #odo{bottom:calc(7vh + 16px);padding:6px 14px 6px 10px;gap:9px;left:16px;transform:none}
   #odo b{font-size:20px}
-  #cityCard{top:14%}
-  #skipIntro{right:14px;bottom:calc(7vh + 14px)}
+  #odoLbl{display:none}
+  #cityCard{top:11%}
+  #skipIntro{right:16px;bottom:calc(7vh + 16px)}
 }
 @media(prefers-reduced-motion:reduce){
   .tunduk,.orn svg{animation:none}
