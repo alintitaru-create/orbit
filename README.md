@@ -46,7 +46,8 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
 | Selettore e scheda delle giornate (incluso il Diario) | `js/days.js` |
 | Elenco spostamenti | `js/legs.js` |
 | Checklist (valigia e cose da fare) | `js/checklist.js` + dati in `viaggi/<id>/data.js` (`CHECKLISTS`) |
-| Convertitore valute e registro spese | `js/money.js` |
+| Convertitore valute, registro spese e conto del gruppo | `js/money.js` |
+| Chi viene in un viaggio | `viaggi/index.js` (`VIAGGI[].persone`) + `js/viaggi.js` |
 | Pratico & emergenze, Documenti | `js/sections.js` + dati in `viaggi/<id>/data.js` (`PRATICO`, `DOCS`) |
 | Foto e video vostri (per giornata) | `js/media.js` |
 | Dove è stata scattata una foto | `js/exif.js` |
@@ -118,8 +119,19 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
 - **Meteo**: Open-Meteo, aggiornato ogni ora; senza rete restano le medie
   climatiche di settembre.
 - **Checklist**: spunte e voci aggiunte restano salvate nel browser.
-- **Soldi**: cambio EUR/som live (open.er-api.com, cache 12 h) e registro
-  spese confrontato col budget; tutto salvato nel browser.
+- **Soldi**: cambio live (open.er-api.com, cache 12 h) e registro spese
+  confrontato col budget; tutto salvato nel browser.
+- **In gruppo**: un viaggio può dichiarare chi viene. Allora ogni spesa
+  porta il nome di chi ha pagato, si può marcare «solo mia» per restare
+  fuori dalla divisione, e compare **il conto fra voi**: quanto ha messo
+  ognuno, quanto tocca a testa, e chi deve a chi — col numero minimo di
+  passaggi, che in cinque sono quattro e non venti.
+  Le spese si scambiano fra i telefoni come le foto, cifrate. Con una
+  regola all'opposto, e di proposito: **le cancellazioni si propagano**.
+  Una spesa annotata per sbaglio, se restasse sull'altro telefono,
+  falserebbe il conto per sempre.
+  Un viaggio che non dichiara nessuno resta com'era: nessuna colonna in
+  più, solo un invito discreto sotto il titolo.
 - **Diario**: per ogni giornata una nota più le vostre foto e i vostri
   video, con didascalia. Stanno in IndexedDB (non in localStorage, che
   si riempie a 5 MB): le foto vengono ridotte a 1600 px, i video restano

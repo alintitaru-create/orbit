@@ -479,3 +479,77 @@ table.plain.frasi td:last-child{width:32%}
   font-size:13px;color:var(--ink2);white-space:nowrap;
 }
 #legenda svg{flex:none;overflow:visible}
+
+/* ── CHI DIVIDE LE SPESE, E IL CONTO FRA LORO ──
+   Il conto sta dentro la card delle spese ma si stacca: è un
+   riquadro suo, perché risponde a una domanda diversa dalle barre
+   del budget — non "quanto abbiamo speso" ma "chi deve a chi". */
+.exp-gruppo{font-size:13px;color:var(--ink2);margin:8px 0 12px}
+.exp-gruppo .lnk{
+  font:inherit;font-weight:600;color:var(--blue);
+  background:none;border:0;padding:0;cursor:pointer;
+}
+.exp-gruppo .lnk:hover{text-decoration:underline}
+.exp-gruppo.chiedi{
+  background:var(--card2);border-radius:var(--radius-sm);padding:14px 16px;color:var(--ink);
+}
+.exp-gruppo.chiedi b{font-size:15px}
+.exp-gruppo.chiedi .scelte{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 8px}
+.exp-gruppo.chiedi .muted{font-size:12.5px}
+
+#expGruppoForm{
+  background:var(--card2);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:12px;
+}
+#expGruppoForm label{display:block;font-size:13px;color:var(--ink2)}
+#expGruppoForm input{
+  display:block;width:100%;margin-top:6px;font:inherit;font-size:16px;color:var(--ink);
+  background:var(--card);border:1px solid var(--hair);border-radius:var(--radius-sm);padding:9px 12px;
+}
+#expGruppoForm .azioni{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+#expGruppoForm .muted{font-size:12.5px;margin-top:10px}
+
+.exp-add .exp-solo{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;color:var(--ink2);white-space:nowrap;
+}
+/* il nome di chi ha pagato non si accorcia mai: è la descrizione a
+   cedere, perché di una spesa lunga si capisce lo stesso, di una
+   spesa senza nome no */
+.exp-list li .chi{
+  flex:none;font-style:normal;font-size:12px;color:var(--ink2);
+  background:var(--card2);border-radius:5px;padding:1px 6px;
+  white-space:nowrap;
+}
+
+.conto-gruppo{
+  margin-top:18px;padding-top:16px;border-top:1px solid var(--hair);
+}
+.conto-gruppo h4{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.conto-gruppo .muted{font-size:13px;margin-top:4px}
+.saldo-riga{
+  display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:baseline;
+  padding:8px 0;border-top:1px solid var(--hair);font-size:14px;
+}
+.saldo-riga:first-of-type{margin-top:10px}
+.saldo-riga .chi{font-weight:600}
+.saldo-riga .quanto{color:var(--ink2);font-size:13px;font-variant-numeric:tabular-nums}
+.saldo-riga .quanto em{font-style:normal;opacity:.75}
+.saldo-riga b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.saldo-riga.credito b{color:var(--green)}
+.saldo-riga.debito b{color:var(--red)}
+
+.conto-sync{margin-top:12px;font-size:13px}
+.conto-sync .lnk{
+  font:inherit;font-weight:600;color:var(--blue);
+  background:none;border:0;padding:0;cursor:pointer;
+}
+.conto-sync .lnk:hover{text-decoration:underline}
+.conto-sync-stato{margin-left:8px}
+
+.passaggi{margin-top:14px;padding:12px 14px;border-radius:var(--radius-sm);background:var(--card2)}
+.passaggi>b{font-size:13px;color:var(--ink2);display:block;margin-bottom:6px}
+.passaggio{
+  display:flex;align-items:baseline;gap:8px;padding:5px 0;font-size:14.5px;
+}
+.passaggio span{color:var(--ink2)}
+.passaggio b{margin-left:auto;font-variant-numeric:tabular-nums}

@@ -63,7 +63,7 @@ const Sync={
     /* Dentro il file ci vanno solo v e items: `versione` è un appunto per
        la scrittura, non un dato da conservare (domani sarebbe già vecchio). */
     const dati=await this.chiudi(new TextEncoder().encode(
-      JSON.stringify({v:el.v||1,items:el.items})));
+      JSON.stringify({v:el.v||1,items:el.items,...(el.tolte?{tolte:el.tolte}:{})})));
     await Pubblica.scrivi(percorso,this.b64(dati),messaggio,el.versione);
   },
 
@@ -146,9 +146,63 @@ const Sync={
     }
     const foto={caricate:daCaricare.length,scaricate,nonRiuscite,cambiate,troppoGrandi,
                 totale:remoto.items.length};
-    /* stesso giro, altro deposito: i percorsi */
+    /* stesso giro, altri depositi: i percorsi e le spese */
     const tracce=await this.giraTracce(say);
-    return {...foto,tracce};
+    const spese=await this.giraSpese(say);
+    return {...foto,tracce,spese};
+  },
+
+  /* ═══ le spese ═══
+     Qui una regola cambia, e di proposito: **le cancellazioni si
+     propagano**. Per le foto vale il contrario — meglio una copia di
+     troppo che un ricordo perso. Ma una spesa annotata per sbaglio e
+     cancellata da un telefono, se restasse sull'altro, falserebbe per
+     sempre il conto di chi deve a chi. Quindi di ogni spesa tolta
+     resta l'ora, e quell'ora vale per tutti.
+
+     Le spese sono poche e piccole: stanno tutte in un file solo,
+     invece di uno per spesa come le foto. */
+  async giraSpese(dice){
+    const say=t=>dice&&dice(t);
+    if(typeof Money==='undefined') return {mandate:0,arrivate:0,totale:0};
+    const file=`${this.CARTELLA}/spese.bin`;
+
+    say('Metto insieme le spese…');
+    const remoto=await this.elencoRemoto(file,'delle spese');
+    const tolteRemote=remoto.tolte||[];
+
+    let locali=[];
+    try{ locali=JSON.parse(localStorage.getItem(Viaggio.chiave('exp'))||'[]'); }catch(e){}
+    let tolteLocali=[];
+    try{ tolteLocali=JSON.parse(localStorage.getItem(Viaggio.chiave('exp_tolte'))||'[]'); }catch(e){}
+
+    const tolte=[...new Set([...tolteRemote,...tolteLocali])];
+    const morte=new Set(tolte);
+
+    /* l'unione, riconoscendo ogni spesa dal suo istante */
+    const per=new Map();
+    remoto.items.forEach(e=>{ if(!morte.has(e.t)) per.set(e.t,e); });
+    locali.forEach(e=>{ if(!morte.has(e.t)) per.set(e.t,e); });
+    const unite=[...per.values()].sort((a,b)=>a.t-b.t);
+
+    const arrivate=unite.filter(e=>!locali.some(x=>x.t===e.t)).length;
+    const mandate =unite.filter(e=>!remoto.items.some(x=>x.t===e.t)).length;
+    const spariteQui=locali.filter(e=>morte.has(e.t)).length;
+
+    /* di qua */
+    if(arrivate||spariteQui||tolte.length!==tolteLocali.length){
+      try{
+        localStorage.setItem(Viaggio.chiave('exp'),JSON.stringify(unite));
+        localStorage.setItem(Viaggio.chiave('exp_tolte'),JSON.stringify(tolte));
+      }catch(e){}
+      Money.exp=unite;
+    }
+    /* di là */
+    if(mandate||tolteLocali.some(t=>!tolteRemote.includes(t))){
+      remoto.items=unite; remoto.tolte=tolte;
+      await this.salvaElenco(remoto,file,'Spese aggiornate');
+    }
+    return {mandate,arrivate,spariteQui,totale:unite.length};
   },
 
   /* ═══ i percorsi ═══
@@ -248,6 +302,9 @@ const Sync={
         if(r.cambiate) pezzi.push(`${r.cambiate} didascalie allineate`);
         if(t.caricati) pezzi.push(`${t.caricati} percors${t.caricati===1?'o mandato':'i mandati'}`);
         if(t.scaricati) pezzi.push(`${t.scaricati} percors${t.scaricati===1?'o arrivato':'i arrivati'}`);
+        const sp=r.spese||{};
+        if(sp.mandate) pezzi.push(`${sp.mandate} spese mandate`);
+        if(sp.arrivate) pezzi.push(`${sp.arrivate} spese arrivate`);
         const messaggio=(pezzi.length?pezzi.join(', '):'Era già tutto in pari')+
           `. In tutto ${r.totale} foto`+(t.totale?` e ${t.totale} percors${t.totale===1?'o':'i'}`:'')+
           ' al sicuro.'+

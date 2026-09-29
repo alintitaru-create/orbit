@@ -213,4 +213,23 @@ const Viaggio={
 
   /* le cose salvate nel browser */
   chiave(n){ return `orbit_${n}:${this.id}`; },
+
+  /* ═══ chi viene ═══
+     Un viaggio può essere di due o di sei. I nomi stanno nell'elenco
+     dei viaggi, non nei dati: servono allo scaffale e alle spese, e
+     cambiarli non deve voler dire ricifrare tutto il viaggio.
+
+     Chi sia "io" invece è una cosa del telefono, non del viaggio: lo
+     stesso viaggio, sul telefono di Benedetta, ha un "io" diverso.
+     Per questo sta nel browser e non fra i dati condivisi. */
+  persone(){ return (this.meta&&this.meta.persone)||[]; },
+  inGruppo(){ return this.persone().length>1; },
+
+  io(){ try{ return localStorage.getItem(this.chiave('io'))||''; }catch(e){ return ''; } },
+  setIo(nome){
+    try{
+      if(nome) localStorage.setItem(this.chiave('io'),nome);
+      else localStorage.removeItem(this.chiave('io'));
+    }catch(e){}
+  },
 };

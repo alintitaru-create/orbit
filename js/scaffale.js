@@ -96,6 +96,7 @@ const Scaffale={
         <h3>Un viaggio nuovo</h3>
         <label>Dove andate<input name="nome" placeholder="Georgia e Armenia" required maxlength="60"></label>
         <label>Paesi, separati da virgola<input name="paesi" placeholder="Georgia, Armenia" maxlength="80"></label>
+        <label>Chi viene, separati da virgola<input name="persone" placeholder="Alin, Benedetta" maxlength="120"></label>
         <div class="due">
           <label>Dal<input type="date" name="dal" required></label>
           <label>Al<input type="date" name="al" required></label>
@@ -138,6 +139,7 @@ const Scaffale={
       e.preventDefault();
       const nome=form.nome.value.trim(), dal=form.dal.value, al=form.al.value;
       const paesi=form.paesi.value.split(',').map(s=>s.trim()).filter(Boolean);
+      const persone=[...new Set(form.persone.value.split(',').map(s=>s.trim()).filter(Boolean))];
       if(al<dal){ stato.textContent='La data di ritorno viene prima della partenza.'; return; }
       if(!Chiave.key){ stato.textContent='Qui non posso: i viaggi nuovi si creano dalla pagina online, dove serve la password.'; return; }
       if(typeof Pubblica==='undefined'||!Pubblica.token()){
@@ -149,7 +151,8 @@ const Scaffale={
       try{
         stato.textContent='Preparo il viaggio…';
         const v={id:Viaggi.nuovoId(nome,dal),nome,paesi,dal,al,
-                 colore:'var(--blue)',pubblicato:false};
+                 colore:'var(--blue)',pubblicato:false,
+                 ...(persone.length>1?{persone}:{})};
         const b64=await Chiave.cifra(Viaggi.scheletro(v),{});
         await Pubblica.scrivi(`viaggi/${v.id}/data.enc.js`,btoa(Chiave.fileJs(b64,'ORBIT_DATI')),
                               `Viaggio nuovo: ${nome}`);
