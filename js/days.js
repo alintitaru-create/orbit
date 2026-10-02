@@ -45,7 +45,7 @@ const Days={
   renderDetail(){
     const D=DAYS[this.cur], wx=Weather.of(D), el=document.getElementById('giorno-dettaglio');
     el.innerHTML=`
-      <div class="today-date" style="font-size:13px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.06em">${D.lbl}</div>
+      <div class="today-date" style="font-size:13.5px;font-weight:600;color:var(--blue)">${D.lbl}</div>
       <h3 style="font-size:clamp(22px,3vw,30px);letter-spacing:-.02em;margin:4px 0 0">${D.title}</h3>
       <p class="lead">${D.lead}</p>
       <div class="statgrid">

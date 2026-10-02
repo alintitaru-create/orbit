@@ -10,40 +10,55 @@
    disegna da sola all'apertura, come se il percorso si rifacesse.
    ═══════════════════════════════════════════════════════════ */
 
-.scaffale-hero{padding-bottom:0}
-.scaffale-hero h1 small{max-width:46ch}
+.scaffale-hero{padding-top:96px;padding-bottom:0}
+/* «Orbit» è il titolo più grande del sito: è la copertina */
+.scaffale-hero h1{font-size:clamp(56px,13vw,148px);letter-spacing:-.06em;font-weight:600}
+.scaffale-hero h1 small{max-width:46ch;font-size:clamp(17px,2.2vw,21px);margin-top:16px}
 
 /* ── i gruppi: In corso, In arrivo, Ricordi ── */
 h2.gruppo{
   font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink2);
-  margin:34px 0 14px;
+  margin:52px 0 18px;display:flex;align-items:center;gap:12px;
 }
+/* una riga sottile che corre fino al bordo: separa i gruppi senza cornici */
+h2.gruppo::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--hair),transparent)}
 h2.gruppo:first-child{margin-top:8px}
 
-.griglia{display:grid;gap:18px;grid-template-columns:1fr}
+.griglia{display:grid;gap:26px;grid-template-columns:1fr}
 @media(min-width:720px){ .griglia{grid-template-columns:1fr 1fr} }
 
 /* ── la card di un viaggio ── */
 .viaggio{
   display:block;color:inherit;text-decoration:none;
-  background:var(--card);border-radius:var(--radius);
-  box-shadow:var(--shadow);overflow:hidden;
-  transition:transform .22s ease,box-shadow .22s ease;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012)) var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--bezel),var(--shadow);overflow:hidden;
+  transition:transform .5s var(--ease),box-shadow .5s var(--ease);
 }
-.viaggio:hover{text-decoration:none;transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.viaggio:hover{text-decoration:none;transform:translateY(-4px);
+  box-shadow:var(--bezel),0 40px 80px -30px color-mix(in srgb,var(--tinta) 45%,transparent)}
+.viaggio:active{transform:translateY(-1px) scale(.995)}
 
 /* il viaggio in corso occupa tutta la riga: è quello che conta oggi */
 .viaggio.corso{grid-column:1/-1}
+/* e così un viaggio rimasto solo nel suo gruppo: niente buco accanto */
+.griglia>.viaggio:only-child{grid-column:1/-1}
+.griglia>.viaggio:only-child .copertina{aspect-ratio:16/6}
+@media(max-width:719px){ .griglia>.viaggio:only-child .copertina{aspect-ratio:16/9} }
 
 .viaggio .copertina{
-  position:relative;aspect-ratio:16/7;
-  background:color-mix(in srgb,var(--tinta) 16%,var(--card2));
+  position:relative;aspect-ratio:16/8;
+  background:
+    radial-gradient(80% 90% at 30% 0%,color-mix(in srgb,var(--tinta) 30%,transparent),transparent 70%),
+    color-mix(in srgb,var(--tinta) 8%,var(--card2));
   display:flex;align-items:center;justify-content:center;
 }
-.viaggio.corso .copertina{aspect-ratio:16/5}
+.viaggio.corso .copertina{aspect-ratio:16/6}
 .viaggio .copertina img{
   position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transition:transform 1.2s var(--ease);
 }
+.viaggio:hover .copertina img{transform:scale(1.04)}
 
 /* ── la firma del percorso ──
    Sopra la foto è bianca con un'ombra sotto, per staccare da
@@ -62,7 +77,7 @@ h2.gruppo:first-child{margin-top:8px}
    anche su un cielo chiaro, e la foto resta la foto */
 .viaggio .copertina:has(img)::after{
   content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(180deg,rgba(0,0,0,.08) 0%,rgba(0,0,0,.18) 45%,rgba(0,0,0,.52) 100%);
+  background:linear-gradient(180deg,rgba(7,10,18,.1) 0%,rgba(7,10,18,.25) 45%,rgba(7,10,18,.7) 100%);
 }
 .viaggio .firma{z-index:1}
 .viaggio .quando{z-index:2}
@@ -83,17 +98,16 @@ h2.gruppo:first-child{margin-top:8px}
 .viaggio .quando{
   position:absolute;top:10px;right:12px;
   font-size:12px;font-weight:600;letter-spacing:-.01em;
-  padding:4px 10px;border-radius:999px;
-  background:rgba(0,0,0,.42);color:#fff;
-  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  padding:5px 11px;border-radius:999px;
+  background:rgba(7,10,18,.55);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
 }
 .viaggio .copertina:not(:has(img)) .quando{
   background:color-mix(in srgb,var(--tinta) 88%,transparent);
 }
 
-.viaggio .dentro{padding:16px 18px 18px}
-.viaggio h3{font-size:21px;font-weight:600;letter-spacing:-.02em;line-height:1.2}
-.viaggio.corso h3{font-size:26px}
+.viaggio .dentro{padding:20px 22px 22px}
+.viaggio h3{font-family:var(--font-titoli);font-size:20px;font-weight:500;letter-spacing:-.04em;line-height:1.15}
+.viaggio.corso h3{font-size:28px}
 .viaggio .sotto{color:var(--ink2);font-size:15px;margin-top:3px}
 .viaggio .periodo{font-size:15px;margin-top:8px}
 .viaggio .numeri{color:var(--ink2);font-size:14px;margin-top:2px;font-variant-numeric:tabular-nums}
@@ -101,16 +115,17 @@ h2.gruppo:first-child{margin-top:8px}
 /* ── un viaggio nuovo ── */
 #nuovoBox{margin-top:26px}
 #nuovoForm,#ideaForm{
-  background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
-  padding:20px;margin-top:6px;max-width:560px;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012)) var(--card);
+  border-radius:var(--radius);box-shadow:var(--bezel),var(--shadow);
+  padding:24px;margin-top:10px;max-width:580px;
 }
 #nuovoForm h3{font-size:19px;font-weight:600;letter-spacing:-.015em;margin-bottom:14px}
 #nuovoForm label,#ideaForm label{display:block;margin-bottom:12px;font-size:14px;color:var(--ink2)}
 #nuovoForm input,#ideaForm input{
   display:block;width:100%;margin-top:5px;
   font:inherit;font-size:16px;color:var(--ink);
-  background:var(--card2);border:1px solid var(--hair);border-radius:var(--radius-sm);
-  padding:10px 12px;
+  background:rgba(255,255,255,.05);border:1px solid var(--hair);border-radius:12px;
+  padding:11px 13px;
 }
 #nuovoForm input:focus,#ideaForm input:focus{outline:2px solid var(--blue);outline-offset:1px}
 #nuovoForm .due{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -122,14 +137,15 @@ h2.gruppo:first-child{margin-top:8px}
 /* ── la lavagna delle idee ──
    Biglietti, non card: filo sottile invece di ombra, angoli più
    stretti. Si vede a colpo d'occhio che non sono ancora viaggi. */
-.griglia-idee{display:grid;gap:12px;grid-template-columns:1fr;margin-bottom:22px}
+.griglia-idee{display:grid;gap:14px;grid-template-columns:1fr;margin-bottom:26px}
 @media(min-width:620px){ .griglia-idee{grid-template-columns:1fr 1fr} }
 @media(min-width:980px){ .griglia-idee{grid-template-columns:repeat(3,1fr)} }
 
 .idea{
-  background:var(--card2);border:1px solid var(--hair);border-radius:var(--radius-sm);
-  padding:15px 16px;
+  background:var(--glass);box-shadow:var(--ring);border-radius:18px;
+  padding:17px 18px;transition:background .3s var(--ease);
 }
+.idea:hover{background:rgba(255,255,255,.065)}
 .idea header{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .idea h3{font-size:18px;font-weight:600;letter-spacing:-.015em}
 .idea .paese{font-size:13px;color:var(--ink2)}

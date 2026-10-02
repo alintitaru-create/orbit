@@ -10,14 +10,15 @@
    - meteo, cambi, Wikipedia, rotte: prima la rete, poi la
      cache come riserva
    ═══════════════════════════════════════════════════════════ */
-const SHELL='orbit-shell-v25', TILES='orbit-tiles', DATA='orbit-data';
+const SHELL='orbit-shell-v26', TILES='orbit-tiles', DATA='orbit-data';
 const PRECACHE=['./','./index.html','./viaggio.html','./manifest.webmanifest','./icon.png',
  './css/tokens.css','./css/base.css','./css/components.css','./css/sections.css','./css/ornaments.css','./css/scaffale.css',
  './viaggi/index.enc.js','./js/util.js','./js/chiave.js','./js/viaggi.js','./js/migra.js',
  './js/scaffale.js','./js/idee.js','./js/boot-scaffale.js',
  './js/clocks.js','./js/weather.js','./js/days.js',
  './js/legs.js','./js/map.js','./js/sections.js','./js/checklist.js','./js/money.js',
- './js/exif.js','./js/media.js','./js/gpx.js','./js/tracce.js','./js/registra.js','./js/sanifica.js','./js/pubblica.js','./js/sync.js','./js/dati.js','./js/docs.js','./js/ornaments.js','./js/cinematic.js','./js/ricordo.js','./js/main.js','./js/boot.js',
+ './js/exif.js','./js/media.js','./js/gpx.js','./js/tracce.js','./js/registra.js','./js/sanifica.js','./js/pubblica.js','./js/sync.js','./js/dati.js','./js/docs.js','./js/ornaments.js','./js/cinematic.js','./js/ricordo.js','./js/main.js','./js/boot.js','./js/scena.js',
+ './fonts/unbounded-latin.woff2','./fonts/unbounded-latin-ext.woff2','./fonts/geist-latin.woff2','./fonts/geist-latin-ext.woff2',
  'https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.12.0/maplibre-gl.min.js',
  'https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.12.0/maplibre-gl.css'];
 

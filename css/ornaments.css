@@ -14,7 +14,8 @@
 .girih.inline{display:inline-block;vertical-align:-5px;margin-right:12px;opacity:.85}
 
 /* ── fascia a corna d'ariete ── */
-.orn{height:24px;overflow:hidden;opacity:.55;margin:0}
+.orn{height:24px;overflow:hidden;opacity:.28;margin:18px 0 0;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent);mask-image:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent)}
 .orn svg{height:24px;width:200%;display:block;animation:ornSlide 70s linear 1 forwards}
 @keyframes ornSlide{to{transform:translateX(-50%)}}
 
@@ -22,7 +23,7 @@
 .rule{height:16px;margin:2px 0 14px;overflow:hidden}
 .rule svg{height:16px;width:100%;display:block}
 .rule path{
-  stroke:var(--steppe);stroke-width:1.7;fill:none;
+  stroke:color-mix(in srgb,var(--blue) 55%,transparent);stroke-width:1.5;fill:none;
   stroke-dasharray:2400;stroke-dashoffset:2400;
 }
 .rule.draw path{animation:ornDraw 2.2s cubic-bezier(.2,.7,.2,1) forwards}
@@ -89,7 +90,8 @@ body.cine #skipIntro{display:flex}
   filter:drop-shadow(0 0 10px color-mix(in srgb,var(--tinta,var(--steppe)) 60%,transparent));
 }
 #introTitle h1{
-  font-size:clamp(40px,8.4vw,104px);font-weight:700;letter-spacing:-.035em;line-height:.98;color:#fff;
+  font-family:var(--font-titoli);
+  font-size:clamp(34px,7vw,92px);font-weight:500;letter-spacing:-.045em;line-height:1;color:#fff;
   max-width:14ch;text-wrap:balance;
   opacity:0;transform:translateY(18px);transition:opacity 1.4s .25s,transform 1.4s .25s;
 }
@@ -154,7 +156,8 @@ body.bars #rotta{opacity:1}
 }
 #cityDay:empty{display:none}
 #cityCard h3{
-  font-size:clamp(34px,5.4vw,66px);font-weight:700;letter-spacing:-.03em;line-height:1;color:#fff;
+  font-family:var(--font-titoli);
+  font-size:clamp(30px,5vw,60px);font-weight:500;letter-spacing:-.045em;line-height:1.02;color:#fff;
   text-shadow:0 2px 24px rgba(0,0,0,.7);text-wrap:balance;
 }
 #cityCard p{margin:10px auto 0;font-size:16px;color:#eef0f4;text-shadow:0 1px 10px rgba(0,0,0,.9);
@@ -164,7 +167,7 @@ body.bars #rotta{opacity:1}
 
 /* il finale: il cartello scende al centro alto e si allarga */
 #cityCard.fine{top:6%}
-#cityCard.fine h3{font-size:clamp(38px,6.4vw,84px)}
+#cityCard.fine h3{font-size:clamp(32px,5.8vw,76px)}
 #cityCard.fine #cityExtra{color:#fff;font-size:17px}
 
 /* il velo che copre il passaggio dall'intro alla pagina */

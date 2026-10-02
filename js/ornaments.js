@@ -45,13 +45,10 @@ const Orn={
     document.querySelectorAll('main section > h2').forEach(h=>{
       h.insertAdjacentHTML('afterend',this.riga());
     });
-    /* le sezioni uzbeke prendono il sigillo girih, le altre il tunduk */
-    const uz=['soldi','documenti'];
-    document.querySelectorAll('main section').forEach(s=>{
-      const h=s.querySelector('h2'); if(!h) return;
-      h.insertAdjacentHTML('afterbegin',
-        uz.includes(s.id)?this.girih(26,'inline'):`<span class="tk-inline">${this.tunduk(24)}</span>`);
-    });
+    /* Prima ogni titolo prendeva un tunduk o un girih, scelti per nome
+       di sezione: valeva solo per il Kirghizistan e l'Uzbekistan, e un
+       altro viaggio se li sarebbe ritrovati addosso. I titoli ora
+       bastano da soli; tunduk e girih restano qui per chi li vuole. */
     if('IntersectionObserver' in window){
       const io=new IntersectionObserver(es=>es.forEach(e=>{
         if(e.isIntersecting){ e.target.classList.add('draw'); io.unobserve(e.target); }

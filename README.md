@@ -35,7 +35,8 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
 | Il resoconto di un viaggio finito | `js/ricordo.js` |
 | Password, chiave, file cifrati | `js/chiave.js` |
 | Elenco viaggi e chiavi di salvataggio | `js/viaggi.js` |
-| Colori, font, misure | `css/tokens.css` |
+| Colori, font, misure (tema «Notte sulla mappa», sempre scuro) | `css/tokens.css` |
+| I caratteri (Unbounded per i titoli, Geist per il testo) | `fonts/` (licenza libera OFL, dentro il progetto per l'offline) |
 | Colori e tratteggi dei mezzi | `css/tokens.css` (`--air`…`--horse`) + `js/util.js` (`MODE_DASH`) |
 | Aspetto generale (testata, barra, tipografia) | `css/base.css` |
 | Card, chip, bottoni, badge | `css/components.css` |
@@ -60,6 +61,7 @@ Ogni file fa una cosa sola. Per modificare qualcosa si tocca **un solo file**.
 | Ripulitura dei dati pubblici (computer e telefono) | `js/sanifica.js` |
 | Modifica dei dati dal telefono | `js/dati.js` |
 | Intro cinematografica | `js/cinematic.js` |
+| Voce accesa nella barra e sezioni che salgono scorrendo | `js/scena.js` |
 | Ornamenti kirghisi e uzbeki | `js/ornaments.js` + `css/ornaments.css` |
 | Documenti PDF cifrati | `js/docs.js` (i .bin li genera `tools/lock.mjs`) |
 | Trasloco dei dati vecchi (una volta sola) | `js/migra.js` |

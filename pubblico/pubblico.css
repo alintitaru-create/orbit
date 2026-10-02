@@ -6,49 +6,53 @@
 
 /* ── dove siamo adesso ── */
 .oggi{padding:28px 30px}
-.oggi .quando{font-size:13px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.06em}
-.oggi h2{font-size:clamp(26px,4.5vw,38px);font-weight:700;letter-spacing:-.025em;line-height:1.1;margin:6px 0 10px}
+.oggi .quando{font-size:13.5px;font-weight:600;color:var(--blue)}
+.oggi h2{font-family:var(--font-titoli);font-size:clamp(24px,4.2vw,36px);font-weight:500;letter-spacing:-.04em;line-height:1.1;margin:8px 0 12px;text-wrap:balance}
 .oggi .lead{color:var(--ink2);font-size:17px;line-height:1.55;max-width:62ch}
 .oggi .dove{
   display:inline-flex;align-items:center;gap:9px;margin-top:16px;
-  padding:9px 16px;border-radius:999px;background:color-mix(in srgb,var(--blue) 10%,transparent);
+  padding:9px 16px;border-radius:999px;background:color-mix(in srgb,var(--blue) 12%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--blue) 22%,transparent);
   font-size:15px;font-weight:600;
 }
 .oggi .dove .pt{width:9px;height:9px;border-radius:50%;background:var(--blue);flex:none;
-  box-shadow:0 0 0 4px color-mix(in srgb,var(--blue) 22%,transparent);animation:puls 2.4s ease-in-out infinite}
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--blue) 22%,transparent);animation:puls 2.4s ease-in-out 4}
 @keyframes puls{50%{box-shadow:0 0 0 9px color-mix(in srgb,var(--blue) 6%,transparent)}}
 
 /* ── barra di avanzamento del viaggio ── */
 .avanz{margin-top:16px}
 .avanz .barra{height:6px;border-radius:3px;background:var(--hair);overflow:hidden}
 .avanz .barra i{display:block;height:100%;border-radius:3px;
-  background:linear-gradient(90deg,var(--blue),var(--steppe));transition:width .8s ease}
+  background:linear-gradient(90deg,color-mix(in srgb,var(--blue) 50%,transparent),var(--blue));transition:width .8s var(--ease)}
 .avanz .testo{display:flex;justify-content:space-between;font-size:13px;color:var(--ink2);margin-top:8px}
 
 /* ── mappa ── */
 #mapWrap{position:relative;height:min(58vh,520px);border-radius:var(--radius);
-  overflow:hidden;box-shadow:var(--shadow-lg);background:#0b1a2b}
+  overflow:hidden;box-shadow:var(--bezel),var(--shadow-lg);background:#0b1a2b}
 #map{position:absolute;inset:0}
-#mapCtrl{position:absolute;right:14px;bottom:14px;z-index:10}
-.maplibregl-popup-content{font-family:var(--font)!important;border-radius:14px!important;padding:13px 15px!important}
+#mapCtrl{position:absolute;left:14px;bottom:14px;z-index:10}
+#mapCtrl .pill{
+  background:rgba(10,14,26,.74);color:#fff;
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.16),0 8px 20px -8px rgba(0,0,0,.6);
+}
 .pop h4{font-size:15.5px;font-weight:600;margin-bottom:4px;letter-spacing:-.01em}
-.pop p{font-size:13px;color:#3a3a3c;line-height:1.5}
+.pop p{font-size:13px;line-height:1.5}
 
 /* ── linea del tempo ── */
 .timeline{position:relative;padding-left:34px}
 .timeline::before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;
-  background:linear-gradient(180deg,var(--hair),var(--steppe),var(--hair))}
+  background:linear-gradient(180deg,var(--hair),color-mix(in srgb,var(--blue) 60%,transparent),var(--hair))}
 .gg{position:relative;margin-bottom:14px}
 .gg::before{content:"";position:absolute;left:-30px;top:24px;width:12px;height:12px;border-radius:50%;
-  background:var(--card);border:2.5px solid var(--hair)}
-.gg.passato::before{background:var(--hair);border-color:var(--hair)}
-.gg.oggi::before{background:var(--steppe);border-color:var(--steppe);
-  box-shadow:0 0 0 5px color-mix(in srgb,var(--steppe) 25%,transparent)}
+  background:var(--bg);border:2.5px solid rgba(255,255,255,.18)}
+.gg.passato::before{background:rgba(255,255,255,.18);border-color:transparent}
+.gg.oggi::before{background:var(--blue);border-color:var(--blue);
+  box-shadow:0 0 0 5px color-mix(in srgb,var(--blue) 25%,transparent),0 0 20px var(--blue)}
 .gg .card{padding:20px 22px}
 .gg.passato .card{opacity:.62}
-.gg .data{font-size:12.5px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.05em}
-.gg.oggi .data{color:var(--steppe)}
-.gg h3{font-size:20px;font-weight:600;letter-spacing:-.015em;margin:3px 0 8px}
+.gg .data{font-size:13px;font-weight:600;color:var(--ink2)}
+.gg.oggi .data{color:var(--blue)}
+.gg h3{font-family:var(--font-titoli);font-size:19px;font-weight:500;letter-spacing:-.035em;line-height:1.2;margin:5px 0 9px}
 .gg .lead{color:var(--ink2);font-size:15px;line-height:1.55;max-width:64ch}
 .gg .mezzi{display:flex;gap:7px;margin-top:12px;align-items:center;flex-wrap:wrap}
 .gg .mezzi .q{font-size:12.5px;color:var(--ink2)}
@@ -62,23 +66,23 @@
 .gg details[open] summary::after{content:" ↑"}
 .gg .see{list-style:none;columns:1;margin-top:4px}
 .gg .see li{padding:8px 0 8px 18px;border-top:1px solid var(--hair);position:relative;font-size:14px}
-.gg .see li::before{content:"";position:absolute;left:2px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--steppe)}
+.gg .see li::before{content:"";position:absolute;left:2px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--blue)}
 .gg .see li b{font-weight:600}
 .gg .see li small{display:block;color:var(--ink2);font-size:12.5px;margin-top:1px}
 
 /* ── foto e note arrivate dal viaggio ── */
 .scatti{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:14px}
-.scatti figure{background:var(--card2);border-radius:var(--radius-sm);overflow:hidden}
+.scatti figure{background:var(--glass);box-shadow:var(--ring);border-radius:18px;overflow:hidden}
 .scatti img,.scatti video{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#000}
 .scatti figcaption{padding:9px 12px 11px;font-size:13px;color:var(--ink2);line-height:1.45}
 .scatti figcaption:empty{display:none}
 #ultimi .scatti{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
 .nota{
-  margin-top:14px;padding:14px 18px;border-left:3px solid var(--steppe);
-  background:var(--card2);border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+  margin-top:14px;padding:15px 18px;
+  background:var(--glass);box-shadow:inset 3px 0 0 var(--blue),var(--ring);border-radius:4px var(--radius-sm) var(--radius-sm) 4px;
   font-size:15.5px;line-height:1.6;white-space:pre-wrap;
 }
-.gg.conRacconto::before{background:var(--steppe);border-color:var(--steppe)}
+.gg.conRacconto::before{background:var(--blue);border-color:var(--blue)}
 .gg.conRacconto.passato .card{opacity:1}
 
 @media(max-width:700px){

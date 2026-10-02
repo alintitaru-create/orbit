@@ -42,6 +42,8 @@
       v.nome.replace(/ e /,'<br>e ')+'.'+
       `<small>${pezzi.filter(Boolean).join(' · ')}</small>`;
     document.body.dataset.fase=Viaggi.fase(v);
+    /* la luce soffusa dietro la pagina prende il colore del viaggio */
+    if(v.colore) document.documentElement.style.setProperty('--glow1',v.colore);
 
     /* la firma del percorso accanto al titolo: la stessa della card
        sullo scaffale e dell'intro, così il viaggio si riconosce */

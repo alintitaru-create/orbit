@@ -3,70 +3,112 @@
    navigazione, struttura generale della pagina.
    ═══════════════════════════════════════════════════════════ */
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;scroll-padding-top:64px}
+html{scroll-behavior:smooth;scroll-padding-top:84px;background:var(--bg)}
+/* il fondo sta solo su <html>: se lo avesse anche <body>, coprirebbe
+   le luci qui sotto, che stanno dietro a tutto */
 body{
-  background:var(--bg);color:var(--ink);
-  font-family:var(--font);font-size:17px;line-height:1.5;
+  color:var(--ink);
+  font-family:var(--font);font-size:17px;line-height:1.55;
   -webkit-font-smoothing:antialiased;
+  font-feature-settings:"ss01";
   padding-bottom:env(safe-area-inset-bottom);
 }
-a{color:var(--blue);text-decoration:none}
+
+/* ── il fondo: due luci soffuse e una grana sottile ──
+   Stanno ferme mentre la pagina scorre (sono fisse, e senza clic),
+   così il telefono non le ridisegna a ogni movimento. La prima luce
+   prende il colore del viaggio aperto, se la pagina lo dichiara. */
+body::before{
+  content:"";position:fixed;inset:-10vmax;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(42vmax 34vmax at 12% 4%,color-mix(in srgb,var(--glow1) 26%,transparent),transparent 70%),
+    radial-gradient(38vmax 30vmax at 92% 38%,color-mix(in srgb,var(--glow2) 15%,transparent),transparent 70%),
+    radial-gradient(50vmax 30vmax at 40% 108%,color-mix(in srgb,var(--glow1) 12%,transparent),transparent 70%);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.07;mix-blend-mode:overlay;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+}
+
+a{color:var(--blue);text-decoration:none;text-underline-offset:3px}
 a:hover{text-decoration:underline}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:4px}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:6px}
 img{max-width:100%;display:block}
+::selection{background:color-mix(in srgb,var(--blue) 40%,transparent)}
 
 /* ── «Vai al contenuto»: compare solo arrivandoci col tasto Tab ── */
 .salta{
   position:fixed;left:12px;top:-60px;z-index:200;
-  background:var(--blue);color:#fff;font-size:14px;font-weight:600;
-  padding:10px 16px;border-radius:999px;transition:top .2s;
+  background:var(--ink);color:var(--on-accent);font-size:14px;font-weight:600;
+  padding:10px 16px;border-radius:999px;transition:top .3s var(--ease);
 }
 .salta:focus{top:12px;text-decoration:none}
 body.cine>.salta,body.locked>.salta{display:none}
 
-/* ── barra di navigazione ── */
+/* ── la barra di navigazione: un'isola di vetro che galleggia ──
+   Si stacca dal bordo in alto e prende solo la larghezza che le
+   serve. Sul telefono le voci scorrono di lato dentro l'isola.
+   La voce della sezione che si sta guardando si accende (js/scena.js). */
 nav{
-  position:sticky;top:0;z-index:100;
-  background:var(--nav);
-  -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
-  border-bottom:1px solid var(--hair);
+  position:sticky;top:12px;z-index:100;padding:12px 12px 0;margin-top:-12px;
+  pointer-events:none;
 }
 nav .in{
-  max-width:var(--wrap);margin:0 auto;padding:0 22px;
-  display:flex;align-items:center;gap:26px;height:52px;
-  overflow-x:auto;scrollbar-width:none;
+  pointer-events:auto;
+  width:max-content;max-width:min(100%,var(--wrap));margin:0 auto;
+  display:flex;align-items:center;gap:2px;height:50px;padding:0 6px 0 8px;
+  overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain;
+  border-radius:999px;background:var(--nav);
+  -webkit-backdrop-filter:saturate(160%) blur(18px);backdrop-filter:saturate(160%) blur(18px);
+  box-shadow:0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.08),var(--shadow);
 }
 nav .in::-webkit-scrollbar{display:none}
-nav .logo{font-weight:700;font-size:19px;letter-spacing:-.02em;flex:none}
-nav a{color:var(--ink2);font-size:14px;white-space:nowrap;transition:color .2s}
-nav a:hover{color:var(--ink);text-decoration:none}
+nav .logo{
+  font-family:var(--font-titoli);font-weight:600;font-size:14px;letter-spacing:-.02em;
+  color:var(--ink);flex:none;padding:7px 12px 7px 10px;margin-right:4px;
+  border-right:1px solid var(--hair);border-radius:0;
+}
+nav a{
+  color:var(--ink2);font-size:14px;white-space:nowrap;padding:7px 12px;border-radius:999px;
+  transition:color .25s var(--ease),background .25s var(--ease);
+}
+nav a:hover{color:var(--ink);text-decoration:none;background:rgba(255,255,255,.06)}
+nav a.qui{color:var(--ink);background:rgba(255,255,255,.11)}
 
 /* ── struttura sezioni ── */
 main{max-width:var(--wrap);margin:0 auto;padding:0 22px}
-section{padding:56px 0 8px}
+section{padding:88px 0 8px}
 section>h2{
-  font-size:clamp(30px,4.5vw,44px);font-weight:700;letter-spacing:-.02em;line-height:1.1;
-  margin-bottom:6px;
+  font-family:var(--font-titoli);
+  font-size:clamp(27px,4.4vw,46px);font-weight:500;letter-spacing:-.04em;line-height:1.05;
+  margin-bottom:10px;text-wrap:balance;
 }
-section>.sub{color:var(--ink2);font-size:17px;margin-bottom:26px;max-width:62ch}
+section>.sub{color:var(--ink2);font-size:16.5px;margin-bottom:28px;max-width:62ch;text-wrap:pretty}
+h3,h4{text-wrap:balance}
 
 /* ── testata ── */
-header.hero{max-width:var(--wrap);margin:0 auto;padding:64px 22px 8px;text-align:left}
+header.hero{max-width:var(--wrap);margin:0 auto;padding:84px 22px 12px;text-align:left}
 .hero h1{
-  font-size:clamp(44px,8vw,80px);font-weight:700;letter-spacing:-.025em;line-height:1.02;
+  font-family:var(--font-titoli);
+  font-size:clamp(34px,6.6vw,74px);font-weight:500;letter-spacing:-.045em;line-height:1;
+  overflow-wrap:break-word;
 }
 .hero h1 small{
-  display:block;font-size:clamp(19px,3vw,26px);font-weight:500;color:var(--ink2);
-  letter-spacing:-.01em;margin-top:10px;
+  display:block;font-family:var(--font);
+  font-size:clamp(17px,2.4vw,22px);font-weight:450;color:var(--ink2);
+  letter-spacing:-.01em;margin-top:18px;
 }
-.clocks{display:flex;gap:22px;margin-top:26px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.clocks{display:flex;gap:10px;margin-top:30px;overflow-x:auto;scrollbar-width:none;padding:8px 2px 4px}
 .clocks::-webkit-scrollbar{display:none}
-.clocks div{flex:none;font-size:13px;color:var(--ink2)}
-.clocks b{display:block;font-size:22px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.clocks div{
+  flex:none;font-size:12.5px;color:var(--ink2);
+  padding:9px 14px 10px;border-radius:16px;background:var(--glass);box-shadow:var(--ring);
+}
+.clocks b{display:block;font-size:20px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.01em;margin-top:1px}
 
 footer{
-  max-width:var(--wrap);margin:40px auto 0;padding:26px 22px 44px;
+  max-width:var(--wrap);margin:80px auto 0;padding:28px 22px 48px;
   border-top:1px solid var(--hair);color:var(--ink2);font-size:13px;line-height:1.7;
 }
 
@@ -74,7 +116,10 @@ footer{
 body.locked{overflow:hidden}
 body.locked>nav,body.locked>header,body.locked>main,body.locked>footer{display:none}
 #gate{
-  position:fixed;inset:0;z-index:900;background:var(--bg);
+  position:fixed;inset:0;z-index:900;
+  background:
+    radial-gradient(60vmax 40vmax at 50% 0%,color-mix(in srgb,var(--glow1) 30%,transparent),transparent 70%),
+    var(--bg);
   display:flex;align-items:center;justify-content:center;padding:24px;
 }
 /* serve perché la regola #gate qui sopra ha la meglio sull'attributo
@@ -82,17 +127,38 @@ body.locked>nav,body.locked>header,body.locked>main,body.locked>footer{display:n
 #gate[hidden]{display:none}
 #gate form{
   display:flex;flex-direction:column;align-items:center;gap:12px;
-  text-align:center;max-width:340px;width:100%;
+  text-align:center;max-width:360px;width:100%;
+  padding:34px 26px 26px;border-radius:32px;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+  box-shadow:var(--bezel),var(--shadow-lg);
+  -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
 }
-#gate img{border-radius:18px;box-shadow:var(--shadow-lg)}
-#gate h1{font-size:34px;font-weight:700;letter-spacing:-.02em}
-#gate p{color:var(--ink2);font-size:15px;line-height:1.5;margin-bottom:6px}
+#gate img{border-radius:18px;box-shadow:0 0 0 1px rgba(255,255,255,.1),var(--shadow-lg);margin-bottom:6px}
+#gate h1{font-family:var(--font-titoli);font-size:30px;font-weight:500;letter-spacing:-.04em}
+#gate p{color:var(--ink2);font-size:15px;line-height:1.5;margin-bottom:8px}
 #gate input{
-  font:inherit;font-size:17px;text-align:center;color:var(--ink);background:var(--card);
-  border:1px solid var(--hair);border-radius:12px;padding:13px 16px;width:100%;
+  font:inherit;font-size:17px;text-align:center;color:var(--ink);background:rgba(255,255,255,.05);
+  border:0;box-shadow:var(--ring);border-radius:16px;padding:14px 16px;width:100%;
 }
-#gate button{width:100%;min-height:46px;justify-content:center}
+#gate input:focus{outline:none;box-shadow:inset 0 0 0 1.5px var(--blue)}
+#gate button{width:100%;min-height:50px;justify-content:center}
 #gate small{color:var(--ink2);font-size:13px;min-height:18px}
+
+/* ── le sezioni che salgono (js/scena.js) ──
+   Alla fine resta "transform:none", non uno spostamento a zero:
+   uno spostamento, anche nullo, farebbe da cornice alla mappa
+   e l'intro a tutto schermo resterebbe chiusa dentro la sezione. */
+.scena main>section{opacity:0;transform:translateY(28px);
+  transition:opacity .9s var(--ease),transform 1.1s var(--ease)}
+.scena main>section.vista{opacity:1;transform:none}
+body.cine main>section{opacity:1!important;transform:none!important;transition:none!important}
+
+@media(max-width:700px){
+  nav{top:8px;padding:8px 10px 0;margin-top:-8px}
+  nav .in{height:46px}
+  header.hero{padding-top:56px}
+  section{padding:64px 0 6px}
+}
 
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
