@@ -31,9 +31,12 @@ const Checklist={
         <ul class="check-list">${items.map((t,k)=>{
           const on=!!this.state[L.id+'_'+k];
           const custom=k>=L.items.length;
-          return `<li class="${on?'on':''}" data-k="${k}"><span class="box">${on?'✓':''}</span><span class="txt">${t}</span>${custom?`<button class="del" data-k="${k}" title="Rimuovi">×</button>`:''}</li>`;
+          /* una casella vera dentro l'etichetta: si spunta anche da
+             tastiera (Tab e spazio) e il lettore di schermo la riconosce */
+          const nome=String(t).replace(/<[^>]*>/g,'').replace(/"/g,'&quot;');
+          return `<li class="${on?'on':''}" data-k="${k}"><label class="voce"><input type="checkbox" class="sr"${on?' checked':''}><span class="box" aria-hidden="true">${on?'✓':''}</span><span class="txt">${t}</span></label>${custom?`<button class="del" data-k="${k}" title="Rimuovi" aria-label="Rimuovi «${nome}»">×</button>`:''}</li>`;
         }).join('')}</ul>
-        <form class="check-add"><input type="text" placeholder="Aggiungi una voce…" maxlength="120"><button class="pill" type="submit">+</button></form>
+        <form class="check-add"><input type="text" placeholder="Aggiungi una voce…" maxlength="120" aria-label="Nuova voce per «${L.title}»" autocomplete="off"><button class="pill" type="submit" aria-label="Aggiungi la voce">+</button></form>
       </div>`;
     }).join('');
 
@@ -50,10 +53,16 @@ const Checklist={
           delete this.state[id+'_'+(items.length+1)];
           this.save(); this.render(); return;
         }
-        const li=e.target.closest('li'); if(!li) return;
-        const key=id+'_'+li.dataset.k;
-        this.state[key]=!this.state[key]; if(!this.state[key]) delete this.state[key];
+      };
+      /* la spunta: arriva dalla casella, sia col dito sia da tastiera.
+         Dopo il ridisegno il fuoco torna sulla stessa casella, così chi
+         usa la tastiera non riparte dall'inizio della pagina. */
+      card.querySelector('.check-list').onchange=e=>{
+        const li=e.target.closest('li'); if(!li||e.target.type!=='checkbox') return;
+        const k=li.dataset.k, key=id+'_'+k;
+        this.state[key]=e.target.checked; if(!this.state[key]) delete this.state[key];
         this.save(); this.render();
+        document.querySelector(`.check-card[data-l="${id}"] li[data-k="${k}"] input`)?.focus();
       };
       card.querySelector('.check-add').onsubmit=e=>{
         e.preventDefault();

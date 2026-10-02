@@ -3,6 +3,10 @@
    Cambiando questi valori cambia tutta la pagina.
    ═══════════════════════════════════════════════════════════ */
 :root{
+  /* campi, tendine, calendari e barre di scorrimento del browser
+     seguono il tema: al buio diventano scuri anche loro */
+  color-scheme:light dark;
+
   /* superfici e testo (tema chiaro) */
   --bg:#f5f5f7;            /* fondo pagina */
   --card:#ffffff;          /* card */

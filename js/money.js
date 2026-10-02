@@ -51,8 +51,8 @@ const Money={
     el.innerHTML=`
       <h3>Convertitore ${this.live?'<span class="badge green">tassi live</span>':'<span class="badge">tassi indicativi</span>'}</h3>
       <div class="fx-row">
-        <input type="number" id="fxAmt" value="10" min="0" inputmode="decimal">
-        <select id="fxCur">${this.valute().map(c=>`<option>${c}</option>`).join('')}</select>
+        <input type="number" id="fxAmt" value="10" min="0" inputmode="decimal" aria-label="Importo da convertire">
+        <select id="fxCur" aria-label="Valuta">${this.valute().map(c=>`<option>${c}</option>`).join('')}</select>
         <div id="fxOut" class="fx-out"></div>
       </div>
       ${altre.length?`<table class="fx-cheat">${altre.map(riga).join('')}</table>`
@@ -218,12 +218,12 @@ const Money={
       ${this.avvisoTolta()}
       ${this.gruppoHtml()}
       <form class="exp-add" id="expForm">
-        <input type="number" id="expAmt" placeholder="Importo" min="0" step="any" inputmode="decimal" required>
-        <select id="expCur">${this.valute().map(c=>`<option>${c}</option>`).join('')}</select>
-        <input type="text" id="expDesc" placeholder="Cosa (es. cena, taxi)" maxlength="60">
+        <input type="number" id="expAmt" placeholder="Importo" min="0" step="any" inputmode="decimal" required aria-label="Importo">
+        <select id="expCur" aria-label="Valuta della spesa">${this.valute().map(c=>`<option>${c}</option>`).join('')}</select>
+        <input type="text" id="expDesc" placeholder="Cosa (es. cena, taxi)" maxlength="60" aria-label="Cosa" autocomplete="off">
         <input type="date" id="expDay" value="${this.giornoPredefinito()}"
-               ${DAYS.length?`min="${DAYS[0].d}" max="${DAYS[DAYS.length-1].d}"`:''} title="Il giorno della spesa">
-        ${Viaggio.inGruppo()?`<select id="expChi" title="Chi ha pagato">${
+               ${DAYS.length?`min="${DAYS[0].d}" max="${DAYS[DAYS.length-1].d}"`:''} title="Il giorno della spesa" aria-label="Il giorno della spesa">
+        ${Viaggio.inGruppo()?`<select id="expChi" title="Chi ha pagato" aria-label="Chi ha pagato">${
           Viaggio.persone().map(p=>`<option${p===Viaggio.io()?' selected':''}>${this.esc(p)}</option>`).join('')
         }</select>
         <label class="exp-solo"><input type="checkbox" id="expSolo"> solo mia</label>`:''}
@@ -408,7 +408,7 @@ const Money={
         ` · ${this.fmt(c.totale-c.comune,2)} € di spese solo proprie, fuori dalla divisione`:''}</p>
       ${c.saldi.map(riga).join('')}
       <p class="conto-sync"><button class="lnk" id="expSync">Aggiorna con le spese degli altri</button>
-        <span class="muted conto-sync-stato"></span></p>
+        <span class="muted conto-sync-stato" role="status"></span></p>
       ${c.passaggi.length?`<div class="passaggi"><b>Per pareggiare</b>
         ${c.passaggi.map(p=>`<div class="passaggio">${this.esc(p.da)} <span>→</span> ${this.esc(p.a)}
           <b>${this.fmt(p.quanto,2)} €</b></div>`).join('')}</div>`
@@ -437,7 +437,7 @@ const Money={
           `<li><span class="txt">${e.desc||'—'}</span>${Viaggio.inGruppo()
              ? `<em class="chi">${this.esc(e.chi||Viaggio.io()||'?')}${e.solo?' · solo sua':''}</em>`:''}
            <b>${this.fmt(e.amt)} ${e.cur}</b><span class="muted">≈ ${this.fmt(this.toEur(e.amt,e.cur),2)} €</span>
-           <button class="del" data-t="${e.t}" title="Rimuovi">×</button></li>`).join('')}</ul>`;
+           <button class="del" data-t="${e.t}" title="Rimuovi" aria-label="Rimuovi ${this.esc(e.desc||'questa spesa')}">×</button></li>`).join('')}</ul>`;
     }).join('')+'</div>';
   },
 };

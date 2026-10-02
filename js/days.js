@@ -30,7 +30,7 @@ const Days={
     const box=document.getElementById('dayChips');
     box.innerHTML=DAYS.map((D,i)=>{
       const wx=Weather.of(D);
-      return `<button class="chip ${i===this.cur?'on':''}" data-i="${i}">
+      return `<button class="chip ${i===this.cur?'on':''}" data-i="${i}"${i===this.cur?' aria-current="true"':''}>
         <small>${D.lbl}${wx?` · ${Math.round(wx.min)}°/${Math.round(wx.max)}°`:''}</small>
         <b>${D.title.split(',')[0]}</b>
       </button>`;
@@ -73,8 +73,8 @@ const Days={
       <div class="pane" data-t="notte">${this.notteHtml(D)}</div>
       <div class="pane" data-t="percorso"><div class="tracce-box"></div></div>
       <div class="pane" data-t="diario">
-        <textarea class="diary" placeholder="Com'è andata oggi? La nota resta salvata in questo browser." rows="7"></textarea>
-        <div class="muted" style="font-size:12.5px;margin-top:6px" data-diary-state></div>
+        <textarea class="diary" placeholder="Com'è andata oggi? La nota resta salvata in questo browser." rows="7" aria-label="Diario di ${D.lbl}"></textarea>
+        <div class="muted" style="font-size:12.5px;margin-top:6px" data-diary-state role="status"></div>
         <label class="media-add">
           <input type="file" accept="image/*,video/*" multiple hidden>
           <span>Aggiungi foto o video</span>
@@ -106,7 +106,10 @@ const Days={
     /* viste */
     const seg=el.querySelector('.seg');
     const setTab=t=>{ this.tab=t;
-      seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+      seg.querySelectorAll('button').forEach(b=>{
+        b.classList.toggle('on',b.dataset.t===t);
+        b.setAttribute('aria-selected',b.dataset.t===t);   /* dice al lettore di schermo quale scheda è aperta */
+      });
       el.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.dataset.t===t));
       if(t==='foto') this.loadPhotos(D,el);
     };

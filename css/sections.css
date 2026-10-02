@@ -193,8 +193,16 @@ header.hero{position:relative}
 .check-list{list-style:none;margin-top:6px}
 .check-list li{
   display:flex;gap:12px;align-items:flex-start;padding:9px 4px;border-top:1px solid var(--hair);
-  font-size:14.5px;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  font-size:14.5px;
 }
+.check-list .voce{
+  display:flex;gap:12px;align-items:flex-start;flex:1;min-width:0;position:relative;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+/* la casella vera è nascosta alla vista ma non alla tastiera:
+   si vede quella disegnata, che prende l'anello quando ha il fuoco */
+.sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.check-list .voce input:focus-visible+.box{outline:2px solid var(--blue);outline-offset:2px}
 .check-list li .box{
   flex:none;width:22px;height:22px;border-radius:7px;border:1.5px solid var(--ink2);
   display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;
@@ -302,7 +310,8 @@ table.plain.frasi td:last-child{width:32%}
   background:transparent;border:0;border-bottom:1px solid var(--hair);
   padding:4px 0;border-radius:0;
 }
-.media-grid .cap:focus{outline:none;border-bottom-color:var(--blue)}
+/* senza anello, ma la linea sotto diventa blu e più spessa */
+.media-grid .cap:focus{outline:none;border-bottom-color:var(--blue);box-shadow:0 1px 0 var(--blue)}
 .media-grid .row{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:12px}
 .media-grid .row .muted{flex:1;color:var(--ink2)}
 .media-grid .lnk{font-size:12px;font-weight:600;color:var(--blue);text-decoration:none;background:none;padding:0}
@@ -348,7 +357,7 @@ table.plain.frasi td:last-child{width:32%}
   border:1px solid var(--hair);border-radius:var(--radius-sm);padding:12px 14px;
   white-space:pre;overflow-wrap:normal;overflow-x:auto;
 }
-.dati-testo:focus{outline:none;border-color:var(--blue)}
+.dati-testo:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 28%,transparent)}
 .dati-azioni{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
 .dati-azioni .pill{min-height:40px;box-shadow:none}
 .dati-azioni .muted{font-size:12.5px}
@@ -362,7 +371,7 @@ table.plain.frasi td:last-child{width:32%}
   color:var(--ink);background:var(--card);
   border:1px solid var(--hair);border-radius:10px;padding:11px 12px;
 }
-.pub-tok input:focus{outline:none;border-color:var(--blue)}
+.pub-tok input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 28%,transparent)}
 
 /* ── sincronizzazione fra i due telefoni ── */
 .sync-box{margin-top:14px;padding:18px 20px;border-radius:var(--radius-sm);

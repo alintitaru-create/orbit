@@ -114,7 +114,7 @@ const Media={
       return `<figure data-id="${it.id}">
         <div class="mw">${media}</div>
         <figcaption>
-          <input class="cap" value="${typeof Pubblica!=='undefined'?Pubblica.testo(it.caption):''}" placeholder="Aggiungi una didascalia…" maxlength="140">
+          <input class="cap" value="${typeof Pubblica!=='undefined'?Pubblica.testo(it.caption):''}" placeholder="Aggiungi una didascalia…" maxlength="140" aria-label="Didascalia" autocomplete="off">
           <div class="row">
             <span class="muted">${it.type==='video'?'video':'foto'} · ${this.peso(it.size)}</span>
             <a class="lnk" href="${url}" download="${(it.name||'orbit').replace(/"/g,'')}">Salva</a>

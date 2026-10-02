@@ -33,7 +33,7 @@ const Dati={
         <button class="pill" id="datiRipristina">Annulla le modifiche</button>
         <span class="muted" id="datiInfo"></span>
       </div>
-      <p class="dati-stato muted"></p>`;
+      <p class="dati-stato muted" role="status"></p>`;
 
     const ta=box.querySelector('.dati-testo');
     const info=box.querySelector('#datiInfo');

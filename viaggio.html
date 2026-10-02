@@ -37,7 +37,7 @@
     <input type="text" name="username" value="orbit" autocomplete="username" hidden>
     <input type="password" id="gatePw" placeholder="Password" autocomplete="current-password" enterkeyhint="go">
     <button class="pill on" type="submit">Apri</button>
-    <small id="gateErr"></small>
+    <small id="gateErr" role="status"></small>
   </form>
 </div>
 
@@ -66,11 +66,13 @@
     <a id="docDl" class="pill" download>Scarica</a>
     <button class="pill" id="docClose">Chiudi</button>
   </div>
-  <div id="docState"></div>
+  <div id="docState" role="status"></div>
   <iframe id="docFrame" title="Documento"></iframe>
 </div>
 
 <!-- ═══════════ NAVIGAZIONE ═══════════ -->
+<!-- invisibile finché non ci si arriva col tasto Tab: salta la barra -->
+<a class="salta" href="#oggi">Vai al contenuto</a>
 <nav>
   <div class="in">
     <a class="logo indietro" href="index.html" title="Torna allo scaffale">Orbit</a>
@@ -132,7 +134,7 @@
       <button class="pill" id="baseTgl">Satellite</button>
     </div>
   </div>
-  <div id="legenda" aria-label="Come leggere le linee della mappa"></div>
+  <div id="legenda" role="group" aria-label="Come leggere le linee della mappa"></div>
   <p id="mapHint">Un tocco su un punto apre descrizione e collegamenti a Google Maps, Yandex e 2GIS. Il bottone in basso gira fra tre mappe: strade, topografica (curve di livello e sentieri, utile per Ala Kul) e satellite.</p>
   <button class="pill" id="replayIntro">▶︎ Rivedi il viaggio dall'alto</button>
 </section>

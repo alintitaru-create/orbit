@@ -16,6 +16,15 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 :focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:4px}
 img{max-width:100%;display:block}
 
+/* ── «Vai al contenuto»: compare solo arrivandoci col tasto Tab ── */
+.salta{
+  position:fixed;left:12px;top:-60px;z-index:200;
+  background:var(--blue);color:#fff;font-size:14px;font-weight:600;
+  padding:10px 16px;border-radius:999px;transition:top .2s;
+}
+.salta:focus{top:12px;text-decoration:none}
+body.cine>.salta,body.locked>.salta{display:none}
+
 /* ── barra di navigazione ── */
 nav{
   position:sticky;top:0;z-index:100;

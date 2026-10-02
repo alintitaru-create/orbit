@@ -221,7 +221,7 @@ const Pubblica={
                  autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="text">
           <button class="pill on" type="button" id="tokSalva">Salva</button>
         </div>
-        <p class="pub-stato muted"></p>
+        <p class="pub-stato muted" role="status"></p>
         <p class="muted">Resta solo su questo dispositivo. La chiave si vede mentre la incolli,
         così ti accorgi subito se l'incollaggio non è riuscito.</p>`;
 
@@ -263,7 +263,7 @@ const Pubblica={
           <button class="pill on" id="pubVia" ${!items.length&&!nota?'disabled':''}>Pubblica la giornata</button>
           <button class="pill" id="pubTok">Cambia chiave</button>
         </div>
-        <p class="pub-stato muted"></p>`;
+        <p class="pub-stato muted" role="status"></p>`;
 
       const stato=box.querySelector('.pub-stato');
       box.querySelector('#pubTok').onclick=()=>{ this.setToken(''); this.mount(day,root); };

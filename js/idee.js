@@ -51,7 +51,7 @@ const Idee={
         <label>Un collegamento<input name="link" type="url" placeholder="https://…" maxlength="300"></label>
         <div class="azioni">
           <button class="pill on" type="submit">Aggiungi alla lavagna</button>
-          <span class="stato"></span>
+          <span class="stato" role="status"></span>
         </div>
       </form>`;
     this.lega();

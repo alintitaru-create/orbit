@@ -6,14 +6,16 @@
 :root{--kg-red:#e8112d;--steppe:#c9a96e}
 
 /* ── tunduk rotante ── */
-.tunduk{animation:tkSpin 90s linear infinite;flex:none}
+/* un giro solo e poi si ferma: un movimento che non finisce mai,
+   accanto al testo, distrae chi legge */
+.tunduk{animation:tkSpin 90s linear 1 forwards;flex:none}
 @keyframes tkSpin{to{transform:rotate(360deg)}}
 .tk-inline{display:inline-flex;vertical-align:-3px;margin-right:12px;opacity:.85}
 .girih.inline{display:inline-block;vertical-align:-5px;margin-right:12px;opacity:.85}
 
 /* ── fascia a corna d'ariete ── */
 .orn{height:24px;overflow:hidden;opacity:.55;margin:0}
-.orn svg{height:24px;width:200%;display:block;animation:ornSlide 70s linear infinite}
+.orn svg{height:24px;width:200%;display:block;animation:ornSlide 70s linear 1 forwards}
 @keyframes ornSlide{to{transform:translateX(-50%)}}
 
 /* ── riga ornamentale che si disegna ── */

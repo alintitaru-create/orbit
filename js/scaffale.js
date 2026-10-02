@@ -105,7 +105,7 @@ const Scaffale={
           <button class="pill on" type="submit">Crea il viaggio</button>
           <button class="pill" type="button" id="nuovoAnnulla">Annulla</button>
         </div>
-        <p class="stato"></p>
+        <p class="stato" role="status"></p>
       </form>
     </div>`;
   },
